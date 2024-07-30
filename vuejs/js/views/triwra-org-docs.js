@@ -9,6 +9,10 @@ import IADocList from './triwra-org-docs/IADocList.js'
 import TriwraDocList from './triwra-org-docs/TriwraDocList.js'
 import Blank from './blank.js';
 
+// import FormHr from '../components/triwra-org-docs/form-hr.js'
+// import FormIntegrity from '../components/triwra-org-docs/form-integrity.js'
+
+
 var app = createApp({
     components: {
         Header,
@@ -18,6 +22,7 @@ var app = createApp({
         IADocList,
         TriwraDocList,
         Blank,
+        
     },
     provide() {
         // use function syntax so that we can access `this`
@@ -106,16 +111,31 @@ app.use(
     }
     //{ unstyled: true }
 );
+app.use(
+    PrimeVue.DialogService
+),
 // app.component('Accordion', PrimeVue.Accordion);
 // app.component('AccordionPanel', PrimeVue.AccordionPanel);
 // app.component('AccordionHeader', PrimeVue.AccordionHeader);
 // app.component('AccordionContent', PrimeVue.AccordionContent);
-app.component('Card', PrimeVue.Card);
-
+//app.component('Card', PrimeVue.Card);
 
 app.component('DataTable', PrimeVue.DataTable);
 app.component('Column', PrimeVue.Column);
 app.component('ColumnGroup', PrimeVue.ColumnGroup);   // optional
 app.component('Row', PrimeVue.Row);                   // optional
+
+app.component('DatePicker', PrimeVue.DatePicker);
+app.component('FileUpload', PrimeVue.FileUpload);
+
+/** Dialog */
+app.component('Dialog', PrimeVue.Dialog);                   // optional
+app.component('DynamicDialog', PrimeVue.DynamicDialog);
+//app.component('DialogService', PrimeVue.DialogService);
+//app.component('useDialog', PrimeVue.UseDialog);
+
+// app.component('FormHr', FormHr);
+// app.component('FormIntegrity', FormIntegrity);
+
 
 app.mount('app')
