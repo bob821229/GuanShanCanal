@@ -118,7 +118,7 @@ app.use(
 // app.component('AccordionPanel', PrimeVue.AccordionPanel);
 // app.component('AccordionHeader', PrimeVue.AccordionHeader);
 // app.component('AccordionContent', PrimeVue.AccordionContent);
-//app.component('Card', PrimeVue.Card);
+app.component('Card', PrimeVue.Card);
 
 app.component('DataTable', PrimeVue.DataTable);
 app.component('Column', PrimeVue.Column);
