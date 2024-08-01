@@ -12,6 +12,11 @@ import FormAuthorized from '../../components/triwra-org-docs/form-authorized.js'
 import FormLicense from '../../components/triwra-org-docs/form-license.js'
 import FormPerformanceReport from '../../components/triwra-org-docs/form-performance-report.js'
 import FormCyberSecurity from '../../components/triwra-org-docs/form-cyber-security.js'
+import FormDirectorNSupervisorList from '../../components/triwra-org-docs/form-director-n-supervisor-list.js'
+import FormSingleFile from '../../components/triwra-org-docs/form-single-files.js'
+import FormMultipleFiles from '../../components/triwra-org-docs/form-multiple-files.js'
+import FormOther from '../../components/triwra-org-docs/form-other.js'
+
 const { computed } = Vue;
 
 export default {
@@ -22,6 +27,10 @@ export default {
         FormLicense, 
         FormPerformanceReport, 
         FormCyberSecurity, 
+        FormDirectorNSupervisorList,
+        FormSingleFile,
+        FormMultipleFiles,
+        FormOther,
     },
     provide(){
         return {
@@ -56,10 +65,10 @@ export default {
                 { organizationId: 7, name: '財團法人曹公農業水利研究發展基金會'},
                 { organizationId: 8, name: '財團法人水利研究發展中心'},
                 { organizationId: 9, name: '財團法人農田水利人力發展中心'},
-                { organizationId: 10, name: '全部政府捐助之財團法人'},
-                { organizationId: 11, name: '全部財團法人'},
-                { organizationId: 12, name: '主管機關'},
-                { organizationId: 13, name: '執行單位'},
+                // { organizationId: 10, name: '全部政府捐助之財團法人'},
+                // { organizationId: 11, name: '全部財團法人'},
+                // { organizationId: 12, name: '主管機關'},
+                // { organizationId: 13, name: '執行單位'},
             ], 
             visible: false,
             docList: [
@@ -91,9 +100,31 @@ export default {
                     //{formName: '', formType: 'form', actDescription: '', componentName: ''}, 
                 ], 
                 "21": [
+                    {formName: '法院發給之法人登記證書(影本)', formType: 'formCompanyRegistration', actDescription: '(財團法人法第12條第2項)', componentName: 'FormForReference'},
+                    {formName: '會計制度', formType: 'formAccounting', actDescription: '(財團法人法第24條第1項、農業財團法人會計處理及財務報告編製準則第5條第2項)', componentName: 'FormForReference'},
+                    {formName: '內部控制及稽核制度', formType: 'formAudit', actDescription: '(財團法人法第24條第2項)', componentName: 'FormForReference'},
+                    {formName: '決算書及監察報告書', formType: 'formFinancialStatement', actDescription: '(財團法人法第25條第2項、第24條第4項、農業財團法人會計處理及財務報告編製準則第19條第1項第2款第2目)', componentName: 'FormForReference'},
+                    {formName: '收支營運預計表與營運及資金運用計畫', formType: 'formOperationPlan', actDescription: '(財團法人法第24條第4項、農業財團法人會計處理及財務報告編製準則第19條第1項第2款第1目)', componentName: 'FormForReference'},
                     //{formName: '', formType: 'form', actDescription: '', componentName: ''}, 
-
-                ]
+                ], 
+                "11": [
+                    {formName: '董監事名單', formType: 'form', actDescription: '', componentName: 'FormDirectorNSupervisorList'}, 
+                    {formName: '法人明細表', formType: 'form', actDescription: '', componentName: 'FormSingleFile'}, 
+                    {formName: '政府代表補充資料表', formType: 'form', actDescription: '', componentName: 'FormSingleFile'}, 
+                    {formName: '效益評估表及轉投資情形表', formType: 'form', actDescription: '', componentName: 'FormSingleFile'}, 
+                    {formName: '退休軍公教人員再任表', formType: 'form', actDescription: '', componentName: 'FormSingleFile'}, 
+                    {formName: '預算綜計表', formType: 'form', actDescription: '', componentName: 'FormSingleFile'}, 
+                    {formName: '法人相關資料表', formType: 'form', actDescription: '', componentName: 'FormMultipleFiles'}, 
+                    {formName: '法人概況表及檢討情形表', formType: 'form', actDescription: '', componentName: 'FormMultipleFiles'}, 
+                    {formName: '董監事績效考核表', formType: 'form', actDescription: '', componentName: 'FormMultipleFiles'}, 
+                    {formName: '主管機關修正之行政監督報告', formType: 'form', actDescription: '', componentName: 'FormMultipleFiles'}, 
+                    {formName: '實地查核報告', formType: 'form', actDescription: '', componentName: 'FormMultipleFiles'}, 
+                    {formName: '其他', formType: 'form', actDescription: '', componentName: 'FormOther'}, 
+                    //{formName: '', formType: 'form', actDescription: '', componentName: ''}, 
+                ], 
+                "10": [
+                    //{formName: '', formType: 'form', actDescription: '', componentName: ''}, 
+                ], 
             }, 
             formGroupComponentList: [
                 {componentName: 'FormForApprove', formGroupName: '核定'}, 
@@ -182,15 +213,8 @@ export default {
         },
         editData: function (_data) {
             console.log(_data);
-            let comp = null;
-            switch (_data.componentName) {
-                case 'FormForApprove':
-                    comp = FormForApprove;    
-                    break;
-                case 'FormForReferenct':
-                    comp = FormForReference;
-                    break;
-            }
+            console.log(_data.formComponent);
+            let comp = eval(_data.formComponent);
             this.$dialog.open(
                 comp,
                 {
