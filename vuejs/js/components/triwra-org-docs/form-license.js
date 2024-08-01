@@ -14,7 +14,7 @@ import { getStorage,
 
 
 export default {
-  inject: ['dialogRef'],
+  inject: ['dialogRef', 'organizationList', 'user'],
   data() {
     return {
       firebase: {
@@ -44,10 +44,11 @@ export default {
   computed: {
     inputFormData() {
       this.formData = {
+        organizationId: null,
         formType: 'formType', 
-        formName: `人事制度`,
+        //formName: `人事制度`,
         actDescription: ``,
-        year: 2023,
+        year: null,
         verifiedAtByBoardOfDirectors: null,
         checkNumberByIA: null,
         checkedAtByIA: null,
@@ -163,25 +164,33 @@ export default {
   },
   template: `
   <form>
+      <!--{{user}} {{organizationList}}-->
       <!--<h3>{{inputFormData.formName}}</h3>-->
+      <!--  {{user}} {{organizationList}} -->
       <div class="mb-3">
         <label for="exampleInputPassword1" class="form-label">法令依據</label>
-        <input type="text" class="form-control"  id="" name="" v-model="inputFormData.actDescription">
+        <input type="text" class="form-control" id="" name="" v-model="inputFormData.actDescription">
       </div>
       <div class="mb-3">
         <label for="exampleInputPassword1" class="form-label">年度</label>
-        <input type="text" class="form-control"  id="" name="" v-model="inputFormData.year">
+        <input type="text" class="form-control" id="" name="" v-model="inputFormData.year">
+      </div>
+      <div class="mb-3" v-if="user.role < 20">
+        <label for="exampleInputPassword1" class="form-label">農田水利財團法人：</label>
+        <select class="form-select" v-model="inputFormData.organizationId">
+            <option v-for="(obj, idx) in organizationList" :value="obj.organizationId">{{obj.name}}</option>
+        </select>
       </div>
       <div class="mb-3">
         <label for="exampleInputPassword1" class="form-label">董事會通過日期</label>        
         <DatePicker v-model="verifiedAtByBoardOfDirectors" dateFormat="yy-mm-dd" />
       </div>
       <div class="mb-3">
-        <label for="exampleInputPassword1" class="form-label">主管機關備查字號</label>
-        <input type="text" class="form-control"  id="" name="" v-model="inputFormData.checkNumberByIA">
+        <label for="exampleInputPassword1" class="form-label">主管機關許可字號</label>
+        <input type="text" class="form-control" id="" name="" v-model="inputFormData.checkNumberByIA">
       </div>
       <div class="mb-3">
-        <label for="exampleInputPassword1" class="form-label">主管機關備查日期</label>
+        <label for="exampleInputPassword1" class="form-label">主管機關許可日期</label>
         <DatePicker v-model="checkedAtByIA" dateFormat="yy-mm-dd" />
       </div>
       <div class="mb-3">
@@ -235,7 +244,17 @@ export default {
           </div>
         </div>
       </div>
-      <button type="button" class="btn btn-primary" @click="submit">完成</button>
+      <div class="row">
+        <div class="col-md-12">
+          <p>備註：應一併上傳相關核定函附件</p>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-12">
+          <button type="button" class="btn btn-primary" @click="submit">完成</button>
+        </div>
+      </div>
+
     </form>
   `
 };
