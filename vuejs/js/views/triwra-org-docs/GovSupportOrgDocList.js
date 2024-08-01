@@ -10,6 +10,8 @@ import FormForApprove from '../../components/triwra-org-docs/form-for-approved.j
 import FormForReference from '../../components/triwra-org-docs/form-for-reference.js'
 import FormAuthorized from '../../components/triwra-org-docs/form-authorized.js'
 import FormLicense from '../../components/triwra-org-docs/form-license.js'
+import FormPerformanceReport from '../../components/triwra-org-docs/form-performance-report.js'
+import FormCyberSecurity from '../../components/triwra-org-docs/form-cyber-security.js'
 const { computed } = Vue;
 
 export default {
@@ -18,6 +20,8 @@ export default {
         FormForReference,
         FormAuthorized, 
         FormLicense, 
+        FormPerformanceReport, 
+        FormCyberSecurity, 
     },
     provide(){
         return {
@@ -33,7 +37,7 @@ export default {
         return {
             user: {
                 name: null, 
-                role: -1, 
+                role: 22, 
                 organizationId: -1,
             }, 
             userRoleList: [
@@ -61,23 +65,36 @@ export default {
             docList: [
 
             ],
-            formList: [
-                {formName: '人事制度', formType: 'formHR', actDescription: '(財團法人法第61條第1項)', componentName: 'FormForApprove'}, 
-                {formName: '會計制度', formType: 'formAccounting', actDescription: '(財團法人法第61條第1項、農業財團法人會計處理及財務報告編製準則第5條第2項)', componentName: 'FormForApprove'}, 
-                {formName: '內部控制及稽核制度', formType: 'formAudit', actDescription: '(財團法人法第61條第1項)', componentName: 'FormForApprove'}, 
-                {formName: '獎金支給基準', formType: 'formBonusPayment', actDescription: '(政府捐助之農業財團法人兼職費薪資及獎金支給原則第5點第1項)', componentName: 'FormForApprove'}, 
+            formListRole: {
+                "22": [
+                    {formName: '人事制度', formType: 'formHR', actDescription: '(財團法人法第61條第1項)', componentName: 'FormForApprove'}, 
+                    {formName: '會計制度', formType: 'formAccounting', actDescription: '(財團法人法第61條第1項、農業財團法人會計處理及財務報告編製準則第5條第2項)', componentName: 'FormForApprove'}, 
+                    {formName: '內部控制及稽核制度', formType: 'formAudit', actDescription: '(財團法人法第61條第1項)', componentName: 'FormForApprove'}, 
+                    {formName: '獎金支給基準', formType: 'formBonusPayment', actDescription: '(政府捐助之農業財團法人兼職費薪資及獎金支給原則第5點第1項)', componentName: 'FormForApprove'}, 
+    
+                    {formName: '法院發給之法人登記證書(影本)', formType: 'formCompanyRegistration', actDescription: '(財團法人法第12條第2項)', componentName: 'FormForReference'}, 
+                    {formName: '預算書', formType: 'formBudget', actDescription: '(財團法人法第25條第1項、農業財團法人會計處理及財務報告編製準則第19條第1項第1款第1目)', componentName: 'FormForReference'}, 
+                    {formName: '決算書及監察報告書', formType: 'formFinancialStatement', actDescription: '(財團法人法第25條第1項、第2項、農業財團法人會計處理及財務報告編製準則第19條第1項第1款第2目)', componentName: 'FormForReference'}, 
+                    {formName: '誠信經營規範', formType: 'formIntegrity', actDescription: '(財團法人法第24條第3項、農業財團法人應適用財團法人法第24條第2項之一定財產總額及誠信經營規範指導原則第10點第1項)', componentName: 'FormForReference'}, 
+    
+                    //{formName: '', formType: 'form', actDescription: '', componentName: ''}, 
+                    {formName: '董事、監察人之兼職費', formType: 'formDirectorNSupervisorWage', actDescription: '(財團法人法第53條第1項、政府捐助之農業財團法人兼職費薪資及獎金支給原則第3點)', componentName: 'FormAuthorized'}, 
+                    {formName: '董事長及其他從業人員之薪資支給基準', formType: 'formChairmanPayment', actDescription: '(財團法人法第53條第1項、政府捐助之農業財團法人兼職費薪資及獎金支給原則第4點)', componentName: 'FormAuthorized'}, 
+    
+                    {formName: '捐助章程', formType: 'formDonationCharter', actDescription: '(財團法人法第45條第2項第1款)', componentName: 'FormLicense'}, 
 
-                {formName: '法院發給之法人登記證書(影本)', formType: 'formCompanyRegistration', actDescription: '(財團法人法第12條第2項)', componentName: 'FormForReference'}, 
-                {formName: '預算書', formType: 'formBudget', actDescription: '(財團法人法第25條第1項、農業財團法人會計處理及財務報告編製準則第19條第1項第1款第1目)', componentName: 'FormForReference'}, 
-                {formName: '決算書及監察報告書', formType: 'formFinancialStatement', actDescription: '(財團法人法第25條第1項、第2項、農業財團法人會計處理及財務報告編製準則第19條第1項第1款第2目)', componentName: 'FormForReference'}, 
-                {formName: '誠信經營規範', formType: 'formIntegrity', actDescription: '(財團法人法第24條第3項、農業財團法人應適用財團法人法第24條第2項之一定財產總額及誠信經營規範指導原則第10點第1項)', componentName: 'FormForReference'}, 
+                    {formName: '行政監督報告與績效目標', formType: 'formPerformanceReport', actDescription: '(財團法人法第56條第1項、財團法人法第61條第2項、政府捐助之農業財團法人行政監督要點第2點第1項)', componentName: 'FormPerformanceReport'}, 
+                    
+                    {formName: '資通安全維護計畫', formType: 'formSecurityMaintenence', actDescription: '(資通安全管理法第17條第1項)', componentName: 'FormCyberSecurity'}, 
+                    {formName: '資通安全事件通報及應變管理程序', formType: 'formSecuritySOP', actDescription: '(資通安全管理法第18條第1項)', componentName: 'FormCyberSecurity'}, 
+                    {formName: '資通安全維護計畫實施情形自評表', formType: 'formSecurityPlanCheckList', actDescription: '', componentName: 'FormCyberSecurity'}, 
+                    //{formName: '', formType: 'form', actDescription: '', componentName: ''}, 
+                ], 
+                "21": [
+                    //{formName: '', formType: 'form', actDescription: '', componentName: ''}, 
 
-                //{formName: '', formType: 'form', actDescription: '', componentName: ''}, 
-                {formName: '董事、監察人之兼職費', formType: 'formDirectorNSupervisorWage', actDescription: '(財團法人法第53條第1項、政府捐助之農業財團法人兼職費薪資及獎金支給原則第3點)', componentName: 'FormAuthorized'}, 
-                {formName: '董事長及其他從業人員之薪資支給基準', formType: 'formChairmanPayment', actDescription: '(財團法人法第53條第1項、政府捐助之農業財團法人兼職費薪資及獎金支給原則第4點)', componentName: 'FormAuthorized'}, 
-
-                {formName: '捐助章程', formType: 'formDonationCharter', actDescription: '(財團法人法第45條第2項第1款)', componentName: 'FormLicense'}, 
-            ], 
+                ]
+            }, 
             formGroupComponentList: [
                 {componentName: 'FormForApprove', formGroupName: '核定'}, 
                 {componentName: 'FormForReference', formGroupName: '備查'}, 
@@ -91,6 +108,7 @@ export default {
                 {componentName: 'FormMultipleFiles', formGroupName: '多個彙整檔'}, 
                 {componentName: 'FormOther', formGroupName: '其他'}, 
             ], 
+            formList: [],
             firebase: {
                 app: null,
                 db: null,
@@ -100,6 +118,8 @@ export default {
     },
     computed: {
         formListData(){
+            this.formList = this.formListRole[`${this.user.role}`];
+            console.log('formListData', this.formList);
             this.formList.forEach(obj => {
                 obj.comp = eval(obj.componentName)
             });
