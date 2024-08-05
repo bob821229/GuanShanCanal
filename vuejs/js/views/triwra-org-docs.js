@@ -3,10 +3,11 @@ const { createApp, ref } = Vue;
 //import { definePreset } from '@primevue/themes';
 import Header from '../components/header.js'
 import Footer from '../components/footer.js'
-import ComSupportOrgDocList from './triwra-org-docs/ComSupportOrgDocList.js'
-import GovSupportOrgDocList from './triwra-org-docs/GovSupportOrgDocList.js'
-import IADocList from './triwra-org-docs/IADocList.js'
-import TriwraDocList from './triwra-org-docs/TriwraDocList.js'
+// import ComSupportOrgDocList from './triwra-org-docs/ComSupportOrgDocList.js'
+// import GovSupportOrgDocList from './triwra-org-docs/GovSupportOrgDocList.js'
+// import IADocList from './triwra-org-docs/IADocList.js'
+// import TriwraDocList from './triwra-org-docs/TriwraDocList.js'
+import DocList from './triwra-org-docs/DocList.js'
 import Blank from './blank.js';
 
 // import FormHr from '../components/triwra-org-docs/form-hr.js'
@@ -17,10 +18,11 @@ var app = createApp({
     components: {
         Header,
         Footer,
-        ComSupportOrgDocList,
-        GovSupportOrgDocList,
-        IADocList,
-        TriwraDocList,
+        // ComSupportOrgDocList,
+        // GovSupportOrgDocList,
+        // IADocList,
+        // TriwraDocList,
+        DocList,
         Blank,
         
     },
@@ -52,10 +54,11 @@ var app = createApp({
                     siteName: `農田水利財團法人專區`
                 },
                 leftMenuList: [
-                    { caption: '政府捐助之財團法人', url: null, component: 'GovSupportOrgDocList' },
-                    { caption: '民間捐助之財團法人', url: null, component: 'ComSupportOrgDocList' },
-                    { caption: '主管機關', url: null, component: 'IADocList' },
-                    { caption: '執行單位', url: null, component: 'TriwraDocList' },
+                    // { caption: '政府捐助之財團法人', url: null, component: 'GovSupportOrgDocList' },
+                    // { caption: '民間捐助之財團法人', url: null, component: 'ComSupportOrgDocList' },
+                    // { caption: '主管機關', url: null, component: 'IADocList' },
+                    // { caption: '執行單位', url: null, component: 'TriwraDocList' },
+                    { caption: '文件上傳', url: null, component: 'DocList' },
                 ]
             },
         }
