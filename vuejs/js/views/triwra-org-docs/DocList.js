@@ -1,10 +1,10 @@
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js'
-import {
-    getDatabase, ref, onValue, set, push
-    , query
-    , equalTo
-    , orderByChild
-} from "https://www.gstatic.com/firebasejs/10.12.4/firebase-database.js";
+// import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js'
+// import {
+//     getDatabase, ref, onValue, set, push
+//     , query
+//     , equalTo
+//     , orderByChild
+// } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-database.js";
 
 import FormForApprove from '../../components/triwra-org-docs/form-for-approved.js'
 import FormForReference from '../../components/triwra-org-docs/form-for-reference.js'
@@ -17,7 +17,10 @@ import FormSingleFile from '../../components/triwra-org-docs/form-single-files.j
 import FormMultipleFiles from '../../components/triwra-org-docs/form-multiple-files.js'
 import FormOther from '../../components/triwra-org-docs/form-other.js'
 
+import {firebaseDataAccess} from "../../firebaseDataAccess.js"
+
 const { computed } = Vue;
+const { FilterMatchMode } = PrimeVue;//from '@primevue/core/api';
 
 export default {
     components: {
@@ -40,8 +43,14 @@ export default {
     }, 
     mounted() {
         this.init();
-        this.loadData();
+        //this.loadData();
+        
     },
+    watch: {
+        user: function(n, o){
+            this.initDataAccess();
+        }
+    }, 
     data() {
         return {
             user: {
@@ -140,11 +149,24 @@ export default {
                 {componentName: 'FormOther', formGroupName: '其他'}, 
             ], 
             formList: [],
-            firebase: {
-                app: null,
-                db: null,
-            },
+            // firebase: {
+            //     app: null,
+            //     db: null,
+            // },
             form2New: ``,
+            dataAccess: null, 
+
+
+            filters: {
+                global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+                // name: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+                // 'country.name': { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+                // representative: { value: null, matchMode: FilterMatchMode.IN },
+                // status: { value: null, matchMode: FilterMatchMode.EQUALS },
+                // verified: { value: null, matchMode: FilterMatchMode.EQUALS }
+            }
+
+
         }
     },
     computed: {
@@ -157,6 +179,19 @@ export default {
             return this.formList;
         }, 
         userData(){
+            switch(this.user.role){
+                case 10: 
+                    this.user.organization = '台農院';
+                    break;
+                    case 11: 
+                        this.user.organization = '農水署';
+                        break;
+                        default: 
+                            if(this.user.organizationId != -1){
+                                this.user.organization = (this.organizationList.filter(f=> f.organizationId == this.user.organizationId))[0].name;
+                            }
+                            break;
+            }
             return this.user;
         }, 
         docListData(){
@@ -173,6 +208,10 @@ export default {
     methods: {
         newForm: function () {
             let c = this.form2New;
+            if(c == ``){
+                alert('請選擇要新增的文件類別');
+                return;
+            }
             this.$dialog.open(
                 c.comp,
                 {
@@ -195,21 +234,16 @@ export default {
             );
         },
         init: function () {
-            let firebaseConfig = {
-                // // ...
-                // // The value of `databaseURL` depends on the location of the database
-                // databaseURL: "https://vue-app-test-14344-default-rtdb.asia-southeast1.firebasedatabase.app/",
-                apiKey: "AIzaSyBtxn1Mu6lFTmXi61o5_91gBSvNT26RBho",
-                authDomain: "vue-app-test-14344.firebaseapp.com",
-                databaseURL: "https://vue-app-test-14344-default-rtdb.asia-southeast1.firebasedatabase.app",
-                projectId: "vue-app-test-14344",
-                storageBucket: "vue-app-test-14344.appspot.com",
-                messagingSenderId: "686022331262",
-                appId: "1:686022331262:web:d6d6311a79702fb095c12f"
-            };
-            this.firebase.app = initializeApp(firebaseConfig);
 
             this.user = this.userRoleList[0];
+            this.initDataAccess();
+        },
+        initDataAccess: function(){
+            this.dataAccess = firebaseDataAccess(this.user);
+            this.dataAccess.loadData((_list) => {
+                this.docList = _list;
+            });
+            console.log('main app', this.docList);
         },
         editData: function (_data) {
             console.log(_data);
@@ -235,40 +269,15 @@ export default {
         },
         updateData: function (opt) {
             let formData = opt.data;
-            if(formData == null){
-                return;
-            }
-            console.log('udpateData', formData);
-            //return;
-            let db = getDatabase(this.firebase.app);
-
-            //let formData = this.inputFormData;
-
-            let p = null;
-            formData.updateDatetimeUtc = dayjs().format('YYYY-MM-DD HH:mm:ss');
-            //formData.organizationId = this.user.organizationId;
-            if(formData.organizationId == null || formData.organizationId == undefined) formData.organizationId = this.user.organizationId;
-            if (formData.key == null) {
-                formData.ifEnable = true;
-                p = push(ref(db, 'organizationDocList'), formData);
-            } else {
-                p = set(ref(db, `organizationDocList/${formData.key}`), formData);
-            }
-            p.then(
-                (_para) => {
-                    console.log('insert/update successfully', _para);
-                }
-            ).catch(
-                (err) => {
-                    console.log('errors on insert/update ', err);
-                }
-            ).finally(
+            let p = this.dataAccess.updateData(formData);
+            p.finally(
                 () => {
                     console.log('update finally')
-                    this.loadData();
+                    this.dataAccess.loadData((_list) => {
+                        this.docList = _list;
+                    });
                 }
             );
-
         },
         deleteData: function (data) {
             //alert('a');
@@ -276,72 +285,65 @@ export default {
                 return false;
             }
             console.log(data);
-            //return;
-            let db = getDatabase(this.firebase.app);
-            data.updateDatetimeUtc = dayjs().format('YYYY-MM-DD HH:mm:ss');
-            data.ifEnable = false;
-            let p = set(ref(db, `organizationDocList/${data.key}`), data);
-            p.then(
-                (_para) => {
-                    console.log('delete(udpate) successfully', _para);
-                }
-            ).catch(
-                (err) => {
-                    console.log('errors on delete(udpate) ', err);
-                }
-            ).finally(
+            let p = this.dataAccess.deleteData(data);
+            p.finally(
                 () => {
                     console.log('finally')
-                    this.loadData();
+                    this.dataAccess.loadData((_list) => {
+                        this.docList = _list;
+                    });
                 }
             );
-        },
-        loadData: function () {
-            this.docList.length = 0;
-            let db = getDatabase(this.firebase.app);
-            let databaseRef = ref(db, '/organizationDocList');
-            //let q = query(databaseRef, )
-            databaseRef = query(databaseRef, orderByChild('ifEnable'), equalTo(true));
-
-            onValue(databaseRef, (snapshot) => {
-                snapshot.forEach((childSnapshot) => {
-                    const childKey = childSnapshot.key;
-                    const childData = childSnapshot.val();
-                    // ...
-                    console.log(childKey, childData);
-
-                    // let obj = {};
-                    // obj[childKey] = childData;
-                    childData.key = childKey;
-                    this.docList.push(childData);
-                });
-                // console.log(snapshot);
-            }, {
-                onlyOnce: true
-            });
         },
     },
     template: `
         <div class="container">
             <h1 class="mt-5"></h1>
             <p class="lead">notes</p>
-            <div class="row">
-                <select v-model="form2New" class="form-select" v-model="user">
-                    <option v-for="(obj, idx) in userRoleList" :value="obj">{{obj.name}}</option>
-                </select>
-                目前摸擬：{{userData.name}}, {{userData.role}}, {{userData.organizationId}}
+            <div class="row mb-2">
+                <div class="input-group">
+                    <label class="input-group-text" for="inputGroupSelect01">目前摸擬</label>
+                    <select v-model="form2New" class="form-select" v-model="user">
+                        <option v-for="(obj, idx) in userRoleList" :value="obj">{{obj.name}}</option>
+                    </select>
+                    <label class="input-group-text">{{userData.name}}, {{userData.organization}}</label>
+                    <!--, {{userData.role}}, {{userData.organizationId}}-->
+                </div>
+
             </div>
 
-            <div class="row">
-                <select v-model="form2New" class="form-select">
-                    <option v-for="(obj, idx) in formListData" :value="obj">{{obj.formName}}</option>
-                </select>
-                <a @click="newForm">新增</a>
+            <div class="row mb-2">
+                <div class="input-group">
+                    <select v-model="form2New" class="form-select">
+                        <option v-for="(obj, idx) in formListData" :value="obj">{{obj.formName}}</option>
+                    </select>
+                    <a class="btn btn-outline-secondary" @click="newForm">新增文件</a>
+                </div>
+
             </div>
 
             <div class="row">
                 <div class="col-md-12">
-                    <DataTable :value="docListData" tableStyle="min-width: 50rem">
+                    <DataTable :value="docListData" tableStyle="min-width: 50rem"
+                        :loading="loading"
+                        v-model:filters="filters"
+                        :globalFilterFields="['formName', 'organization', 'verifiedAtByBoardOfDirectors', 'organization', 'fromGroupName']">
+
+                        <template #header>
+                            <div class="flex justify-end">
+                                <input type="text" v-model="filters['global'].value" class="form-control w-25" placeholder="關鍵字查詢">
+                            </div>
+                        </template>
+                        <template #empty> 查無資料 </template>
+                        <template #loading> 載入資料中… </template>
+
+                        <Column header="" 
+                            headerStyle="width: 100px; text-align: center" bodyStyle="text-align: center; overflow: visible">
+                            <template #body="slotProps">
+                                <a @click="editData(slotProps.data)" class="mx-2"><i class="fa-solid fa-pen"></i> </a>
+                                <a @click="deleteData(slotProps.data)" class="mx-2"> <i class="fa-solid fa-trash text-danger"></i> </a>
+                            </template>
+                        </Column>
                         <Column field="year" header="年度"></Column>
                         <Column field="formName" header="表單類別"></Column>
                         <Column field="organization" header="農田水利財團法人" v-if="userData.role < 20"></Column>
@@ -362,12 +364,6 @@ export default {
                             </template>
                         </Column>
 
-                        <Column header="編輯">
-                            <template #body="slotProps">
-                                <a @click="editData(slotProps.data)" class="mx-2"><i class="fa-solid fa-pen"></i> </a>
-                                <a @click="deleteData(slotProps.data)" class="mx-2"> <i class="fa-solid fa-trash text-danger"></i> </a>
-                            </template>
-                        </Column>
                         <Column field="updateDatetimeUtc" header="最後更新時間"></Column>
                         
                     </DataTable>        
