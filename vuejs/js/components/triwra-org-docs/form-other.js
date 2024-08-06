@@ -1,10 +1,5 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js'
-// import {
-//   getDatabase, ref as dbRef, onValue, set, push
-//   , query
-//   , equalTo
-//   , orderByChild
-// } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-database.js";
+
 import { getStorage, 
   ref as storageRef, 
   uploadBytesResumable, 

@@ -18,6 +18,7 @@ import FormMultipleFiles from '../../components/triwra-org-docs/form-multiple-fi
 import FormOther from '../../components/triwra-org-docs/form-other.js'
 
 import {firebaseDataAccess} from "../../firebaseDataAccess.js"
+import {fileUploader} from "../../fileUploader.js"
 
 const { computed } = Vue;
 const { FilterMatchMode } = PrimeVue;//from '@primevue/core/api';
@@ -39,6 +40,7 @@ export default {
         return {
             organizationList: this.organizationList, 
             user: computed(() => this.user),
+            fileUploader:  computed(() => this.fileUploader),
         }
     }, 
     mounted() {
@@ -155,7 +157,7 @@ export default {
             // },
             form2New: ``,
             dataAccess: null, 
-
+            fileUploader: null, 
 
             filters: {
                 global: { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -245,6 +247,9 @@ export default {
             });
             console.log('main app', this.docList);
         },
+        initFileUploader: function(){
+            this.fileUploader = fileUploader();
+        }, 
         editData: function (_data) {
             console.log(_data);
             console.log(_data.formComponent);
