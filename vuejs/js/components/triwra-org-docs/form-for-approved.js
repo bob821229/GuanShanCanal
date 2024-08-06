@@ -1,16 +1,14 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js'
-// import {
-//   getDatabase, ref as dbRef, onValue, set, push
-//   , query
-//   , equalTo
-//   , orderByChild
-// } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-database.js";
+
 import { getStorage, 
   ref as storageRef, 
   uploadBytesResumable, 
   getDownloadURL, 
   //listAll, 
   deleteObject} from "https://www.gstatic.com/firebasejs/10.12.4/firebase-storage.js"
+
+const { useVuelidate } = Vuelidate;
+const { required, email, helpers } = VuelidateValidators;
 
 
 export default {
@@ -25,6 +23,26 @@ export default {
       formData: null, 
       verifiedAtByBoardOfDirectors: null, 
       checkedAtByIA: null, 
+    }
+  },
+  setup() {
+      return { v$: useVuelidate() }
+  },
+  validations() {
+    return {
+      formData: {
+            // email: { 
+            //     required: helpers.withMessage('必填', required), 
+            //     email: helpers.withMessage('Email格式不正確', email) },
+            year: { required: helpers.withMessage('必填', required) },
+            organizationId: { ifValidOrganizationId: helpers.withMessage('必填', this.ifValidOrganizationId) },
+            checkNumberByIA: { required: helpers.withMessage('必填', required) },
+            attachmentList: { 
+                ifAnyItem: helpers.withMessage('至少上傳一個檔案', this.ifAnyCollection)
+            },
+      }, 
+      verifiedAtByBoardOfDirectors: { required: helpers.withMessage('必填', required) },
+      checkedAtByIA: { required: helpers.withMessage('必填', required) },
     }
   },
   watch: {
@@ -66,9 +84,35 @@ export default {
     }
   },
   methods: {
-    submit: function () {
+    ifAnyCollection: function(v){
+      return (v.length > 0);
+    }, 
+    ifValidOrganizationId: function(value){
+      console.log('ifValidOrganizationId', this.user.organizationId);
+      console.log('ifValidOrganizationId', value, (value != null))
+      if(this.user.organizationId < 0){
+        return(value != null);
+      }else{
+        return true;
+      }
+    },
+    async submitForm (e) {
+      e.preventDefault();
+      const isFormCorrect = await this.v$.$validate()
+      // you can show some extra alert to the user or just leave the each field to show it's `$errors`.
+      if (!isFormCorrect) return
+      // actually submit form
+    }, 
+
+    submit: async function (e) {
+      e.preventDefault();
       
-      console.log(this.inputFormData);
+      let isFormCorrect = await this.v$.$validate()
+      if(!isFormCorrect){
+        alert('請完整填寫表單');
+        return;
+      }
+      console.log(isFormCorrect, this.inputFormData);
       this.inputFormData.verifiedAtByBoardOfDirectors = dayjs(this.verifiedAtByBoardOfDirectors).format('YYYY-MM-DD');
       this.inputFormData.checkedAtByIA = dayjs(this.checkedAtByIA).format('YYYY-MM-DD');
 
@@ -174,24 +218,49 @@ export default {
       <div class="mb-3">
         <label for="exampleInputPassword1" class="form-label">年度</label>
         <input type="text" class="form-control" id="" name="" v-model="inputFormData.year">
+        <p v-for="error of v$.formData.year.$errors"
+            :key="error.$uid" class="text-danger">
+            <strong>{{ error.$message }}</strong>
+        </p>
       </div>
       <div class="mb-3" v-if="user.role < 20">
         <label for="exampleInputPassword1" class="form-label">農田水利財團法人：</label>
         <select class="form-select" v-model="inputFormData.organizationId">
             <option v-for="(obj, idx) in organizationList" :value="obj.organizationId">{{obj.name}}</option>
         </select>
+        <p v-for="error of v$.formData.organizationId.$errors"
+            :key="error.$uid" class="text-danger">
+            <strong>{{ error.$message }}</strong>
+        </p>
       </div>
       <div class="mb-3">
         <label for="exampleInputPassword1" class="form-label">董事會通過日期</label>        
-        <DatePicker v-model="verifiedAtByBoardOfDirectors" dateFormat="yy-mm-dd" />
+        <DatePicker v-model="verifiedAtByBoardOfDirectors" dateFormat="yy-mm-dd">
+          <template #date="slotProps">
+            <strong v-if="slotProps.date.day > 10 && slotProps.date.day < 15" style="text-decoration: line-through">{{ slotProps.date.day }}</strong>
+            <template v-else>{{ slotProps.date.day }}</template>
+          </template>
+        </DatePicker>
+        <p v-for="error of v$.verifiedAtByBoardOfDirectors.$errors"
+            :key="error.$uid" class="text-danger">
+            <strong>{{ error.$message }}</strong>
+        </p>
       </div>
       <div class="mb-3">
         <label for="exampleInputPassword1" class="form-label">主管機關核定字號</label>
         <input type="text" class="form-control" id="" name="" v-model="inputFormData.checkNumberByIA">
+        <p v-for="error of v$.formData.checkNumberByIA.$errors"
+            :key="error.$uid" class="text-danger">
+            <strong>{{ error.$message }}</strong>
+        </p>
       </div>
       <div class="mb-3">
         <label for="exampleInputPassword1" class="form-label">主管機關核定日期</label>
-        <DatePicker v-model="checkedAtByIA" dateFormat="yy-mm-dd" />
+        <DatePicker v-model="checkedAtByIA" dateFormat="yy-mm-dd" input-class="form-control"/>
+        <p v-for="error of v$.checkedAtByIA.$errors"
+            :key="error.$uid" class="text-danger">
+            <strong>{{ error.$message }}</strong>
+        </p>
       </div>
       <div class="mb-3">
         <label for="exampleInputPassword1" class="form-label">附件</label>
@@ -242,6 +311,11 @@ export default {
             </Card>  
 
           </div>
+
+          <p v-for="error of v$.formData.attachmentList.$errors"
+              :key="error.$uid" class="text-danger">
+              <strong>{{ error.$message }}</strong>
+          </p>
         </div>
       </div>
       <div class="row">
