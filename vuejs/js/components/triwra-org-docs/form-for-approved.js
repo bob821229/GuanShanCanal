@@ -1,16 +1,10 @@
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js'
-
-
-
 const { useVuelidate } = Vuelidate;
 const { required, email, helpers } = VuelidateValidators;
-
-import {fileUploader} from "../../fileUploader.js"
 
 
 export default {
   inject: ['dialogRef', 'organizationList', 'user'
-    //, 'fileUploader'
+    , 'fileUploader'
   ],
   data() {
     return {
@@ -22,7 +16,6 @@ export default {
       formData: null, 
       verifiedAtByBoardOfDirectors: null, 
       checkedAtByIA: null, 
-      fileUploader: null,
     }
   },
   setup() {
@@ -126,13 +119,12 @@ export default {
       
     },
     onMyUpload: async function(event) {
-      //console.log(this.fileUploader);
+      console.log(this.fileUploader);
       console.log(event);
       console.log('onUpload');
       
       let _file = event.files[0];
       
-      this.fileUploader = fileUploader();
       this.fileUploader.upload(_file, 
         (downloadURL, fileAlias) => {
           console.log('File uploaded by file uploader available at', downloadURL);

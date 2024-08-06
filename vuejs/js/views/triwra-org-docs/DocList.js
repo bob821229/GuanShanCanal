@@ -45,8 +45,6 @@ export default {
     }, 
     mounted() {
         this.init();
-        //this.loadData();
-        
     },
     watch: {
         user: function(n, o){
@@ -158,7 +156,6 @@ export default {
             form2New: ``,
             dataAccess: null, 
             fileUploader: null, 
-
             filters: {
                 global: { value: null, matchMode: FilterMatchMode.CONTAINS },
                 // name: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
@@ -236,9 +233,9 @@ export default {
             );
         },
         init: function () {
-
             this.user = this.userRoleList[0];
             this.initDataAccess();
+            this.initFileUploader();
         },
         initDataAccess: function(){
             this.dataAccess = firebaseDataAccess(this.user);
