@@ -337,6 +337,14 @@ export default {
             <div class="row">
                 <div class="col-md-12">
                     <DataTable :value="docListData" tableStyle="min-width: 50rem"
+                        
+                        sortField="updateDatetimeUtc"
+                        :sortOrder="-1"
+
+                        paginator 
+                        :rows="10" 
+                        :rowsPerPageOptions="[10, 20, 50]"
+                    
                         :loading="loading"
                         v-model:filters="filters"
                         :globalFilterFields="['formName', 'organization', 'verifiedAtByBoardOfDirectors', 'organization', 'fromGroupName']">
@@ -352,20 +360,20 @@ export default {
                         <Column header="" 
                             headerStyle="width: 100px; text-align: center" bodyStyle="text-align: center; overflow: visible">
                             <template #body="slotProps">
-                                <a @click="editData(slotProps.data)" class="mx-2"><i class="fa-solid fa-pen"></i> </a>
-                                <a @click="deleteData(slotProps.data)" class="mx-2"> <i class="fa-solid fa-trash text-danger"></i> </a>
+                                <a @click="editData(slotProps.data)" class="mx-2" href="#"><i class="fa-solid fa-pen"></i> </a>
+                                <a @click="deleteData(slotProps.data)" class="mx-2" href="#"> <i class="fa-solid fa-trash text-danger"></i> </a>
                             </template>
                         </Column>
-                        <Column field="year" header="年度"></Column>
-                        <Column field="formName" header="表單類別"></Column>
-                        <Column field="organization" header="農田水利財團法人" v-if="userData.role < 20"></Column>
-                        <Column field="verifiedAtByBoardOfDirectors" header="董事會通過日期"></Column>
+                        <Column sortable field="year" header="年度"></Column>
+                        <Column sortable field="formName" header="表單類別"></Column>
+                        <Column sortable field="organization" header="農田水利財團法人" v-if="userData.role < 20"></Column>
+                        <Column sortable field="verifiedAtByBoardOfDirectors" header="董事會通過日期"></Column>
                         <Column header="法令依據">
                             <template #body="slotProps">
                                 {{slotProps.data.actDescription}}
                             </template>
                         </Column>
-                        <Column field="fromGroupName" header="性質"></Column>
+                        <Column sortable field="fromGroupName" header="性質"></Column>
                         <Column header="附件">
                             <template #body="slotProps">
                                 <ul>
@@ -376,7 +384,7 @@ export default {
                             </template>
                         </Column>
 
-                        <Column field="updateDatetimeUtc" header="最後更新時間"></Column>
+                        <Column sortable field="updateDatetimeUtc" header="最後更新時間"></Column>
                         
                     </DataTable>        
                 </div>
