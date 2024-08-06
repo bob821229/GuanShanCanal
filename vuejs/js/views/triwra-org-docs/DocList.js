@@ -133,6 +133,8 @@ export default {
                 ], 
                 "10": [
                     //{formName: '', formType: 'form', actDescription: '', componentName: ''}, 
+                    {formName: '協助主管機關修訂資料初稿', formType: 'form', actDescription: '', componentName: 'FormOther'},
+                    {formName: '其他資料', formType: 'form', actDescription: '', componentName: 'FormOther'},
                 ], 
             }, 
             formGroupComponentList: [
@@ -170,7 +172,15 @@ export default {
     },
     computed: {
         formListData(){
-            this.formList = this.formListRole[`${this.user.role}`];
+            let baseList = [];
+            if(this.user.role <= 11){
+                baseList = [...this.formListRole['22'], ...this.formListRole['21']];
+            }
+            if(this.user.role <= 10){
+                baseList = [...baseList, ...this.formListRole['11']];
+            }
+
+            this.formList = [...baseList, ...this.formListRole[`${this.user.role}`]];
             console.log('formListData', this.formList);
             this.formList.forEach(obj => {
                 obj.comp = eval(obj.componentName)
