@@ -1,8 +1,27 @@
+const { useVuelidate } = Vuelidate;
+const { required, email, helpers } = VuelidateValidators;
 
 export default {
   inject: ['dialogRef', 'organizationList', 'user'
     , 'fileUploader'
   ],
+  setup() {
+      return { v$: useVuelidate() }
+  },
+  validations() {
+    return {
+      formData: {
+            year: { required: helpers.withMessage('必填', required) },
+            version: { required: helpers.withMessage('必填', required) },
+            session: { required: helpers.withMessage('必填', required) },
+            sessionPeriod: { required: helpers.withMessage('必填', required) },
+            organizationId: { ifValidOrganizationId: helpers.withMessage('必填', ifValidOrganizationId) },
+            attachmentList: { 
+                ifAnyItem: helpers.withMessage('至少上傳一個檔案', ifAnyCollection)
+            },
+      }, 
+    }
+  },
   data() {
     return {
       formData: null, 
@@ -50,12 +69,15 @@ export default {
     }
   },
   methods: {
-    submit: function () {
+    submit: async function (e) {
+      e.preventDefault();
       
-      console.log(this.inputFormData);
-      // this.inputFormData.verifiedAtByBoardOfDirectors = dayjs(this.verifiedAtByBoardOfDirectors).format('YYYY-MM-DD');
-      // this.inputFormData.checkedAtByIA = dayjs(this.checkedAtByIA).format('YYYY-MM-DD');
-
+      let isFormCorrect = await this.v$.$validate()
+      if(!isFormCorrect){
+        alert('請完整填寫表單');
+        return;
+      }
+      console.log(isFormCorrect, this.inputFormData);
       //this.updateData();
       this.dialogRef.close(
         this.inputFormData
@@ -106,37 +128,57 @@ export default {
       <!--
       <div class="mb-3">
         <label for="exampleInputPassword1" class="form-label">法令依據</label>
-        <input type="text" class="form-control" id="" name="" v-model="inputFormData.actDescription">
+        <input type="text" class="form-control" id="" name="" v-model="inputFormData.actDescription" disabled>
       </div>
       -->
       <div class="mb-3" v-if="user.role < 20">
-        <label for="exampleInputPassword1" class="form-label">財團法人：</label>
+        <label for="exampleInputPassword1" class="form-label required">財團法人：</label>
         <select class="form-select" v-model="inputFormData.organizationId">
             <option v-for="(obj, idx) in organizationList" :value="obj.organizationId">{{obj.name}}</option>
         </select>
+        <p v-for="error of v$.formData.organizationId.$errors"
+            :key="error.$uid" class="text-danger">
+            <strong>{{ error.$message }}</strong>
+        </p>
       </div>
       <div class="mb-3">
-        <label for="exampleInputPassword1" class="form-label">年度</label>
-        <input type="text" class="form-control" id="" name="" v-model="inputFormData.year">
+        <label for="exampleInputPassword1" class="form-label required">年度</label>
+        <input type="number" class="form-control" id="" name="" v-model="inputFormData.year">
+        <p v-for="error of v$.formData.year.$errors"
+            :key="error.$uid" class="text-danger">
+            <strong>{{ error.$message }}</strong>
+        </p>
       </div>
       <div class="mb-3">
-        <label for="exampleInputPassword1" class="form-label">屆次</label>
+        <label for="exampleInputPassword1" class="form-label required">屆次</label>
         <input type="text" class="form-control" id="" name="" v-model="inputFormData.session">
+        <p v-for="error of v$.formData.session.$errors"
+            :key="error.$uid" class="text-danger">
+            <strong>{{ error.$message }}</strong>
+        </p>
       </div>
       <div class="mb-3">
-        <label for="exampleInputPassword1" class="form-label">版次</label>
+        <label for="exampleInputPassword1" class="form-label required">版次</label>
         <input type="text" class="form-control" id="" name="" v-model="inputFormData.version">
+        <p v-for="error of v$.formData.version.$errors"
+            :key="error.$uid" class="text-danger">
+            <strong>{{ error.$message }}</strong>
+        </p>
       </div>
       <div class="mb-3">
-        <label for="exampleInputPassword1" class="form-label">本屆任期</label>
+        <label for="exampleInputPassword1" class="form-label required">本屆任期</label>
         <input type="text" class="form-control" id="" name="" v-model="inputFormData.sessionPeriod">
+        <p v-for="error of v$.formData.sessionPeriod.$errors"
+            :key="error.$uid" class="text-danger">
+            <strong>{{ error.$message }}</strong>
+        </p>
       </div>
       <div class="mb-3">
         <label for="exampleInputPassword1" class="form-label">備註：</label>
         <TextArea class="form-control" v-model="inputFormData.comment" rows="5" placeholder=""></TextArea>
       </div>
       <div class="mb-3">
-        <label for="exampleInputPassword1" class="form-label">附件</label>
+        <label for="exampleInputPassword1" class="form-label required">附件</label>
 
         
 
@@ -184,6 +226,10 @@ export default {
             </Card>  
 
           </div>
+          <p v-for="error of v$.formData.attachmentList.$errors"
+              :key="error.$uid" class="text-danger">
+              <strong>{{ error.$message }}</strong>
+          </p>
         </div>
       </div>
       <div class="row">

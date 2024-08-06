@@ -23,10 +23,10 @@ export default {
             //     required: helpers.withMessage('必填', required), 
             //     email: helpers.withMessage('Email格式不正確', email) },
             year: { required: helpers.withMessage('必填', required) },
-            organizationId: { ifValidOrganizationId: helpers.withMessage('必填', this.ifValidOrganizationId) },
+            organizationId: { ifValidOrganizationId: helpers.withMessage('必填', ifValidOrganizationId) },
             checkNumberByIA: { required: helpers.withMessage('必填', required) },
             attachmentList: { 
-                ifAnyItem: helpers.withMessage('至少上傳一個檔案', this.ifAnyCollection)
+                ifAnyItem: helpers.withMessage('至少上傳一個檔案', ifAnyCollection)
             },
       }, 
       verifiedAtByBoardOfDirectors: { required: helpers.withMessage('必填', required) },
@@ -72,27 +72,6 @@ export default {
     }
   },
   methods: {
-    ifAnyCollection: function(v){
-      return (v.length > 0);
-    }, 
-    ifValidOrganizationId: function(value){
-      console.log('ifValidOrganizationId', this.user.organizationId);
-      console.log('ifValidOrganizationId', value, (value != null))
-      if(this.user.organizationId < 0){
-        return(value != null);
-      }else{
-        return true;
-      }
-    },
-
-    async submitForm (e) {
-      e.preventDefault();
-      const isFormCorrect = await this.v$.$validate()
-      // you can show some extra alert to the user or just leave the each field to show it's `$errors`.
-      if (!isFormCorrect) return
-      // actually submit form
-    }, 
-
     submit: async function (e) {
       e.preventDefault();
       
@@ -156,11 +135,11 @@ export default {
       <!--  {{user}} {{organizationList}} -->
       <div class="mb-3">
         <label for="exampleInputPassword1" class="form-label">法令依據</label>
-        <input type="text" class="form-control" id="" name="" v-model="inputFormData.actDescription">
+        <input type="text" class="form-control" id="" name="" v-model="inputFormData.actDescription" disabled>
       </div>
       <div class="mb-3">
         <label for="exampleInputPassword1" class="form-label required">年度</label>
-        <input type="text" class="form-control" id="" name="" v-model="inputFormData.year">
+        <input type="number" class="form-control" id="" name="" v-model="inputFormData.year">
         <p v-for="error of v$.formData.year.$errors"
             :key="error.$uid" class="text-danger">
             <strong>{{ error.$message }}</strong>
