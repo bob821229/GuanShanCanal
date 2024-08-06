@@ -5,11 +5,6 @@ export default {
     , 'fileUploader'],
   data() {
     return {
-      firebase: {
-        app: null,
-        db: null,
-        storage: null, 
-      },
       formData: null, 
       verifiedAtByBoardOfDirectors: null, 
       checkedAtByIA: null, 
