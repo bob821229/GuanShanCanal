@@ -82,6 +82,28 @@ class FirebaseDataAccess{
             onlyOnce: true
         });
     };
+    getData(payload, callback) {
+        let _list = [];
+        let db = getDatabase(this.firebaseApp);
+        let databaseRef = ref(db, payload.path);
+        databaseRef = query(databaseRef, orderByChild(payload.key), equalTo(payload.value));
+        
+        onValue(databaseRef, (snapshot) => {
+            snapshot.forEach((childSnapshot) => {
+                const childKey = childSnapshot.key;
+                const childData = childSnapshot.val();
+                // ...
+                console.log(childKey, childData);
+                // let obj = {};
+                // obj[childKey] = childData;
+                _list.push(childData);
+                
+            });
+            callback(_list);
+        }, {
+            onlyOnce: true
+        });
+    };
 };
 
 function firebaseDataAccess(user){

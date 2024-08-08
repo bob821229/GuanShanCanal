@@ -36,10 +36,11 @@ export default {
         FormMultipleFiles,
         FormOther,
     },
+    inject: ['user'],
     provide(){
         return {
             organizationList: this.organizationList, 
-            user: computed(() => this.user),
+            //user: computed(() => this.user),
             fileUploader:  computed(() => this.fileUploader),
         }
     }, 
@@ -53,11 +54,12 @@ export default {
     }, 
     data() {
         return {
-            user: {
-                name: null, 
-                role: 22, 
-                organizationId: -1,
-            }, 
+            //user: null,
+            // {
+            //     name: null, 
+            //     role: 22, 
+            //     organizationId: -1,
+            // }, 
             userRoleList: [
                 { name: '政府捐助之財團法人', role: 22, organizationId: 2},
                 { name: '民間捐助之財團法人', role: 21, organizationId: 9},
@@ -197,19 +199,19 @@ export default {
             return this.formList;
         }, 
         userData(){
-            switch(this.user.role){
-                case 10: 
-                    this.user.organization = '台農院';
-                    break;
-                    case 11: 
-                        this.user.organization = '農水署';
-                        break;
-                        default: 
-                            if(this.user.organizationId != -1){
-                                this.user.organization = (this.organizationList.filter(f=> f.organizationId == this.user.organizationId))[0].name;
-                            }
-                            break;
-            }
+            // switch(this.user.role){
+            //     case 10: 
+            //         this.user.organization = '台農院';
+            //         break;
+            //         case 11: 
+            //             this.user.organization = '農水署';
+            //             break;
+            //             default: 
+            //                 if(this.user.organizationId != -1){
+            //                     this.user.organization = (this.organizationList.filter(f=> f.organizationId == this.user.organizationId))[0].name;
+            //                 }
+            //                 break;
+            // }
             return this.user;
         }, 
         docListData(){
@@ -277,6 +279,7 @@ export default {
             this.user = this.userRoleList[0];
             this.initDataAccess();
             this.initFileUploader();
+
         },
         initDataAccess: function(){
             this.dataAccess = firebaseDataAccess(this.user);
@@ -343,19 +346,9 @@ export default {
         <div class="container">
             <h5 class="mt-3">文件上傳</h5>
             <p class="lead">說明文</p>
-            <div class="row mb-2">
-                <div class="input-group">
-                    <label class="input-group-text" for="inputGroupSelect01">目前摸擬</label>
-                    <select v-model="form2New" class="form-select" v-model="user">
-                        <option v-for="(obj, idx) in userRoleList" :value="obj">{{obj.name}}</option>
-                    </select>
-                    <label class="input-group-text">{{userData.name}}, {{userData.organization}}</label>
-                    <!--, {{userData.role}}, {{userData.organizationId}}-->
-                </div>
+           
 
-            </div>
-
-            <div class="row mb-2">
+            <div class="row mb-2" v-if="user != null">
                 <div class="input-group">
                     <select v-model="form2New" class="form-select">
                         <option v-for="(obj, idx) in formListData" :value="obj">{{obj.formName}}</option>
@@ -382,7 +375,7 @@ export default {
 
                         <template #header>
                             <div class="row">
-                                <div v-if="user.role < 20" class="col-md-3">
+                                <div v-if="user != null && user.role < 20" class="col-md-3">
                                     <div class="input-group">
                                         <span class="input-group-text" id="basic-addon1">法人</span>
                                         <select class="form-select" v-model="customFilter.organizationId">
@@ -391,7 +384,7 @@ export default {
                                         </select>
                                     </div>
                                 </div>
-                                <div :class="{'col-md-3': user.role < 20, 'col-md-4': user.role >= 20}">
+                                <div :class="{'col-md-3': user != null && user.role < 20, 'col-md-4': user != null && user.role >= 20}">
                                     <div class="input-group">
                                         <span class="input-group-text" id="basic-addon1">年度</span>
                                         <input type="number" class="form-control" v-model="customFilter.yearBegin">
@@ -399,7 +392,7 @@ export default {
                                         <input type="number" class="form-control" v-model="customFilter.yearEnd">
                                     </div>
                                 </div>
-                                <div :class="{'col-md-3': user.role < 20, 'col-md-4': user.role >= 20}">
+                                <div :class="{'col-md-3': user != null && user.role < 20, 'col-md-4': user != null && user.role >= 20}">
                                     <div class="input-group">
                                         <span class="input-group-text" id="basic-addon1">類別</span>
                                         <select class="form-select" v-model="customFilter.formComponent">
@@ -408,7 +401,7 @@ export default {
                                         </select>
                                     </div>
                                 </div>
-                                <div :class="{'col-md-3': user.role < 20, 'col-md-4': user.role >= 20}">
+                                <div :class="{'col-md-3': user != null && user.role < 20, 'col-md-4': user != null && user.role >= 20}">
                                     <input type="text" v-model="filters['global'].value" class="form-control" placeholder="關鍵字查詢">
                                 </div>
                             </div>
@@ -425,7 +418,7 @@ export default {
                         </Column>
                         <Column sortable field="year" header="年度"></Column>
                         <Column sortable field="formName" header="表單類別"></Column>
-                        <Column sortable field="organization" header="農田水利財團法人" v-if="userData.role < 20"></Column>
+                        <Column sortable field="organization" header="農田水利財團法人" v-if="user != null && user.role < 20"></Column>
                         <Column sortable field="verifiedAtByBoardOfDirectors" header="董事會通過日期"></Column>
                         <Column sortable header="法令依據" field="actDescription">
                             <template #body="slotProps">
@@ -448,7 +441,11 @@ export default {
                             </template>
                         </Column>
 
-                        <Column sortable field="updateDatetimeUtc" header="最後更新時間"></Column>
+                        <Column sortable field="updateDatetimeUtc" header="最後更新時間">
+                            <template #body="slotProps">
+                                {{slotProps.data.updateDatetimeUtc}} (by {{slotProps.data.updateUser}})
+                            </template>
+                        </Column>
                         
                     </DataTable>        
                 </div>

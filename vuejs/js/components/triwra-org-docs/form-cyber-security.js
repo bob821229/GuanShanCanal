@@ -76,6 +76,7 @@ export default {
       console.log(isFormCorrect, this.inputFormData);
 
       this.inputFormData.ifFormComplete = this.ifFormComplete;
+      this.inputFormData.updateUser = this.user.name;
 
       //this.updateData();
       this.dialogRef.close(

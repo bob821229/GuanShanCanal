@@ -89,6 +89,7 @@ export default {
       this.inputFormData.checkedAtByIA = (this.checkedAtByIA != null && this.checkedAtByIA != '') ? dayjs(this.checkedAtByIA).format('YYYY-MM-DD') : null;
 
       this.inputFormData.ifFormComplete = this.ifFormComplete;
+      this.inputFormData.updateUser = this.user.name;
 
       //this.updateData();
       this.dialogRef.close(

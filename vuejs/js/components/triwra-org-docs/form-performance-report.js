@@ -74,6 +74,8 @@ export default {
         return;
       }
       this.inputFormData.ifFormComplete = this.ifFormComplete;
+      this.inputFormData.updateUser = this.user.name;
+      
       console.log(isFormCorrect, this.inputFormData);
 
       //this.updateData();

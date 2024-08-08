@@ -13,6 +13,7 @@ import Blank from './blank.js';
 // import FormHr from '../components/triwra-org-docs/form-hr.js'
 // import FormIntegrity from '../components/triwra-org-docs/form-integrity.js'
 
+const { computed } = Vue;
 
 var app = createApp({
     components: {
@@ -30,6 +31,7 @@ var app = createApp({
         // use function syntax so that we can access `this`
         return {
             currentComponent: this.currentComponentData, //this.currentComponent
+            user: computed(() => this.user),
         }
     },
     computed: {
@@ -46,8 +48,9 @@ var app = createApp({
     },
     data() {
         return {
-            currentComponent: `Blank`,
+            currentComponent: 'DocList', //`Blank`,
             designatedPath: ``, 
+            user: null, 
             headerConfig: {
                 CI: {
                     //logoUri: null, 
@@ -66,13 +69,34 @@ var app = createApp({
     mounted() {
         let urlParams = new URLSearchParams(window.location.search);
 
-        if(urlParams.has('comp')){
-            let comp = urlParams.get('comp');
-            let q = this.headerConfig.leftMenuList.findIndex( _o => _o.component == comp);
+        // if(urlParams.has('comp')){
+        //     let comp = urlParams.get('comp');
+        //     let q = this.headerConfig.leftMenuList.findIndex( _o => _o.component == comp);
 
-            if(q >= 0){
-                this.currentComponent = comp;
-            }
+        //     if(q >= 0){
+        //         this.currentComponent = comp;
+        //     }
+        // }
+
+        if(urlParams.has('r')){
+            //alert('r');
+            let r = urlParams.get('r');
+            console.log(r);
+            this.user = JSON.parse(r);
+            console.log(this.user);
+
+            this.headerConfig.myConsole = {
+                profile: {
+                  name: this.user.organization
+                }, 
+                menus: [
+                  { url: '#', text: '變更密碼', target: null}, 
+                ], 
+                ifShowLogout: true,
+              }
+        }else{
+            alert('please login')
+            location.href = 'triwra-org-login.html';
         }
         
     }, 
