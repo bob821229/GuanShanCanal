@@ -70,6 +70,20 @@ export default {
     ifFormComplete(){
       return null;
     },
+    ifReadOnly(){
+      console.log('ifReadOnly', this.user.role, this.user.userId, this.inputFormData.updateUserId);
+      if(this.inputFormData.updateUserId == null || this.inputFormData.updateUserId == undefined){
+        console.log('ifReadOnly', 'new one')
+        return false;
+      };
+      
+      if(Number(this.user.role) == 11){
+        return (Number(this.user.userId) != Number(this.inputFormData.updateUserId));
+      }else{
+        console.log('ifReadOnly', 'self update or role = 10')
+        return false;
+      }
+    },
   },
   methods: {
     submit: async function (e) {
@@ -140,7 +154,8 @@ export default {
       -->
       <div class="mb-3" v-if="user.role < 20">
         <label for="exampleInputPassword1" class="form-label required">財團法人：</label>
-        <select class="form-select" v-model="inputFormData.organizationId">
+        <select class="form-select" v-model="inputFormData.organizationId"
+         :disabled="ifReadOnly">
             <option v-for="(obj, idx) in organizationList" :value="obj.organizationId">{{obj.name}}</option>
         </select>
         <p v-for="error of v$.formData.organizationId.$errors"
@@ -150,7 +165,8 @@ export default {
       </div>
       <div class="mb-3">
         <label for="exampleInputPassword1" class="form-label required">年度</label>
-        <input type="number" class="form-control" id="" name="" v-model="inputFormData.year">
+        <input type="number" class="form-control" id="" name="" v-model="inputFormData.year"
+         :disabled="ifReadOnly">
         <p v-for="error of v$.formData.year.$errors"
             :key="error.$uid" class="text-danger">
             <strong>{{ error.$message }}</strong>
@@ -158,7 +174,8 @@ export default {
       </div>
       <div class="mb-3">
         <label for="exampleInputPassword1" class="form-label required">屆次</label>
-        <input type="text" class="form-control" id="" name="" v-model="inputFormData.session">
+        <input type="text" class="form-control" id="" name="" v-model="inputFormData.session"
+         :disabled="ifReadOnly">
         <p v-for="error of v$.formData.session.$errors"
             :key="error.$uid" class="text-danger">
             <strong>{{ error.$message }}</strong>
@@ -166,7 +183,8 @@ export default {
       </div>
       <div class="mb-3">
         <label for="exampleInputPassword1" class="form-label required">版次</label>
-        <input type="text" class="form-control" id="" name="" v-model="inputFormData.version">
+        <input type="text" class="form-control" id="" name="" v-model="inputFormData.version"
+         :disabled="ifReadOnly">
         <p v-for="error of v$.formData.version.$errors"
             :key="error.$uid" class="text-danger">
             <strong>{{ error.$message }}</strong>
@@ -174,7 +192,8 @@ export default {
       </div>
       <div class="mb-3">
         <label for="exampleInputPassword1" class="form-label required">本屆任期</label>
-        <input type="text" class="form-control" id="" name="" v-model="inputFormData.sessionPeriod">
+        <input type="text" class="form-control" id="" name="" v-model="inputFormData.sessionPeriod"
+         :disabled="ifReadOnly">
         <p v-for="error of v$.formData.sessionPeriod.$errors"
             :key="error.$uid" class="text-danger">
             <strong>{{ error.$message }}</strong>
@@ -182,7 +201,8 @@ export default {
       </div>
       <div class="mb-3">
         <label for="exampleInputPassword1" class="form-label">備註：</label>
-        <textarea class="form-control" v-model="inputFormData.comment" rows="5" placeholder=""></textarea>
+        <textarea class="form-control" v-model="inputFormData.comment" rows="5" placeholder=""
+         :disabled="ifReadOnly"></textarea>
       </div>
       <div class="mb-3">
         <label for="exampleInputPassword1" class="form-label required">附件</label>
@@ -190,7 +210,7 @@ export default {
         
 
         <div class="row">
-          <div class="col-md-4 col-sm-12 my-1">
+          <div class="col-md-4 col-sm-12 my-1" v-if="!ifReadOnly">
             <Card>
               <template #content>
                   <p class="m-0">
@@ -246,7 +266,7 @@ export default {
       </div>
       <div class="row">
         <div class="col-md-12">
-          <button type="button" class="btn btn-primary" @click="submit">完成</button>
+          <button type="button" class="btn btn-primary" @click="submit" v-if="!ifReadOnly">完成</button>
         </div>
       </div>
 

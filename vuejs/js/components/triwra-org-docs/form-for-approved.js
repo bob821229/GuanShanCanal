@@ -78,6 +78,11 @@ export default {
     }, 
     ifReadOnly(){
       console.log('ifReadOnly', this.user.role, this.user.userId, this.inputFormData.updateUserId);
+      if(this.inputFormData.updateUserId == null || this.inputFormData.updateUserId == undefined){
+        console.log('ifReadOnly', 'new one')
+        return false;
+      };
+      
       if(Number(this.user.role) == 11){
         return (Number(this.user.userId) != Number(this.inputFormData.updateUserId));
       }else{
@@ -160,7 +165,7 @@ export default {
       </div>
       <div class="mb-3">
         <label for="exampleInputPassword1" class="form-label required">年度</label>
-        <input type="number" class="form-control" id="" name="" v-model="inputFormData.year">
+        <input type="number" class="form-control" id="" name="" v-model="inputFormData.year" :disabled="ifReadOnly">
         <p v-for="error of v$.formData.year.$errors"
             :key="error.$uid" class="text-danger">
             <strong>{{ error.$message }}</strong>
@@ -168,7 +173,7 @@ export default {
       </div>
       <div class="mb-3" v-if="user.role < 20">
         <label for="exampleInputPassword1" class="form-label required">農田水利財團法人：</label>
-        <select class="form-select" v-model="inputFormData.organizationId">
+        <select class="form-select" v-model="inputFormData.organizationId" :disabled="ifReadOnly">
             <option v-for="(obj, idx) in organizationList" :value="obj.organizationId">{{obj.name}}</option>
         </select>
         <p v-for="error of v$.formData.organizationId.$errors"
@@ -178,12 +183,7 @@ export default {
       </div>
       <div class="mb-3">
         <label for="exampleInputPassword1" class="form-label required">董事會通過日期</label>        
-        <DatePicker v-model="verifiedAtByBoardOfDirectors" dateFormat="yy-mm-dd">
-          <template #date="slotProps">
-            <strong v-if="slotProps.date.day > 10 && slotProps.date.day < 15" style="text-decoration: line-through">{{ slotProps.date.day }}</strong>
-            <template v-else>{{ slotProps.date.day }}</template>
-          </template>
-        </DatePicker>
+        <DatePicker v-model="verifiedAtByBoardOfDirectors" dateFormat="yy-mm-dd" :disabled="ifReadOnly"></DatePicker>
         <p v-for="error of v$.verifiedAtByBoardOfDirectors.$errors"
             :key="error.$uid" class="text-danger">
             <strong>{{ error.$message }}</strong>
@@ -191,7 +191,7 @@ export default {
       </div>
       <div class="mb-3">
         <label for="exampleInputPassword1" class="form-label">主管機關核定字號</label>
-        <input type="text" class="form-control" id="" name="" v-model="inputFormData.checkNumberByIA">
+        <input type="text" class="form-control" id="" name="" v-model="inputFormData.checkNumberByIA" :disabled="ifReadOnly">
         <!--<p v-for="error of v$.formData.checkNumberByIA.$errors"
             :key="error.$uid" class="text-danger">
             <strong>{{ error.$message }}</strong>
@@ -199,7 +199,7 @@ export default {
       </div>
       <div class="mb-3">
         <label for="exampleInputPassword1" class="form-label">主管機關核定日期</label>
-        <DatePicker v-model="checkedAtByIA" dateFormat="yy-mm-dd" input-class="form-control"/>
+        <DatePicker v-model="checkedAtByIA" dateFormat="yy-mm-dd" input-class="form-control" :disabled="ifReadOnly"/>
         <!--<p v-for="error of v$.checkedAtByIA.$errors"
             :key="error.$uid" class="text-danger">
             <strong>{{ error.$message }}</strong>
@@ -211,7 +211,7 @@ export default {
         
 
         <div class="row">
-          <div class="col-md-4 col-sm-12 my-1">
+          <div class="col-md-4 col-sm-12 my-1" v-if="!ifReadOnly">
             <Card>
               <template #content>
                   <p class="m-0">
