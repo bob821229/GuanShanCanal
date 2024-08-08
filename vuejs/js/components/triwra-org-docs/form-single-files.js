@@ -66,6 +66,13 @@ export default {
     ifFormComplete(){
       return null;
     },
+    ifReadOnly(){
+      if(this.user.roleId == 11){
+        return (this.user.userId != this.inputFormData.updateUserId);
+      }else{
+        return false;
+      }
+    },
   },
   methods: {
     submit: async function (e) {
@@ -78,7 +85,8 @@ export default {
       }
       this.inputFormData.ifFormComplete = this.ifFormComplete;
       this.inputFormData.updateUser = this.user.name;
-      
+      this.inputFormData.updateUserId = this.user.userId;
+
       console.log(isFormCorrect, this.inputFormData);
 
       //this.updateData();
@@ -224,7 +232,7 @@ export default {
       </div>
       <div class="row">
         <div class="col-md-12">
-          <button type="button" class="btn btn-primary" @click="submit">完成</button>
+          <button type="button" class="btn btn-primary" @click="submit" v-if="!ifReadOnly">完成</button>
         </div>
       </div>
 

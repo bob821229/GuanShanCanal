@@ -32,6 +32,7 @@ var app = createApp({
                 }, 
                 (result) => {
                     console.log(result);
+                    //return;
                     if(result.length > 0){
                         let _r = result[0];
                         let profile = {
@@ -39,6 +40,7 @@ var app = createApp({
                             role: _r.role, 
                             organizationId: _r.organizationId,
                             organization: _r.userName,
+                            userId: _r.pkey,
                         };
                         let sProfile = JSON.stringify(profile);
                         location.href = `triwra-org-docs.html?comp=docList&r=${sProfile}`;

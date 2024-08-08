@@ -76,6 +76,14 @@ export default {
         this.inputFormData.checkNumberByIA != null && 
         this.inputFormData.checkNumberByIA.length > 0;
     }, 
+    ifReadOnly(){
+      console.log('ifReadOnly', this.user.role, this.user.userId, this.inputFormData.updateUserId);
+      if(Number(this.user.role) == 11){
+        return (Number(this.user.userId) != Number(this.inputFormData.updateUserId));
+      }else{
+        return false;
+      }
+    },
   },
   methods: {
     submit: async function (e) {
@@ -93,6 +101,7 @@ export default {
 
       this.inputFormData.ifFormComplete = this.ifFormComplete;
       this.inputFormData.updateUser = this.user.name;
+      this.inputFormData.updateUserId = this.user.userId;
       
       console.log('submit', this.inputFormData);
 
@@ -259,7 +268,8 @@ export default {
       </div>
       <div class="row">
         <div class="col-md-12">
-          <button type="button" class="btn btn-primary" @click="submit">完成</button>
+          <!--{{user.role}}, {{user.userId}}, {{inputFormData.updateUserId}}, {{ifReadOnly}}-->
+          <button type="button" class="btn btn-primary" @click="submit" v-if="!ifReadOnly">完成</button>
         </div>
       </div>
 

@@ -75,7 +75,8 @@ export default {
       }
       this.inputFormData.ifFormComplete = this.ifFormComplete;
       this.inputFormData.updateUser = this.user.name;
-      
+      this.inputFormData.updateUserId = this.user.userId;
+
       console.log(isFormCorrect, this.inputFormData);
 
       //this.updateData();

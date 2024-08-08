@@ -66,7 +66,7 @@ export default {
                 <i class="fa-solid fa-circle-user fa-2x"></i>
               </a>
               <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="avatarDropdown">
-                <li><a class="dropdown-item" href="#">{{config.myConsole.profile.name}}</a></li>
+                <li><a class="dropdown-item" href="#" class="text-center">{{config.myConsole.profile.name}}</a></li>
                 <li><hr class="dropdown-divider"></li>
                 <li v-for="(obj, idx) in config.myConsole.menus" class="text-end"><a class="dropdown-item" :href="obj.url" :target="obj.target">{{obj.text}}</a></li>
                 
