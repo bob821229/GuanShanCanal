@@ -59,7 +59,10 @@ export default {
       }
       //console.log(_data);
       return this.formData;
-    }
+    }, 
+    ifFormComplete(){
+      return null;
+    },
   },
   methods: {
     submit: async function (e) {
@@ -71,6 +74,8 @@ export default {
         return;
       }
       console.log(isFormCorrect, this.inputFormData);
+
+      this.inputFormData.ifFormComplete = this.ifFormComplete;
 
       //this.updateData();
       this.dialogRef.close(
@@ -144,7 +149,7 @@ export default {
       </div>
       <div class="mb-3">
         <label for="exampleInputPassword1" class="form-label">備註：</label>
-        <TextArea class="form-control" v-model="inputFormData.comment" rows="5" placeholder="範例：\n資通安全維護計畫-訂定版(訂定日期113.04.25)\n資通安全維護計畫-修正版(修正日期113.06.25)"></TextArea>
+        <textarea class="form-control" v-model="inputFormData.comment" rows="5" placeholder="範例：\n資通安全維護計畫-訂定版(訂定日期113.04.25)\n資通安全維護計畫-修正版(修正日期113.06.25)"></textarea>
       </div>
       <div class="mb-3">
         <label for="exampleInputPassword1" class="form-label required">附件</label>

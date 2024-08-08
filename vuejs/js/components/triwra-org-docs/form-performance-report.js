@@ -59,7 +59,10 @@ export default {
       }
       //console.log(_data);
       return this.formData;
-    }
+    }, 
+    ifFormComplete(){
+      return null;
+    },
   },
   methods: {
     submit: async function (e) {
@@ -70,6 +73,7 @@ export default {
         alert('請完整填寫表單');
         return;
       }
+      this.inputFormData.ifFormComplete = this.ifFormComplete;
       console.log(isFormCorrect, this.inputFormData);
 
       //this.updateData();

@@ -165,23 +165,32 @@ export default {
                 // representative: { value: null, matchMode: FilterMatchMode.IN },
                 // status: { value: null, matchMode: FilterMatchMode.EQUALS },
                 // verified: { value: null, matchMode: FilterMatchMode.EQUALS }
+            }, 
+            customFilter: {
+                yearBegin: 0,
+                yearEnd: 113,
+                organizationId: null, 
+                formComponent: null
             }
-
 
         }
     },
     computed: {
         formListData(){
-            let baseList = [];
-            if(this.user.role <= 11){
-                baseList = [...this.formListRole['22'], ...this.formListRole['21']];
-            }
-            if(this.user.role <= 10){
-                baseList = [...baseList, ...this.formListRole['11']];
-            }
 
-            this.formList = [...baseList, ...this.formListRole[`${this.user.role}`]];
-            console.log('formListData', this.formList);
+            // //台農院和農水署不新增其他角色的表單文件
+            // //大權限的使用者不疊加小權限的表單
+            //let baseList = [];
+            // if(this.user.role <= 11){
+            //     baseList = [...this.formListRole['22'], ...this.formListRole['21']];
+            // }
+            // if(this.user.role <= 10){
+            //     baseList = [...baseList, ...this.formListRole['11']];
+            // }
+
+            // this.formList = [...baseList, ...this.formListRole[`${this.user.role}`]];
+            // console.log('formListData', this.formList);
+            this.formList = this.formListRole[`${this.user.role}`];
             this.formList.forEach(obj => {
                 obj.comp = eval(obj.componentName)
             });
@@ -204,6 +213,7 @@ export default {
             return this.user;
         }, 
         docListData(){
+            console.log('docListData');
             this.docList.forEach(i => {
                 let found = this.organizationList.filter(org => org.organizationId == i.organizationId);
                 i.organization = found.length > 0 ? found[0].name : null;
@@ -211,10 +221,31 @@ export default {
                 let found2 = this.formGroupComponentList.filter(comp => comp.componentName == i.formComponent);
                 i.fromGroupName = found2.length > 0 ? found2[0].formGroupName : null;
             });
-            return this.docList;
+
+            let l = this.docList;
+            l = this.filterData(l, 'year', Number(this.customFilter.yearBegin), '>=');
+            l = this.filterData(l, 'year', Number(this.customFilter.yearEnd), '<=');
+            l = this.filterData(l, 'organizationId', this.customFilter.organizationId);
+            l = this.filterData(l, 'formComponent', this.customFilter.formComponent);
+
+            return l;
         }, 
     }, 
     methods: {
+        filterData: function(list, fieldName, value, operation){
+            if(value == null || value.toString().length == 0){
+                return list;
+            }
+            
+            console.log('filterData', fieldName, value);
+            if(operation == '>='){
+                return list.filter(item => item[fieldName] >= value);
+            } else if (operation == '<='){
+                return list.filter(item => item[fieldName] <= value);
+            } else {
+                return list.filter(item => item[fieldName] == value);
+            }
+        },
         newForm: function () {
             let c = this.form2New;
             if(c == ``){
@@ -310,8 +341,8 @@ export default {
     },
     template: `
         <div class="container">
-            <h1 class="mt-5"></h1>
-            <p class="lead">notes</p>
+            <h5 class="mt-3">文件上傳</h5>
+            <p class="lead">說明文</p>
             <div class="row mb-2">
                 <div class="input-group">
                     <label class="input-group-text" for="inputGroupSelect01">目前摸擬</label>
@@ -347,11 +378,39 @@ export default {
                     
                         :loading="loading"
                         v-model:filters="filters"
-                        :globalFilterFields="['formName', 'organization', 'verifiedAtByBoardOfDirectors', 'organization', 'fromGroupName']">
+                        :globalFilterFields="['formName', 'organization', 'verifiedAtByBoardOfDirectors', 'organization', 'fromGroupName', 'actDescription']">
 
                         <template #header>
-                            <div class="flex justify-end">
-                                <input type="text" v-model="filters['global'].value" class="form-control w-25" placeholder="關鍵字查詢">
+                            <div class="row">
+                                <div v-if="user.role < 20" class="col-md-3">
+                                    <div class="input-group">
+                                        <span class="input-group-text" id="basic-addon1">法人</span>
+                                        <select class="form-select" v-model="customFilter.organizationId">
+                                            <option></option>
+                                            <option v-for="(obj) in organizationList" :value="obj.organizationId">{{obj.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div :class="{'col-md-3': user.role < 20, 'col-md-4': user.role >= 20}">
+                                    <div class="input-group">
+                                        <span class="input-group-text" id="basic-addon1">年度</span>
+                                        <input type="number" class="form-control" v-model="customFilter.yearBegin">
+                                        <span class="input-group-text" id="basic-addon1">~</span>
+                                        <input type="number" class="form-control" v-model="customFilter.yearEnd">
+                                    </div>
+                                </div>
+                                <div :class="{'col-md-3': user.role < 20, 'col-md-4': user.role >= 20}">
+                                    <div class="input-group">
+                                        <span class="input-group-text" id="basic-addon1">類別</span>
+                                        <select class="form-select" v-model="customFilter.formComponent">
+                                            <option></option>
+                                            <option v-for="(obj) in formGroupComponentList" :value="obj.componentName">{{obj.formGroupName}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div :class="{'col-md-3': user.role < 20, 'col-md-4': user.role >= 20}">
+                                    <input type="text" v-model="filters['global'].value" class="form-control" placeholder="關鍵字查詢">
+                                </div>
                             </div>
                         </template>
                         <template #empty> 查無資料 </template>
@@ -368,12 +427,17 @@ export default {
                         <Column sortable field="formName" header="表單類別"></Column>
                         <Column sortable field="organization" header="農田水利財團法人" v-if="userData.role < 20"></Column>
                         <Column sortable field="verifiedAtByBoardOfDirectors" header="董事會通過日期"></Column>
-                        <Column header="法令依據">
+                        <Column sortable header="法令依據" field="actDescription">
                             <template #body="slotProps">
                                 {{slotProps.data.actDescription}}
                             </template>
                         </Column>
                         <Column sortable field="fromGroupName" header="性質"></Column>
+                        <Column sortable field="ifFormComplete" header="文件經核定/備查/核准/許可">
+                            <template #body="slotProps">
+                                {{(slotProps.data.ifFormComplete == null) ? 'N/A' : (slotProps.data.ifFormComplete) ? '是' : '否'}}
+                            </template>
+                        </Column>
                         <Column header="附件">
                             <template #body="slotProps">
                                 <ul>

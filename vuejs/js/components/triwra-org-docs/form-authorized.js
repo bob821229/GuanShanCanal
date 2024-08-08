@@ -12,13 +12,13 @@ export default {
       formData: {
             year: { required: helpers.withMessage('必填', required) },
             organizationId: { ifValidOrganizationId: helpers.withMessage('必填', ifValidOrganizationId) },
-            checkNumberByIA: { required: helpers.withMessage('必填', required) },
+            //checkNumberByIA: { required: helpers.withMessage('必填', required) },
             attachmentList: { 
                 ifAnyItem: helpers.withMessage('至少上傳一個檔案', ifAnyCollection)
             },
       }, 
       verifiedAtByBoardOfDirectors: { required: helpers.withMessage('必填', required) },
-      checkedAtByIA: { required: helpers.withMessage('必填', required) },
+      //checkedAtByIA: { required: helpers.withMessage('必填', required) },
     }
   },
   data() {
@@ -40,7 +40,7 @@ export default {
       if(n != null){
         this.checkedAtByIA = n;
       }
-    }
+    }, 
   }, 
   computed: {
     inputFormData() {
@@ -64,7 +64,13 @@ export default {
       }
       //console.log(_data);
       return this.formData;
-    }
+    }, 
+    ifFormComplete(){
+      return this.inputFormData.checkedAtByIA != null && 
+        this.inputFormData.checkedAtByIA.length > 0 &&  
+        this.inputFormData.checkNumberByIA != null && 
+        this.inputFormData.checkNumberByIA.length > 0;
+    }, 
   },
   methods: {
     submit: async function (e) {
@@ -77,7 +83,10 @@ export default {
       }
       console.log(isFormCorrect, this.inputFormData);
       this.inputFormData.verifiedAtByBoardOfDirectors = dayjs(this.verifiedAtByBoardOfDirectors).format('YYYY-MM-DD');
-      this.inputFormData.checkedAtByIA = dayjs(this.checkedAtByIA).format('YYYY-MM-DD');
+      //this.inputFormData.checkedAtByIA = dayjs(this.checkedAtByIA).format('YYYY-MM-DD');
+      this.inputFormData.checkedAtByIA = (this.checkedAtByIA != null && this.checkedAtByIA != '') ? dayjs(this.checkedAtByIA).format('YYYY-MM-DD') : null;
+
+      this.inputFormData.ifFormComplete = this.ifFormComplete;
 
       //this.updateData();
       this.dialogRef.close(
@@ -157,20 +166,20 @@ export default {
         </p>
       </div>
       <div class="mb-3">
-        <label for="exampleInputPassword1" class="form-label required">主管機關核准字號</label>
+        <label for="exampleInputPassword1" class="form-label">主管機關核准字號</label>
         <input type="text" class="form-control" id="" name="" v-model="inputFormData.checkNumberByIA">
-        <p v-for="error of v$.formData.checkNumberByIA.$errors"
+        <!--<p v-for="error of v$.formData.checkNumberByIA.$errors"
             :key="error.$uid" class="text-danger">
             <strong>{{ error.$message }}</strong>
-        </p>
+        </p>-->
       </div>
       <div class="mb-3">
-        <label for="exampleInputPassword1" class="form-label required">主管機關核准日期</label>
+        <label for="exampleInputPassword1" class="form-label">主管機關核准日期</label>
         <DatePicker v-model="checkedAtByIA" dateFormat="yy-mm-dd" />
-        <p v-for="error of v$.checkedAtByIA.$errors"
+        <!--<p v-for="error of v$.checkedAtByIA.$errors"
             :key="error.$uid" class="text-danger">
             <strong>{{ error.$message }}</strong>
-        </p>
+        </p>-->
       </div>
       <div class="mb-3">
         <label for="exampleInputPassword1" class="form-label required">附件</label>

@@ -63,7 +63,10 @@ export default {
       }
       //console.log(_data);
       return this.formData;
-    }
+    }, 
+    ifFormComplete(){
+      return null;
+    }, 
   },
   methods: {
     submit: async function (e) {
@@ -74,6 +77,7 @@ export default {
         alert('請完整填寫表單');
         return;
       }
+      this.inputFormData.ifFormComplete = this.ifFormComplete;
       console.log(isFormCorrect, this.inputFormData);
 
       //this.updateData();
@@ -158,7 +162,7 @@ export default {
       </div>
       <div class="mb-3">
         <label for="exampleInputPassword1" class="form-label">備註：</label>
-        <TextArea class="form-control" v-model="inputFormData.comment" rows="5" placeholder="範例：\n113.02.15本署主計室要求修正表1\n113.02.18農業部輔導司要求修正表10"></TextArea>
+        <textarea class="form-control" v-model="inputFormData.comment" rows="5" placeholder="範例：\n113.02.15本署主計室要求修正表1\n113.02.18農業部輔導司要求修正表10"></textarea>
       </div>
       <div class="mb-3">
         <label for="exampleInputPassword1" class="form-label required">附件</label>
