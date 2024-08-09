@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="" />
+  <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors" />
+  <meta name="generator" content="Hugo 0.88.1" />
+  <title>Sample</title>
+  <style>
+    #map {
+      width: 100vw;
+      height: 100vh;
+      margin: 0;
+      padding: 0;
+    }
+    .parent div{
+      margin-left: 20px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="parent">
+    <input type="checkbox" id="cb1"> checkbox
+    <div>
+      <input type="radio" id="tileGroup1" name="tileGroup" value="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png">
+      tile 1
+    </div>
+    <div>
+      <input type="radio" id="tileGroup2" name="tileGroup"
+        value="https://wmts.nlsc.gov.tw/wmts/LAND_OPENDATA/default/GoogleMapsCompatible/{z}/{y}/{x}"> tile 2
+    </div>
+    <div>
+      <input type="radio" id="tileGroup3" name="tileGroup"
+        value="https://gisportal.triwra.org.tw/server/rest/services/Hosted/20240716_Merge_Tile/MapServer/tile/{z}/{y}/{x}"> tile 3
+    </div>
+    <div>
+      <input type="radio" id="tileGroup4" name="tileGroup"
+        value="https://gisportal.triwra.org.tw/server/rest/services/Hosted/20240716_Tile_Update/MapServer/tile/{z}/{y}/{x}"> tile 3
+    </div>
+  
+  </div>
+  
+  <div id="map"></div>
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+  <script>
+    //declaration
+    var map, tileLayer;
+
+    //get radio button DOM element
+    var cb1 = document.getElementById('cb1');
+    var element1 = document.getElementById('tileGroup1');
+    var element2 = document.getElementById('tileGroup2');
+    var element3 = document.getElementById('tileGroup3');
+    var element4 = document.getElementById('tileGroup4');
+
+    //bind event handler to radio button
+    element1.addEventListener('click', changeTile);
+    element2.addEventListener('click', changeTile);
+    element3.addEventListener('click', changeTile);
+    element4.addEventListener('click', changeTile);
+    cb1.addEventListener('click', tickCb);
+    function changeTile(event) {
+      //remove layer
+      if(tileLayer != null){
+        map.removeLayer(tileLayer);
+      }
+
+      //add the layer user picked
+      let src = event.target.value
+      tileLayer = L.tileLayer(
+        //"https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        src
+        , {
+          attribution: "© OpenStreetMap contributors",
+        }
+      ).addTo(map);
+
+      cb1.checked = true;
+    }
+    function tickCb(event){
+      console.log(event.target.checked)
+      if(event.target.checked){
+        element1.checked = true;
+        //to trigger the 1st radio button click 
+        element1.click();
+      }else{
+        element1.checked = false;
+        element2.checked = false;
+
+        //remove tile layer
+        map.removeLayer(tileLayer);
+      }
+    }
+  
+    
+
+    //init map
+    map = L.map("map").setView(
+      [23.80745279701942, 120.29574021937988],
+      //[23.973993,120.9772426],
+      16
+    );
+    //var map = L.map('map').setView([42.09618442380296, -71.5045166015625], 8);
+
+
+    // // Add OpenStreetMap base layer
+    // tileLayer = L.tileLayer(
+    //   //"https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+    //   //"https://wmts.nlsc.gov.tw/wmts/LAND_OPENDATA/default/GoogleMapsCompatible/{z}/{y}/{x}"
+    //   element1.value
+    //   , {
+    //     attribution: "© OpenStreetMap contributors",
+    //   }).addTo(map);
+    // Select the element you want to add the event listener to
+
+  </script>
+</body>
+
+</html>
