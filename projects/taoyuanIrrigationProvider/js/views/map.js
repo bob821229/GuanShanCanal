@@ -105,7 +105,14 @@ export default {
                 .dynamicMapLayer({
                     url: url,
                     opacity: 0.7,
-                    layers: [10, 11, 13, 14, 15], //[3, 59]//[65, 64, 63]
+                    layers: [
+                        10, //BB_4水利小組範圍_桃管_石管
+                        11, //BB_5圳路渠道_桃管_石管_幹支線
+                        13, //BB_3工作站範圍_桃管_石管
+                        14, //BB_6埤塘_1120512_桃管_石管
+                        15//, //BB_1管理處範圍_桃管_石管
+                        //12, //BB_5圳路渠道_桃管_石管_所有渠道
+                    ], 
                     layerDefs: {
                         10: where, 
                         11: where, 
@@ -120,6 +127,8 @@ export default {
                     // //and Mng_cns = '西螺分處'
                 })
                 .addTo(this.mapProfile.map);
+
+                
 
             this.mapProfile.layer
                 .query()
@@ -209,6 +218,38 @@ export default {
                 return (count) ? count + ' features' : false;
             });
         },
+        // searchMap: function(){
+        //     let where = `工作站名稱 = '桃園工作站' and 水利小組名稱 = '1-4號池小組'`;
+        //     this.mapProfile.layer.setLayerDefs(
+        //         {
+        //             // 10: where, 
+        //             // 11: where, 
+        //             // 13: where, 
+        //             14: where, 
+        //             //15: where, 
+                    
+        //         }
+        //     );
+        //     this.mapProfile.layer
+        //         .query()
+        //         .layer(14)
+        //         .where(where)
+        //         .bounds((error, latlngbounds) => {
+        //             if (error) {
+        //                 console.error("Error querying feature layer bounds:", error);
+        //                 alert('查無資料');
+        //                 return;
+        //             }
+
+        //             if (latlngbounds._northEast == null) {
+        //                 alert('查無資料');
+        //                 return;
+        //             }
+        //             //this.ifFeatureLayerQuery = true;
+        //             // Fit the map to the bounds of the features
+        //             this.mapProfile.map.fitBounds(latlngbounds);
+        //         });
+        // }, 
     },
     mounted() {
         this.init();
@@ -239,6 +280,7 @@ export default {
                             <option selected value="">不篩選</option>
                             <option v-for="(obj, idx) in groupList" :value="obj">{{obj}}</option>
                         </select>
+                        <button class="btn btn-outline-secondary" type="button">查詢</button>
                     </div>
                 </div>
                 
