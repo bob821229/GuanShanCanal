@@ -11,7 +11,7 @@ export default {
                 map: null,
                 layer: null,
                 search: {
-                    association: '',
+                    association: '桃園管理處',
                     workstation: '',
                     group: '',
                 }
@@ -19,6 +19,7 @@ export default {
             pondProfile: {
                 hierarchyList: null,
                 pondInfoList: null,
+                workstationGroupList: null, 
             },
             dataAccess: null
         }
@@ -31,6 +32,9 @@ export default {
         }
     },
     computed: {
+        workstationGroupListData(){
+
+        }, 
         associationList() {
             if (this.pondProfile.hierarchyList == null) {
                 return [];
@@ -69,7 +73,7 @@ export default {
                 {
                     path: '/bigboss-pond-hierarchy',
                     key: '管理處名稱',
-                    value: '桃園管理處',
+                    value: this.mapProfile.search.association//'桃園管理處',
                 },
                 (returnList) => {
                     this.pondProfile.hierarchyList = returnList;
@@ -81,6 +85,14 @@ export default {
                 },
                 (returnList) => {
                     this.pondProfile.pondInfoList = returnList;
+                }
+            );
+            this.dataAccess.getData(
+                {
+                    path: '/bigboss-workstation-group'
+                },
+                (returnList) => {
+                    this.pondProfile.workstationGroupList = returnList;
                 }
             );
         },
@@ -100,7 +112,8 @@ export default {
 
             }
 
-            let where = "管理處名稱 = '桃園管理處'";
+            let where = `管理處名稱 = '${this.mapProfile.search.association}'`;
+            console.log(where);
             this.mapProfile.layer = L.esri
                 .dynamicMapLayer({
                     url: url,
@@ -113,18 +126,14 @@ export default {
                         15//, //BB_1管理處範圍_桃管_石管
                         //12, //BB_5圳路渠道_桃管_石管_所有渠道
                     ], 
-                    layerDefs: {
-                        10: where, 
-                        11: where, 
-                        13: where, 
-                        14: where, 
-                        15: where, 
+                    // layerDefs: {
+                    //     10: "0 = 0", //"管理處名稱 = '桃園管理處' and 工作站名稱 = '湖口工作站'", //'0=0', 
+                    //     11: where, 
+                    //     13: where, 
+                    //     14: where, 
+                    //     15: where, 
                         
-                    }
-                    // layerDefs: { 
-                    //   3: "IA_CNS='雲林'", 
-                    //   6: "COUNTYNAME='雲林縣'" }, 
-                    // //and Mng_cns = '西螺分處'
+                    // }
                 })
                 .addTo(this.mapProfile.map);
 
@@ -159,65 +168,65 @@ export default {
                 return (count) ? count + ' features' : false;
             });
         },
-        testMap: function () {
-            let url = 'https://gisportal.triwra.org.tw/server/rest/services/BigBossTaoyuanPonds2/MapServer';
-            this.mapProfile.map = L.map("map").setView(
-                [23.80745279701942, 120.29574021937988],
-                //[23.973993,120.9772426],
-                16
-            );
+        // testMap: function () {
+        //     let url = 'https://gisportal.triwra.org.tw/server/rest/services/BigBossTaoyuanPonds2/MapServer';
+        //     this.mapProfile.map = L.map("map").setView(
+        //         [23.80745279701942, 120.29574021937988],
+        //         //[23.973993,120.9772426],
+        //         16
+        //     );
 
-            if (this.mapProfile.layer != null) {
+        //     if (this.mapProfile.layer != null) {
 
-                this.mapProfile.map.removeLayer(this.mapProfile.layer);
+        //         this.mapProfile.map.removeLayer(this.mapProfile.layer);
 
-            }
+        //     }
 
-            let where = "工作站名稱 = '新屋工作站'";
-            this.mapProfile.layer = L.esri
-                .dynamicMapLayer({
-                    url: url,
-                    opacity: 0.7,
-                    // layers: [3, 6], //[3, 59]//[65, 64, 63]
-                    layerDefs: {
-                        10: where//"工作站名稱 = '新屋工作站'"
-                    }
-                    // layerDefs: { 
-                    //   3: "IA_CNS='雲林'", 
-                    //   6: "COUNTYNAME='雲林縣'" }, 
-                    // //and Mng_cns = '西螺分處'
-                })
-                .addTo(this.mapProfile.map);
+        //     let where = "工作站名稱 = '新屋工作站'";
+        //     this.mapProfile.layer = L.esri
+        //         .dynamicMapLayer({
+        //             url: url,
+        //             opacity: 0.7,
+        //             // layers: [3, 6], //[3, 59]//[65, 64, 63]
+        //             layerDefs: {
+        //                 10: where//"工作站名稱 = '新屋工作站'"
+        //             }
+        //             // layerDefs: { 
+        //             //   3: "IA_CNS='雲林'", 
+        //             //   6: "COUNTYNAME='雲林縣'" }, 
+        //             // //and Mng_cns = '西螺分處'
+        //         })
+        //         .addTo(this.mapProfile.map);
 
-            this.mapProfile.layer
-                .query()
-                .layer(10)
-                .where(where)
-                .bounds((error, latlngbounds) => {
-                    if (error) {
-                        console.error("Error querying feature layer bounds:", error);
-                        alert('查無資料');
-                        return;
-                    }
+        //     this.mapProfile.layer
+        //         .query()
+        //         .layer(10)
+        //         .where(where)
+        //         .bounds((error, latlngbounds) => {
+        //             if (error) {
+        //                 console.error("Error querying feature layer bounds:", error);
+        //                 alert('查無資料');
+        //                 return;
+        //             }
 
-                    if (latlngbounds._northEast == null) {
-                        alert('查無資料');
-                        return;
-                    }
-                    //this.ifFeatureLayerQuery = true;
-                    // Fit the map to the bounds of the features
-                    this.mapProfile.map.fitBounds(latlngbounds);
-                });
+        //             if (latlngbounds._northEast == null) {
+        //                 alert('查無資料');
+        //                 return;
+        //             }
+        //             //this.ifFeatureLayerQuery = true;
+        //             // Fit the map to the bounds of the features
+        //             this.mapProfile.map.fitBounds(latlngbounds);
+        //         });
 
-            this.mapProfile.layer.bindPopup(function (err, featureCollection, response) {
-                console.log('dynamicMapLayer.bindPopup');
-                featureCollection.features.forEach(f => {
-                    console.log(f);
-                });
-                var count = featureCollection.features.length;
-                return (count) ? count + ' features' : false;
-            });
-        },
+        //     this.mapProfile.layer.bindPopup(function (err, featureCollection, response) {
+        //         console.log('dynamicMapLayer.bindPopup');
+        //         featureCollection.features.forEach(f => {
+        //             console.log(f);
+        //         });
+        //         var count = featureCollection.features.length;
+        //         return (count) ? count + ' features' : false;
+        //     });
+        // },
         // searchMap: function(){
         //     let where = `工作站名稱 = '桃園工作站' and 水利小組名稱 = '1-4號池小組'`;
         //     this.mapProfile.layer.setLayerDefs(

@@ -95,7 +95,7 @@ class FirebaseDataAccess {
                 const childData = childSnapshot.val();
                 // ...
                 childData.pkey = childKey;
-                console.log(childKey, childData);
+                //console.log(childKey, childData);
                 // let obj = {};
                 // obj[childKey] = childData;
                 _list.push(childData);
