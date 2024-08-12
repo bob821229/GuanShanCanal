@@ -3,13 +3,15 @@ const { createApp, ref } = Vue;
 //import { definePreset } from '@primevue/themes';
 import Header from '../components/header.js'
 import Footer from '../components/footer.js'
-import DummyContent from './dummyContent.js'
+import DummyContent from '../views/dummyContent.js'
+import Map from '../views/map.js'
 
 var app = createApp({
     components: {
         Header,
         Footer,
         DummyContent,
+        Map, 
     },
     provide() {
         // use function syntax so that we can access `this`
@@ -24,7 +26,7 @@ var app = createApp({
     },
     data() {
         return {
-            currentComponent: `DummyContent`,
+            currentComponent: `Map`,
             description: ``,
         }
     },
@@ -34,14 +36,12 @@ var app = createApp({
 
 
     <main class="flex-shrink-0">
-        <div class="container">
-            <component :is="currentComponent"></component>
-        </div>
+        <component :is="currentComponent"></component>
     </main>
 
     
     
-    <Footer></Footer>   
+    <!--<Footer></Footer>   -->
     `
 });
 

@@ -48,6 +48,7 @@ from [dbo].['gis-埤塘-石門管理處、桃園管理處'] gis
 
 select distinct [管理處名稱], [分處名稱], [工作站名稱], [水利小組名稱], [原水利小組名稱], [埤塘名稱]
 from [dbo].['gis-埤塘-石門管理處、桃園管理處'] gis
+for json path, include_null_values
 
 -- select [埤塘名稱], [工作站], count(*) cc
 -- from [dbo].['桃管處埤塘基本資料284口']
