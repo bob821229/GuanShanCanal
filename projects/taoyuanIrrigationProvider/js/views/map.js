@@ -12,6 +12,7 @@ export default {
                 layer: null,
                 search: {
                     association: '桃園管理處',
+                    irrigationGroup: '', 
                     workstation: '',
                     group: '',
                 }, 
@@ -20,9 +21,13 @@ export default {
                     '10': {
                         cache: [], 
                         style: {
-                            fillColor: 'lime', 
-                            color: 'black'
-                        }
+                            //fillColor: 'rgba(128, 128, 128, 0.7)', 
+                            color: 'blue', 
+                            //opacity: 0, 
+
+                        }, 
+                        layerCaption: `水利小組範圍`, 
+                        legend: `#DBFCBD`, 
                     }, 
                     //BB_5圳路渠道_桃管_石管_幹支線
                     '11': {
@@ -30,23 +35,31 @@ export default {
                         style: {
                             fillColor: 'blue', 
                             color: 'black'
-                        }
+                        }, 
+                        layerCaption: `圳路渠道(幹支線)`, 
+                        legend: `#FC0012`, 
                     }, 
                     //BB_3工作站範圍_桃管_石管
                     '13': {
                         cache: [], 
                         style: {
-                            fillColor: 'yellow', 
-                            color: 'black'
-                        }
+                            // fillColor: 'rgba(255, 254, 78, 0.7)', 
+                             color: 'black'
+                        }, 
+                        layerCaption: `工作站範圍`, 
+                        legend: `#DBFCBD`, 
                     }, 
                     //BB_6埤塘_1120512_桃管_石管
                     '14': {
                         cache: [], 
                         style: {
-                            fillColor: 'aqua', 
-                            color: 'black'
-                        }
+                            //fillColor: '#666666',//'rgba(128, 128, 128, 0.7)', 
+                            color: 'black', 
+                            // opacity: 0, 
+                            // fill: true, 
+                        }, 
+                        layerCaption: `埤塘`, 
+                        legend: `#BED2FF`,
                     },  
                     //BB_1管理處範圍_桃管_石管
                     '15': {
@@ -54,7 +67,9 @@ export default {
                         style: {
                             // fillColor: 'lime', 
                             color: 'black'
-                        }
+                        }, 
+                        layerCaption: `管理處範圍`, 
+                        legend: `#FC0012`, 
                     },  
                 }
             },
@@ -62,7 +77,49 @@ export default {
                 hierarchyList: null,
                 pondInfoList: [],
                 workstationGroupList: [],
+                currentQtyLevelStyle: {
+                    'dangerous': {
+                        definition: '<= 40%', 
+                        symbol: '<i class="fa-regular fa-face-frown" style="color: red;"></i>', 
+                    }, 
+                    'normal': {
+                        definition: '41% ~ 60%', 
+                        symbol: '<i class="fa-regular fa-face-smile" style="color: yellow;"></i>'
+                    }, 
+                    'good': {
+                        definition: '> 61%', 
+                        symbol: '<i class="fa-regular fa-face-laugh-beam" style="color: green;"></i>'
+                    , }
+                }
             },
+            pickedPondInfo: {
+                gisData: null, 
+                gisDataDisplayFieldList: [
+                    {field: "管理處名稱", },
+                    {field: "工作站名稱", },
+                    {field: "原水利小組名稱", },
+                    {field: "水利小組名稱", },
+                ], 
+                dep1Data: null, 
+                dep1DataDisplayFieldList: [
+                    {field: "埤池面積(m2)", caption: "埤池面積(平方公尺)"}, 
+                    {field: "有效庫容(m3)", caption: "有效庫容(立方公尺)"}, 
+                    {field: "水源別", },
+                    
+                    {field: "灌溉功能"},
+                    {field: "灌溉面積(公頃)"}, 
+                    
+                    {field: "行政區"}, 
+
+                    {field: "生態敏感區域"}, 
+                    {field: "工業用水用途"}, 
+                    {field: "農業供灌用途"}, 
+                    {field: "魚介用途"}, 
+                    {field: "備註1"}, 
+                    {field: "備註2"}, 
+                ]
+            }, 
+            rightOffCanvas: null,
             dataAccess: null
         }
     },
@@ -95,7 +152,8 @@ export default {
                 w.totalCurrentQty = Enumerable.from(this.pondProfile.pondInfoList).where(p => p['工作站'] == w.工作站).sum(item => item['Dummy目前容量'])
                 w.totalCurrentPercentage = Math.round10(w.totalCurrentQty / w.totalQty * 100, -2);
             });
-            return filteredList;
+            let sorted = Enumerable.from(filteredList).orderBy(f=>f.totalCurrentPercentage);
+            return sorted;
         },
         associationList() {
             if (this.pondProfile.hierarchyList == null) {
@@ -131,7 +189,10 @@ export default {
                             //f['工作站']
                         ((this.mapProfile.search.workstation != null && this.mapProfile.search.workstation.length > 0) ? this.mapProfile.search.workstation : f['工作站'])
                     );
-                });
+                })
+                .orderBy(
+                    item =>  item["Dummy目前容量比率"]
+                );
             
             return arr.toArray();
         }
@@ -139,6 +200,10 @@ export default {
     methods: {
         init: function () {
             this.loadData();
+            
+            let offcanvasEl = document.getElementById('right-offcanvas')
+            this.rightOffCanvas = new bootstrap.Offcanvas(offcanvasEl);
+
             this.$nextTick(() => {
                 this.initMap();
             });
@@ -196,7 +261,8 @@ export default {
             this.addLayer();
         },
         addLayer: function () {
-            let url = 'https://gisportal.triwra.org.tw/server/rest/services/BigBossTaoyuanPonds2/MapServer';
+            let url = //'https://gisportal.triwra.org.tw/server/rest/services/BigBossTaoyuanPonds2/MapServer';
+                'https://gisportal.triwra.org.tw/server/rest/services/BigBossTaoyuanPonds/MapServer';
             if (this.mapProfile.layer != null) {
 
                 this.mapProfile.map.removeLayer(this.mapProfile.layer);
@@ -208,15 +274,7 @@ export default {
             this.mapProfile.layer = L.esri
                 .dynamicMapLayer({
                     url: url,
-                    opacity: 0.7,
-                    // layers: [
-                    //     10, //BB_4水利小組範圍_桃管_石管
-                    //     //11, //BB_5圳路渠道_桃管_石管_幹支線
-                    //     13, //BB_3工作站範圍_桃管_石管
-                    //     14, //BB_6埤塘_1120512_桃管_石管
-                    //     15//, //BB_1管理處範圍_桃管_石管
-                    //     //12, //BB_5圳路渠道_桃管_石管_所有渠道
-                    // ],
+                    //opacity: 0.7,
                     // layerDefs: {
                     //     10: where,
                     //         //"管理處名稱 = '桃園管理處' and 工作站名稱 = '湖口工作站'", 
@@ -225,7 +283,6 @@ export default {
                     //     13: where,
                     //     14: where,//`管理處名稱 = '桃園管理處' and 工作站名稱 = '湖口工作站' and 水利小組名稱 = '光復圳1-1號池小組'`, //where,
                     //     15: where,
-
                     // }
                 })
                 .addTo(this.mapProfile.map);
@@ -268,18 +325,16 @@ export default {
             //         cont += this.getPondContent(f.properties);
             //         if (f.layerId == 14) {
             //             // let obj = f.properties;
-            //             workstation = f.properties['工作站名稱'];
+            //             //workstation = f.properties['工作站名稱'];
             //             pondName = f.properties['埤塘名稱'];
             //         }
             //     });
-            //     //var count = featureCollection.features.length;
-            //     // return (count) ? count + ' features' : false;
-            //     //return `<div style="background-color: blue;">${count} f</div>`;
-            //     cont += this.getDep1DataContent(pondName, workstation);
+            //     cont = pondName;
             //     //console.log(cont);
             //     return `<div class="row waiting-content">${cont}</div>`;
             //     //return `${cont}`;
             // });
+
             //let identifiedFeature;
             //let pane = document.getElementById("pane-content");
             this.mapProfile.map.on("click", (e) => {
@@ -335,70 +390,52 @@ export default {
                 this.removeHighlightLayer(_layerId);
                 
                 console.log(featureCollection);
-                
+                console.log(_layerId, this.mapProfile.highlightLayer[`${_layerId}`].style);
                 if (featureCollection.features.length > 0) {
                     //identifiedFeature = 
                     featureCollection.features.forEach(_f => {
                         let fLayer = L.geoJSON(_f).addTo(this.mapProfile.map);
                         fLayer.setStyle(
-                            // {
-                            //     color: 'white',
-                            //     fillColor: 'blue'
-                            // }
                             this.mapProfile.highlightLayer[`${_layerId}`].style
                         );
                         this.mapProfile.highlightLayer[`${_layerId}`].cache.push(fLayer);
                     })
 
                 }
-                // if (featureCollection.features.length > 0) {
-                //     var feature = featureCollection.features[0];
-                //     var latlng = L.latLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0]);
-
-                //     // Create a popup and attach it to the map
-                //     L.popup()
-                //         .setLatLng(latlng)
-                //         .setContent("This is the feature you selected.")
-                //         .openOn(map);
-
-                //     // Optionally zoom to the feature
-                //     map.setView(latlng, 14);
-                // } else {
-                //     console.log("No features found.");
-                // }
             });
         },
         showPondContent: function(error, featureCollection){
             let layerId = 14;
-            let pane = document.getElementById("pane-content");
+            //let pane = document.getElementById("pane-content");
             if (error) {
                 return;
             }
 
             this.removeHighlightLayer(layerId);
-            pane.innerHTML = "No features identified.";
+            //pane.innerHTML = "No features identified.";
 
             // make sure at least one feature was identified.
             if (featureCollection.features.length > 0) {
                 console.log(featureCollection);
                 
-                let identifiedFeature = L.geoJSON(featureCollection.features[0]).addTo(this.mapProfile.map);
+                let feature = featureCollection.features[0];
+                
+                let identifiedFeatureLayer = L.geoJSON(feature).addTo(this.mapProfile.map);
 
-                this.mapProfile.highlightLayer[`${layerId}`].cache.push(identifiedFeature);
+                this.mapProfile.highlightLayer[`${layerId}`].cache.push(identifiedFeatureLayer);
+                
+                this.pickedPondInfo.gisData = feature.properties;
+                this.pickedPondInfo.dep1Data = this.getDep1DataPondData(this.pickedPondInfo.gisData["埤塘名稱"], this.pickedPondInfo.gisData["工作站名稱"]);
+                // let cont = this.getPondContent(this.pickedPondInfo.gisData);
+                // cont += this.getDep1DataContent(this.pickedPondInfo.gisData["埤塘名稱"], this.pickedPondInfo.gisData["工作站名稱"]);
+                // cont = `<div class="row">${cont}</div>`;
+                // pane.innerHTML = cont;//soilDescription;
 
-                let gisProp = featureCollection.features[0].properties;
-                let cont = this.getPondContent(gisProp);
-
-                cont += this.getDep1DataContent(gisProp["埤塘名稱"], gisProp["工作站名稱"]);
-                cont = `<div class="row">${cont}</div>`;
-
-                //   var soilDescription = "ABC";
-                //     //featureCollection.features[0].properties.NAME + " County, " + featureCollection.features[0].properties.STATE_NAME;
-                pane.innerHTML = cont;//soilDescription;
-
-            } else {
-                pane.innerHTML = "No features identified.";
-            }
+            } 
+            // else {
+            //     pane.innerHTML = "No features identified.";
+            // }
+            this.rightOffCanvas.show();
         }, 
         getPondContent: function (gisProperties) {
             let cont = '';
@@ -406,28 +443,35 @@ export default {
                 //console.log(`Key: ${key}, Value: ${obj[key]}`);
                 let value = gisProperties[key];
                 cont += `<div class="col-md-6">
-                    <label>${key}: </label>
-                    <span>${value}</span>
+                    <label class="fw-bold">${key}: </label>
+                    <span class="d-block">${value}</span>
                 </div>`
             });
 
-            // if(cont != ''){
-            //     cont = `<div class="row">${cont}</div>`;
-            // }
+            
             cont += '<hr class="col-md-12">'
             return cont;
         },
+        getDep1DataPondData: function(pondName, workstation){
+            let found = Enumerable.from(this.pondProfile.pondInfoList)
+            .where(item => { return item['埤塘名稱'] == pondName && item['工作站'] == workstation; })
+            .toArray();
+            if (found.length > 0) {
+                return found[0];
+            }else{
+                return null;
+            }
+        }, 
         getDep1DataContent: function (pondName, workstation) {
             let cont = '';
             if (pondName != null) {
-                let found = Enumerable.from(this.pondProfile.pondInfoList)
-                    .where(item => { return item['埤塘名稱'] == pondName && item['工作站'] == workstation; })
-                    .toArray();
-                console.log('found ponds: ', found);
-                if (found.length > 0) {
+                // let found = Enumerable.from(this.pondProfile.pondInfoList)
+                //     .where(item => { return item['埤塘名稱'] == pondName && item['工作站'] == workstation; })
+                //     .toArray();
+                // console.log('found ponds: ', found);
+                let dataObject = this.getDep1DataPondData(pondName, workstation);
+                if (dataObject != null) {
                     // cont += `<hr class="col-md-12">`;
-
-                    let dataObject = found[0];
                     Object.keys(dataObject).forEach(key => {
                         //console.log(`Key: ${key}, Value: ${obj[key]}`);
                         let value = dataObject[key];
@@ -556,6 +600,16 @@ export default {
 
 
         },
+        getLevelFlag: function(currentQtyPercentage){
+            if(currentQtyPercentage <= 40){
+                return 'dangerous';
+            }else if (currentQtyPercentage <= 45){
+                return 'normal';
+            }
+            else{
+                return 'good';
+            }
+        }, 
         pinPond: function(OBJECTID, group){
             console.log(OBJECTID);
             this.highlightPonds(`OBJECTID = ${OBJECTID}`, 14);
@@ -579,13 +633,13 @@ export default {
         <div class="container">
             <div class="row my-2">
 
-                <div class="col-md-4">
+                <div class="col-md-6">
                     <div class="input-group mb-3">
-                        <label class="input-group-text" for="inputGroupSelect01">工作站</label>
+                        <label class="input-group-text" for="inputGroupSelect01">管理處</label>
                         <input type="text" class="form-control" v-model="mapProfile.search.association" readonly>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-6">
                     <div class="input-group mb-3">
                         <label class="input-group-text" for="inputGroupSelect01">工作站</label>
                         <select class="form-select" v-model="mapProfile.search.workstation">
@@ -594,7 +648,7 @@ export default {
                         </select>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-4" v-if="false">
                     <div class="input-group mb-3">
                         <label class="input-group-text" for="inputGroupSelect01">水利小組</label>
                         <select class="form-select" v-model="mapProfile.search.group">
@@ -610,63 +664,169 @@ export default {
 
         <div id="map">
         </div>
+        <!--
         <div id="pane-content">
         </div>
-        <div id="summary-content-workstation-list" class="row">
-            {{this.mapProfile.search.association}} 共{{pondListData.length}} 口埤塘
-            <div class="col-md-12 my-2" :class="{'border': mapProfile.search.workstation == obj['工作站'], 'border-danger': mapProfile.search.workstation == obj['工作站']}" v-for="(obj, idx) in workstationGroupListData" :key="obj['工作站']">
-                <!--{{obj}}-->
-                <label>灌區:</label> 
-                <span>{{obj["分類"]}}</span>
-                
-                <br>
-                <label>工作站:</label> 
-                <span>{{obj["工作站"]}} <a href="#" @click="mapProfile.search.workstation = obj['工作站']">go</a><span>
-
-                <br>
-                <label>埤塘數:</label> 
-                <span>{{obj["pondCount"]}}<span>
-
-                <br>
-                <label>總有效庫容(立方公尺):</label> 
-                <span>{{obj["totalQty"]}}<span>
-
-                <br>
-                <label>總目前庫容(立方公尺):</label> 
-                <span>{{obj["totalCurrentQty"]}}<span>
-                
-                <br>
-                <label>總目前庫容(%):</label> 
-                <span>{{obj["totalCurrentPercentage"]}}<span>
+        -->
+        <div id="legend">
+            水情：
+            <div v-for="(obj) in pondProfile.currentQtyLevelStyle">
+                <label>{{obj.definition}}</label><span v-html="obj.symbol"></span>
             </div>
-
+            <br>
+            圖例：
+            <div v-for="(obj) in mapProfile.highlightLayer">
+                <label>{{obj.layerCaption}}</label><span class="d-inline-block mx-2" style="width: 15px; height: 15px;" :style="{'background-color': obj.legend}"></span>
+            </div>
+            
         </div>
-        <div id="summary-content-pond-list">
-            {{this.mapProfile.search.association}} {{this.mapProfile.search.workstation}} {{pondListData.length}} 口埤塘
-            <div class="col-md-12" v-for="(obj, idx) in pondListData">
+        <div id="summary-content-workstation-list" :style="{'background-color': mapProfile.highlightLayer['13'].style.fillColor}">
+            <b>{{this.mapProfile.search.association}}</b> 共 <b>{{workstationGroupListData.length}}</b> 個工作站； <b>{{pondProfile.pondInfoList.length}}</b> 口埤塘
+            <div class="col-md-12 p-2" :class="{'border': mapProfile.search.workstation == obj['工作站'], 'border-danger': mapProfile.search.workstation == obj['工作站']}" v-for="(obj, idx) in workstationGroupListData" :key="obj['工作站']">
                 <!--{{obj}}-->
-                <label>埤塘名稱:</label> 
-                <span>{{obj["埤塘名稱"]}} <a href="#" @click="pinPond(obj.OBJECTID, obj['水利小組名稱'])">go</a></span>
-
-                <br>
-                <label>有效庫容(立方公尺):</label> 
-                <span>{{obj["有效庫容(m3)"]}}</span>
+                <label class="w-50 d-inline-block">灌區:</label> 
+                <span class="w-50 d-inline-block text-end">{{obj["分類"]}}</span>
                 
                 <br>
-                <label>目前水量(立方公尺):</label> 
-                <span>{{obj["Dummy目前容量"]}}</span>
+                <label class="w-50 d-inline-block">工作站:</label> 
+                <span class="w-50 d-inline-block text-end">{{obj["工作站"]}} 
+                    <a href="#" @click="mapProfile.search.workstation = obj['工作站']"><i class="fa-solid fa-magnifying-glass-location"></i></a>
+                </span>
+                
+                <br>
+                <label class="w-50">埤塘數:</label> 
+                <span class="w-50 d-inline-block text-end">{{obj["pondCount"]}}</span>
 
                 <br>
-                <label>目前庫容(%):</label> 
-                <span>{{obj["Dummy目前容量比率"]}}</span>
+                <label class="w-50">總有效庫容:</label> 
+                <span class="w-50 d-inline-block text-end">
+                    <math xmlns="http://www.w3.org/1998/Math/MathML">
+                        <mn>{{obj["totalQty"]}}</mn>
+                        <mi>m</mi>
+                        <msup>
+                            <mn></mn>
+                            <mn>3</mn>
+                        </msup>
+                    </math>
+                </span>
 
+                <br>
+                <label class="w-50">總目前庫容:</label> 
+                <span class="w-50 d-inline-block text-end">
+                    <math xmlns="http://www.w3.org/1998/Math/MathML">
+                        <mn>{{obj["totalCurrentQty"]}}</mn>
+                        <mi>m</mi>
+                        <msup>
+                            <mn></mn>
+                            <mn>3</mn>
+                        </msup>
+                    </math>
+                </span>
+                
+                <br>
+                <label class="w-50">總目前庫容佔比:</label> 
+                <span class="w-50 d-inline-block text-end">
+                    <math xmlns="http://www.w3.org/1998/Math/MathML">
+                        <mn>{{obj["totalCurrentPercentage"]}}</mn>
+                        <mi>%</mi>
+                    </math>
+                </span>
+
+                <br>
+                <label class="w-50">總水情:</label> 
+                <span class="w-50 d-inline-block text-end" v-html="pondProfile.currentQtyLevelStyle[getLevelFlag(obj['totalCurrentPercentage'])].symbol">
+                </span>
+    
+                <hr class="w-100" v-if="idx != workstationGroupListData.length">
+            </div>
+        </div>
+        <div id="summary-content-pond-list" :style="{'background-color': mapProfile.highlightLayer['14'].style.fillColor}">
+            <!--{{this.mapProfile.search.association}}-->
+            <b>{{this.mapProfile.search.workstation}}</b> 共 <b>{{pondListData.length}}<b> 口埤塘
+            <div class="col-md-12" v-for="(obj, idx) in pondListData" :key="obj.OBJECTID" 
+                :class="{'border': (pickedPondInfo.gisData != null && pickedPondInfo.gisData['埤塘名稱'] == obj['埤塘名稱'] && pickedPondInfo.gisData['工作站名稱'] == obj['工作站'])}">
+                <!--{{obj}}-->
+                <label class="w-50">埤塘名稱:</label> 
+                <span class="w-50 d-inline-block text-end">
+                    {{obj["埤塘名稱"]}} 
+                    <a href="#" @click="pinPond(obj.OBJECTID, obj['水利小組名稱'])">
+                        <i class="fa-solid fa-magnifying-glass-location"></i>
+                    </a>
+                </span>
+
+                <br>
+                <label class="w-50">工作站:</label> 
+                <span class="w-50 d-inline-block text-end">
+                    {{obj["工作站"]}} 
+                </span>
+
+                <br>
+                <label class="w-50">有效庫容:</label> 
+                <span class="w-50 d-inline-block text-end"> 
+                    <math xmlns="http://www.w3.org/1998/Math/MathML">
+                        <mn>{{obj["有效庫容(m3)"]}}</mn>
+                        <mi>m</mi>
+                        <msup>
+                            <mn></mn>
+                            <mn>3</mn>
+                        </msup>
+                    </math>
+                </span>
+                
+                <br>
+                <label class="w-50">目前庫容:</label> 
+                <span class="w-50 d-inline-block text-end">
+                    
+                    <math xmlns="http://www.w3.org/1998/Math/MathML">
+                        <mn>{{obj["Dummy目前容量"]}}</mn>
+                        <mi>m</mi>
+                        <msup>
+                            <mn></mn>
+                            <mn>3</mn>
+                        </msup>
+                    </math>
+                </span>
+
+                <br>
+                <label class="w-50">目前庫容佔比:</label> 
+                <span class="w-50 d-inline-block text-end">
+                    <math xmlns="http://www.w3.org/1998/Math/MathML">
+                        <mn>{{obj["Dummy目前容量比率"]}}</mn>
+                        <mi>%</mi>
+                    </math>
+                </span>
+
+                <br>
+                <label class="w-50">水情:</label> 
+                <span class="w-50 d-inline-block text-end" v-html="pondProfile.currentQtyLevelStyle[getLevelFlag(obj['Dummy目前容量比率'])].symbol">
+                </span>
+                
                 <hr class="w-100" v-if="idx != (pondListData.length - 1)">
             </div>
 
-             <!--<div class="col-md-12" v-for="(obj, idx) in workstationList">
-                 {{obj}}
-             </div>
-             -->
+        </div>
+
+        <div id="right-offcanvas" class="offcanvas offcanvas-end" data-bs-backdrop="static" tabindex="-1" id="staticBackdrop" aria-labelledby="staticBackdropLabel">
+            <div class="offcanvas-header">
+                <h5 class="offcanvas-title" id="staticBackdropLabel" v-if="pickedPondInfo.gisData != null">{{pickedPondInfo.gisData["埤塘名稱"]}}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body">
+                <div class="row" v-if="pickedPondInfo.gisData != null">
+                    <!--{{pickedPondInfo.gisData}}-->
+                    <div class="col-md-6" v-for="(item, idx) in pickedPondInfo.gisDataDisplayFieldList">
+                        <label class="fw-bold">{{(item.caption != null) ? item.caption : item.field}}:</label>
+                        <span class="d-block">{{pickedPondInfo.gisData[item.field]}}</span>
+                    </div>
+                </div>
+                <div class="row" v-if="pickedPondInfo.dep1Data != null">
+                    <!--{{pickedPondInfo.dep1Data}}-->
+                    <div class="col-md-6" v-for="(item, idx) in pickedPondInfo.dep1DataDisplayFieldList">
+                        <label class="fw-bold">{{(item.caption != null) ? item.caption : item.field}}:</label>
+                        <span class="d-block">{{pickedPondInfo.dep1Data[item.field]}}</span>
+                    </div>
+                </div>
+            </div>
         </div>
 
     

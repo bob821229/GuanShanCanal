@@ -6,7 +6,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
     <meta name="generator" content="">
-    <title>農田水利財團法人專區</title>
+    <title>桃園管理處 埤塘</title>
 
     <link rel="stylesheet" href="https://unpkg.com/primevue/resources/themes/saga-blue/theme.css">
     <link rel="stylesheet" href="https://unpkg.com/primevue/resources/primevue.min.css">
@@ -31,7 +31,7 @@
         }
         div#map{
             background-color: aqua;
-            width: calc(100vw - 900px);
+            width: calc(100vw - 600px);
             height: calc(100vh - 80px);
             /* margin-bottom: 200px; */
             margin-left: 5px;
@@ -43,28 +43,42 @@
             max-height: 500px;
             overflow-y: auto;
         }
-        div#pane-content, div#summary-content-workstation-list, div#summary-content-pond-list{
-            width: 300px;
-            height: calc(100vh - 80px);
+        /* div#pane-content,  */
+        div#legend, div#summary-content-workstation-list, div#summary-content-pond-list{
+            
             overflow-y: auto;
             position: absolute;
-            top: 70px;
-            right: 0px;
             /* right: 10px; */
             z-index: 1000;
             /* background: yellow; */
             padding: 1em;
+            /* opacity: 0.7; */
         }
-        div#pane-content{
+        div#summary-content-workstation-list, div#summary-content-pond-list{
+            top: 70px;
+            right: 0px;
+            width: 300px;
+            height: calc(100vh - 80px);
+        }
+        div#legend{
+            /* background-color: skyblue; */
+            border: solid black 1px;
+            bottom: 10px;
+            left: 0px;
+            font-size: smaller;
+        }
+        /* div#pane-content{
             background-color: yellow;
-        } 
+        }  */
         div#summary-content-workstation-list{
-            background-color: rgb(14, 113, 151);
-            right: 600px;
+            background-color: #DBFCBD;
+            /* right: 600px; */
+            right: 300px;
         }
         div#summary-content-pond-list{
-            background-color: lightsalmon;
-            right: 300px;
+            /* background-color: #C501FE; */
+            color: #C501FE;
+            /* right: 300px; */
         }
     </style>
 </head>
