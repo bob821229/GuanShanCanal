@@ -23,23 +23,15 @@
     <link href="./css/sticky-nav-n-footer.css" rel="stylesheet" />
 
     <style>
-        .p-datepicker-input {
-            width: 100%;
+        .container {
+            padding-top: 0px !important;
         }
-
-        label.required::after {
-            content: '*';
-        }
-    </style>
-
-    <style>
-
         div.search-console{
-            margin-top: 80px;
+            height: 80px;
         }
         div#map{
             background-color: aqua;
-            width: calc(100vh-10px);
+            width: calc(100vw - 900px);
             height: calc(100vh - 80px);
             /* margin-bottom: 200px; */
             margin-left: 5px;
@@ -51,6 +43,29 @@
             max-height: 500px;
             overflow-y: auto;
         }
+        div#pane-content, div#summary-content-workstation-list, div#summary-content-pond-list{
+            width: 300px;
+            height: calc(100vh - 80px);
+            overflow-y: auto;
+            position: absolute;
+            top: 70px;
+            right: 0px;
+            /* right: 10px; */
+            z-index: 1000;
+            /* background: yellow; */
+            padding: 1em;
+        }
+        div#pane-content{
+            background-color: yellow;
+        } 
+        div#summary-content-workstation-list{
+            background-color: rgb(14, 113, 151);
+            right: 600px;
+        }
+        div#summary-content-pond-list{
+            background-color: lightsalmon;
+            right: 300px;
+        }
     </style>
 </head>
 
@@ -59,7 +74,6 @@
 
     <!-- <div></div> -->
 </body>
-
 <script src="./js/helper.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/dayjs@1.11.12/dayjs.min.js"></script>
 

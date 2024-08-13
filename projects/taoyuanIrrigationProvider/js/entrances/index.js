@@ -32,16 +32,12 @@ var app = createApp({
     },
     template: `
 
-    <Header></Header>
-
-
     <main class="flex-shrink-0">
         <component :is="currentComponent"></component>
     </main>
 
     
     
-    <!--<Footer></Footer>   -->
     `
 });
 
