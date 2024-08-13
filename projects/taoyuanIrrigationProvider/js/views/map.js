@@ -77,6 +77,7 @@ export default {
                 hierarchyList: null,
                 pondInfoList: [],
                 workstationGroupList: [],
+                pondHvCurveList: [], 
                 currentQtyLevelStyle: {
                     'dangerous': {
                         definition: '<= 40%', 
@@ -122,7 +123,14 @@ export default {
                     {field: "魚介用途"}, 
                     {field: "備註1"}, 
                     {field: "備註2"}, 
-                ]
+                ], 
+                hvCurveData: null, 
+                hvCurveDataDisplayFieldList: [
+                    {field: "WaterDepth", caption: "水深(m)"},
+                    {field: "SurfaceArea", caption: "表面積(m)"}, 
+                    {field: "WaterStorage", caption: "蓄水量(m)"}, 
+                    {field: "PercentageOfStorage", caption: "蓄水量(佔滿庫比率)"},
+                ], 
             }, 
             rightOffCanvas: null,
             dataAccess: null
@@ -256,6 +264,15 @@ export default {
                 },
                 (returnList) => {
                     this.pondProfile.workstationGroupList = returnList;
+                }
+            );
+            this.dataAccess.getData(
+                {
+                    path: '/bigboss-pond-hukou-pond-hv-curve'
+                },
+                (returnList) => {
+                    this.pondProfile.pondHvCurveList = returnList;
+                    console.log(this.pondProfile.pondHvCurveList);
                 }
             );
         },
@@ -439,6 +456,7 @@ export default {
                 
                 this.pickedPondInfo.gisData = feature.properties;
                 this.pickedPondInfo.dep1Data = this.getDep1DataPondData(this.pickedPondInfo.gisData["埤塘名稱"], this.pickedPondInfo.gisData["工作站名稱"]);
+                this.pickedPondInfo.hvCurveData = this.getHvCurveData(this.pickedPondInfo.gisData["埤塘名稱"], this.pickedPondInfo.gisData["工作站名稱"]);
                 // let cont = this.getPondContent(this.pickedPondInfo.gisData);
                 // cont += this.getDep1DataContent(this.pickedPondInfo.gisData["埤塘名稱"], this.pickedPondInfo.gisData["工作站名稱"]);
                 // cont = `<div class="row">${cont}</div>`;
@@ -471,6 +489,16 @@ export default {
             .toArray();
             if (found.length > 0) {
                 return found[0];
+            }else{
+                return null;
+            }
+        }, 
+        getHvCurveData: function(pondName, workstation){
+            console.log(pondName, workstation)
+            if(workstation == '湖口工作站'){
+                console.log('in filter')
+                let arr = Enumerable.from(this.pondProfile.pondHvCurveList).where(p => p.PondName == pondName);
+                return arr.toArray();
             }else{
                 return null;
             }
@@ -841,6 +869,29 @@ export default {
                         <label class="fw-bold">{{(item.caption != null) ? item.caption : item.field}}:</label>
                         <span class="d-block">{{pickedPondInfo.dep1Data[item.field]}}</span>
                     </div>
+                </div>
+                <div class="row" v-if="pickedPondInfo.dep1Data != null">
+                    <!--{{pickedPondInfo.hvCurveData}}-->
+                     <DataTable :value="pickedPondInfo.hvCurveData" tableStyle="min-width: 50rem"
+                        
+                        sortField="WaterDepth"
+                        :sortOrder="-1"
+
+                        paginator 
+                        :rows="10" 
+                        :rowsPerPageOptions="[10, 20, 50]"
+                    
+                        :loading="loading"
+>
+
+                        <template #empty> 查無資料 </template>
+                        <template #loading> 載入資料中… </template>
+
+                        
+                        <Column sortable v-for="(obj) in pickedPondInfo.hvCurveDataDisplayFieldList" sortable :field="obj.field" :header="obj.caption"></Column>
+
+                        
+                    </DataTable>      
                 </div>
             </div>
         </div>
