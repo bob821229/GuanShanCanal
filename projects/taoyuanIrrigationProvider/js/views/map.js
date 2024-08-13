@@ -44,7 +44,7 @@ export default {
                         cache: [], 
                         style: {
                             // fillColor: 'rgba(255, 254, 78, 0.7)', 
-                             color: 'black'
+                             color: 'red'
                         }, 
                         layerCaption: `工作站範圍`, 
                         legend: `#DBFCBD`, 
@@ -84,7 +84,7 @@ export default {
                     }, 
                     'normal': {
                         definition: '41% ~ 60%', 
-                        symbol: '<i class="fa-regular fa-face-smile" style="color: yellow;"></i>'
+                        symbol: '<i class="fa-regular fa-face-smile" style="color: #FF943D;"></i>'
                     }, 
                     'good': {
                         definition: '> 61%', 
@@ -132,6 +132,8 @@ export default {
         'mapProfile.search.workstation': function(n, o){
             //console.log('mapProfile.search.workstation', n, o)
             this.searchMap();
+            this.removeHighlightLayer(14);
+            this.removeHighlightLayer(10);
             this.highlightPonds(`工作站名稱 = '${n}'`, 13);
         }, 
         'mapProfile.search.group': function(n, o){
@@ -338,6 +340,7 @@ export default {
             //let identifiedFeature;
             //let pane = document.getElementById("pane-content");
             this.mapProfile.map.on("click", (e) => {
+                console.log(e);
                 this.mapProfile.layer
                     .identify()
                     .layers('visible:14') // just the counties sublayer
@@ -394,10 +397,15 @@ export default {
                 if (featureCollection.features.length > 0) {
                     //identifiedFeature = 
                     featureCollection.features.forEach(_f => {
-                        let fLayer = L.geoJSON(_f).addTo(this.mapProfile.map);
+                        let fLayer = L.geoJSON(_f)
                         fLayer.setStyle(
                             this.mapProfile.highlightLayer[`${_layerId}`].style
+                            // {
+                            //     color: '#000000', 
+                            //     fillColor: '#001910'
+                            // }
                         );
+                        fLayer.addTo(this.mapProfile.map);
                         this.mapProfile.highlightLayer[`${_layerId}`].cache.push(fLayer);
                     })
 
@@ -430,12 +438,12 @@ export default {
                 // cont += this.getDep1DataContent(this.pickedPondInfo.gisData["埤塘名稱"], this.pickedPondInfo.gisData["工作站名稱"]);
                 // cont = `<div class="row">${cont}</div>`;
                 // pane.innerHTML = cont;//soilDescription;
-
+                this.rightOffCanvas.show();
             } 
             // else {
             //     pane.innerHTML = "No features identified.";
             // }
-            this.rightOffCanvas.show();
+            
         }, 
         getPondContent: function (gisProperties) {
             let cont = '';
@@ -612,6 +620,10 @@ export default {
         }, 
         pinPond: function(OBJECTID, group){
             console.log(OBJECTID);
+
+            //水利小組
+            this.highlightPonds(`水利小組名稱 = '${group}'`, 10);
+
             this.highlightPonds(`OBJECTID = ${OBJECTID}`, 14);
             // this.highlightPonds(`OBJECTID = ${OBJECTID}`, 10);
             console.log(group);
@@ -622,8 +634,7 @@ export default {
                 .where(`OBJECTID = ${OBJECTID}`)
                 .run(this.showPondContent);
 
-            //水利小組
-            this.highlightPonds(`水利小組名稱 = '${group}'`, 10);
+
         },
     },
     mounted() {
