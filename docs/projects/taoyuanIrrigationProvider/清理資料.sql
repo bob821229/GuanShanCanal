@@ -88,9 +88,15 @@ select
     pond.[水利小組名稱], 
     cast(cap.[給水塔底標高(m)] as Decimal(18, 8)) as [給水塔底標高(m)], 
     cast(cap.[滿水位標高(m)] as Decimal(18, 8)) as [滿水位標高(m)], 
-    cap.[滿水位]
---     , 
---         cap2.[PondName]
+    cap.[滿水位], 
+        cast(hu.[WaterDepthMaximum] as Decimal(18, 8)) as WaterDepthMaximum, 
+        cast(hu.[SurfaceAreaMaximum] as Decimal(18, 8)) as SurfaceAreaMaximum, 
+        cast(hu.[WaterStorageMaximum] as Decimal(18, 8)) as WaterStorageMaximum, 
+        cast(hu.[DeadWaterHeight] as Decimal(18, 8)) as DeadWaterHeight, 
+        cast(hu.[FullWaterHeight] as Decimal(18, 8)) as FullWaterHeight, 
+        hu.[FullWaterHeightLoc] as FullWaterHeightLoc, 
+        cast(hu.[FieldArea] as Decimal(18, 8)) as FieldArea, 
+        hu.[CanalName]
 from [dbo].['桃管處埤塘基本資料284口'] dep1 
         inner join [dbo].[BB_6埤塘_1120512_桃管_石管$] pond
                 on pond.[工作站名稱] = dep1.[工作站] 
@@ -98,9 +104,10 @@ from [dbo].['桃管處埤塘基本資料284口'] dep1
         left join ['桃園管理處各貯水池能量表(總表)_修'] cap
                 on cap.[工作站] + '工作站' = pond.[工作站名稱] 
                         and cap.[埤塘編號] = pond.[埤塘名稱]
-        
-        -- left join [dbo].[湖口工作站$] cap2
-        --         on cap2.PondId = dep1.[埤塘編號]
+        left join [dbo].[湖口工作站$] hu
+                on hu.PondId = dep1.[埤塘編號]
+                        and dep1.[工作站] = '湖口工作站'
+--where dep1.[工作站] = '湖口工作站'
 for json path, include_null_values
 
 SELECT *
@@ -121,20 +128,22 @@ from [dbo].['桃管處埤塘基本資料284口']
 -- select top 1 * from [dbo].['桃管處埤塘基本資料284口']
 -- select top 1 * from [dbo].[湖口工作站$]
 
--- select mapping.[PondName] , pond.* 
--- from [dbo].['桃管處埤塘基本資料284口'] pond
---         LEFT join [dbo].[各埤塘蓄水量轉換對照表$] mapping
---                 on pond.[埤塘編號] = mapping.[PondId]
--- where pond.[工作站] = '湖口工作站'
--- order by mapping.[PondName]
+select mapping.[PondName], hu.PondName , pond.* 
+from [dbo].['桃管處埤塘基本資料284口'] pond
+        LEFT join [dbo].[各埤塘蓄水量轉換對照表$] mapping
+                on pond.[埤塘編號] = mapping.[PondId]
+        left join [dbo].[湖口工作站$] hu
+                on pond.[埤塘編號] = hu.PondId
+where pond.[工作站] = '湖口工作站'
+order by hu.PondName, mapping.[PondName]
 
 select [WorkStationId], 
         [PondId], 
         [PondName], 
         cast([WaterDepth] as Decimal(18, 8)) WaterDepth, 
         cast([SurfaceArea] as Decimal(18, 8)) SurfaceArea, 
-        cast([WaterStorage] as Decimal(18, 8)), 
-        cast([PercentageOfStorage] as Decimal(18, 15)), 
+        cast([WaterStorage] as Decimal(18, 8)) WaterStorage, 
+        cast([PercentageOfStorage] as Decimal(18, 15)) PercentageOfStorage, 
         note
 from [dbo].[各埤塘蓄水量轉換對照表$]
 for json path, include_null_values

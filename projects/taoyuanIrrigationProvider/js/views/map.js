@@ -102,15 +102,26 @@ export default {
                     {field: "水利小組名稱", },
                 ], 
                 dep1Data: null, 
-                dep1DataDisplayFieldList: [
-                    {field: "埤池面積(m2)", caption: "埤池面積(平方公尺)"}, 
-                    {field: "有效庫容(m3)", caption: "有效庫容(立方公尺)"}, 
+                dep1DataDisplayFieldWaterStorageList: [
+                    // {field: "埤池面積(m2)", caption: "埤池面積(平方公尺)"}, 
+                    // {field: "有效庫容(m3)", caption: "有效庫容(立方公尺)"}, 
 
-                    {field: "給水塔底標高(m)", caption: "給水塔底標高(公尺)"}, 
-                    {field: "滿水位標高(m)", caption: "滿水位標高(公尺)"}, 
-                    {field: "滿水位", caption: "滿水位"}, 
+                    // {field: "給水塔底標高(m)", caption: "給水塔底標高(公尺)"}, 
+                    // {field: "滿水位標高(m)", caption: "滿水位標高(公尺)"}, 
+                    // {field: "滿水位", caption: "滿水位"}, 
+
+                    {field: "WaterDepthMaximum", caption: '最高水深(公尺)'},
+                    {field: "SurfaceAreaMaximum", caption: '滿水面積(平方公尺)'},
+                    {field: "WaterStorageMaximum", caption: '最大貯水量(立方公尺)'},
+                    {field: "DeadWaterHeight", caption: '給水塔底標高(公尺)'},
+                    {field: "FullWaterHeight", caption: '滿水位標高(公尺)'},
+                    {field: "FullWaterHeightLoc", caption: '滿水位位置'},
+                    {field: "FieldArea", caption: '小組面積'},
+                    {field: "CanalName", caption: '支渠名稱'},
 
                     {field: "水源別", },
+                ], 
+                dep1DataDisplayFieldOtherInfoList: [
                     
                     {field: "灌溉功能"},
                     {field: "灌溉面積(公頃)"}, 
@@ -127,9 +138,9 @@ export default {
                 hvCurveData: null, 
                 hvCurveDataDisplayFieldList: [
                     {field: "WaterDepth", caption: "水深(m)"},
-                    {field: "SurfaceArea", caption: "表面積(m)"}, 
-                    {field: "WaterStorage", caption: "蓄水量(m)"}, 
-                    {field: "PercentageOfStorage", caption: "蓄水量(佔滿庫比率)"},
+                    {field: "SurfaceArea", caption: "水面面積(平方公尺)"}, 
+                    {field: "WaterStorage", caption: "貯水量(立方公尺)"}, 
+                    {field: "PercentageOfStorage", caption: "貯水率(%)"},
                 ], 
             }, 
             rightOffCanvas: null,
@@ -852,12 +863,13 @@ export default {
 
         <div id="right-offcanvas" class="offcanvas offcanvas-end" data-bs-backdrop="static" tabindex="-1" id="staticBackdrop" aria-labelledby="staticBackdropLabel">
             <div class="offcanvas-header">
-                <h5 class="offcanvas-title" id="staticBackdropLabel" v-if="pickedPondInfo.gisData != null">{{pickedPondInfo.gisData["埤塘名稱"]}}</h5>
+                <h5 class="offcanvas-title" id="staticBackdropLabel" v-if="pickedPondInfo.gisData != null">埤塘名稱: {{pickedPondInfo.gisData["埤塘名稱"]}}</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
             </div>
             <div class="offcanvas-body">
                 <div class="row" v-if="pickedPondInfo.gisData != null">
                     <!--{{pickedPondInfo.gisData}}-->
+                    <h5 class="my-2">管理資訊</h5>
                     <div class="col-md-6" v-for="(item, idx) in pickedPondInfo.gisDataDisplayFieldList">
                         <label class="fw-bold">{{(item.caption != null) ? item.caption : item.field}}:</label>
                         <span class="d-block">{{pickedPondInfo.gisData[item.field]}}</span>
@@ -865,7 +877,16 @@ export default {
                 </div>
                 <div class="row" v-if="pickedPondInfo.dep1Data != null">
                     <!--{{pickedPondInfo.dep1Data}}-->
-                    <div class="col-md-6" v-for="(item, idx) in pickedPondInfo.dep1DataDisplayFieldList">
+                    <h5 class="my-2">貯水資訊</h5>
+                    <div class="col-md-6" v-for="(item, idx) in pickedPondInfo.dep1DataDisplayFieldWaterStorageList">
+                        <label class="fw-bold">{{(item.caption != null) ? item.caption : item.field}}:</label>
+                        <span class="d-block">{{pickedPondInfo.dep1Data[item.field]}}</span>
+                    </div>
+                </div>
+                <div class="row" v-if="pickedPondInfo.dep1Data != null">
+                    <!--{{pickedPondInfo.dep1Data}}-->
+                    <h5 class="my-2">其他資訊</h5>
+                    <div class="col-md-6" v-for="(item, idx) in pickedPondInfo.dep1DataDisplayFieldOtherInfoList">
                         <label class="fw-bold">{{(item.caption != null) ? item.caption : item.field}}:</label>
                         <span class="d-block">{{pickedPondInfo.dep1Data[item.field]}}</span>
                     </div>
