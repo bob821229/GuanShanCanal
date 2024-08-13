@@ -85,15 +85,27 @@ select
     dep1."備註1", 
     dep1."備註2", 
     cast(pond.[OBJECTID *] as int) OBJECTID, 
-    pond.[水利小組名稱]
+    pond.[水利小組名稱], 
+    cap.[給水塔底標高(m)_leon], 
+    cap.[滿水位標高(m)_leon], 
+    cap.[滿水位_leon], 
+    cap.[支渠名稱_leon]
 from [dbo].['桃管處埤塘基本資料284口'] dep1 
         inner join [dbo].[BB_6埤塘_1120512_桃管_石管$] pond
                 on pond.[工作站名稱] = dep1.[工作站] 
                         and pond.[埤塘名稱] = dep1.[埤塘名稱]
+        left join ['桃園管理處各貯水池能量表(總表)_修'] cap
+                on cap.[工作站] + '工作站' = pond.[工作站名稱] 
+                        and cap.[埤塘編號] = pond.[埤塘名稱]
 for json path, include_null_values
 
 SELECT *
 from [dbo].['桃管處埤塘基本資料284口']
 
 
-    
+select distinct cap.[工作站], cap.[埤塘編號]
+from [dbo].['桃園管理處各貯水池能量表(總表)_修'] cap
+        inner join [dbo].[BB_6埤塘_1120512_桃管_石管$] pond
+                on cap.[工作站] + '工作站' = pond.[工作站名稱] 
+                        and cap.[埤塘編號] = pond.[埤塘名稱]
+

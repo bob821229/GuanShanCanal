@@ -104,6 +104,11 @@ export default {
                 dep1DataDisplayFieldList: [
                     {field: "埤池面積(m2)", caption: "埤池面積(平方公尺)"}, 
                     {field: "有效庫容(m3)", caption: "有效庫容(立方公尺)"}, 
+
+                    {field: "給水塔底標高(m)", caption: "給水塔底標高(公尺)"}, 
+                    {field: "滿水位標高(m)_", caption: "滿水位標高(公尺)"}, 
+                    {field: "滿水位", caption: "滿水位"}, 
+
                     {field: "水源別", },
                     
                     {field: "灌溉功能"},
