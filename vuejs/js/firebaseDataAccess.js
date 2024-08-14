@@ -38,6 +38,7 @@ class FirebaseDataAccess{
         formData.updateDatetimeUtc = dayjs().format('YYYY-MM-DD HH:mm:ss');
         //formData.organizationId = this.user.organizationId;
         if(formData.organizationId == null || formData.organizationId == undefined) formData.organizationId = this.user.organizationId;
+        if(formData.createUserId == null || formData.createUserId == undefined) formData.createUserId = this.user.userId;
         if (formData.key == null) {
             formData.ifEnable = true;
             //p = push(ref(db, 'organizationDocList'), formData);

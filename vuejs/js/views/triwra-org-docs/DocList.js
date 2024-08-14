@@ -412,8 +412,13 @@ export default {
                         <Column header="" 
                             headerStyle="width: 100px; text-align: center" bodyStyle="text-align: center; overflow: visible">
                             <template #body="slotProps">
-                                <a @click="editData(slotProps.data)" class="mx-2" href="#"><i class="fa-solid fa-pen"></i> </a>
-                                <a @click="deleteData(slotProps.data)" class="mx-2" href="#"> <i class="fa-solid fa-trash text-danger"></i> </a>
+                                <a @click="editData(slotProps.data)" class="mx-2" href="#"><i class="fa-solid" :class="[((user.role == 11 && user.userId == slotProps.data.createUserId) || (user.role != 11)) ? 'fa-pen' : 'fa-eye']"></i> </a>
+                                <a @click="deleteData(slotProps.data)" class="mx-2" href="#" v-if="((user.role == 11 && user.userId == slotProps.data.createUserId) || (user.role != 11))"> <i class="fa-solid fa-trash text-danger"></i> </a>
+                                <!--
+                                ur: {{user.role}}<br>
+                                uo: {{user.organizationId}}<br>
+                                do: {{slotProps.data.organizationId}}
+                                -->
                             </template>
                         </Column>
                         <Column sortable field="year" header="年度"></Column>
