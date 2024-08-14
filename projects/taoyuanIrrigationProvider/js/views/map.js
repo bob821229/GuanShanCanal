@@ -7,6 +7,7 @@ export default {
     //inject: ['currentComponent'],
     data() {
         return {
+            ifShowLegend: true, 
             mapProfile: {
                 map: null,
                 layer: null,
@@ -81,15 +82,15 @@ export default {
                 currentQtyLevelStyle: {
                     'dangerous': {
                         definition: '<= 40%', 
-                        symbol: '<i class="fa-regular fa-face-frown" style="color: red;"></i>', 
+                        symbol: '<i class="fa-regular fa-face-frown mx-2" style="color: red;"></i>', 
                     }, 
                     'normal': {
                         definition: '41% ~ 60%', 
-                        symbol: '<i class="fa-regular fa-face-smile" style="color: #FF943D;"></i>'
+                        symbol: '<i class="fa-regular fa-face-smile mx-2" style="color: #FF943D;"></i>'
                     }, 
                     'good': {
                         definition: '> 61%', 
-                        symbol: '<i class="fa-regular fa-face-laugh-beam" style="color: green;"></i>'
+                        symbol: '<i class="fa-regular fa-face-laugh-beam mx-2" style="color: green;"></i>'
                     , }
                 }
             },
@@ -110,9 +111,9 @@ export default {
                     // {field: "滿水位標高(m)", caption: "滿水位標高(公尺)"}, 
                     // {field: "滿水位", caption: "滿水位"}, 
 
+                    {field: "WaterStorageMaximum", caption: '最大貯水量(立方公尺)'},
                     {field: "WaterDepthMaximum", caption: '最高水深(公尺)'},
                     {field: "SurfaceAreaMaximum", caption: '滿水面積(平方公尺)'},
-                    {field: "WaterStorageMaximum", caption: '最大貯水量(立方公尺)'},
                     {field: "DeadWaterHeight", caption: '給水塔底標高(公尺)'},
                     {field: "FullWaterHeight", caption: '滿水位標高(公尺)'},
                     {field: "FullWaterHeightLoc", caption: '滿水位位置'},
@@ -724,19 +725,26 @@ export default {
         </div>
         -->
         <div id="legend">
-            水情：
-            <div v-for="(obj) in pondProfile.currentQtyLevelStyle">
-                <label>{{obj.definition}}</label><span v-html="obj.symbol"></span>
+            <div @click="ifShowLegend = !ifShowLegend" class="w-100" style="cursor: pointer">
+                <label class="w-50">圖例</label>
+                <span class="d-inline-block w-50 text-end">
+                    <i class="fa-solid" :class="{'fa-angle-up': !ifShowLegend, 'fa-angle-down': ifShowLegend}"></i>
+                </span>
             </div>
-            <br>
-            圖例：
-            <div v-for="(obj) in mapProfile.highlightLayer">
-                <label>{{obj.layerCaption}}</label><span class="d-inline-block mx-2" style="width: 15px; height: 15px;" :style="{'background-color': obj.legend}"></span>
+            <div v-if="ifShowLegend">
+                <b>水情：</b>
+                <div v-for="(obj) in pondProfile.currentQtyLevelStyle">
+                    <label>{{obj.definition}}</label><span v-html="obj.symbol"></span>
+                </div>
+                <br>
+                <b>圖例：</b>
+                <div v-for="(obj) in mapProfile.highlightLayer">
+                    <label>{{obj.layerCaption}}</label><span class="d-inline-block mx-2" style="width: 15px; height: 15px;" :style="{'background-color': obj.legend}"></span>
+                </div>
             </div>
-            
         </div>
         <div id="summary-content-workstation-list" :style="{'background-color': mapProfile.highlightLayer['13'].style.fillColor}">
-            <b>{{this.mapProfile.search.association}}</b> 共 <b>{{workstationGroupListData.length}}</b> 個工作站； <b>{{pondProfile.pondInfoList.length}}</b> 口埤塘
+            <b>{{this.mapProfile.search.association}}</b> 共 <b>{{workstationGroupListData.length}}</b> <b>{{workstationList.length}}</b> 個工作站； <b>{{pondProfile.pondInfoList.length}}</b> 口埤塘
             <div class="col-md-12 p-2" :class="{'border': mapProfile.search.workstation == obj['工作站'], 'border-danger': mapProfile.search.workstation == obj['工作站']}" v-for="(obj, idx) in workstationGroupListData" :key="obj['工作站']">
                 <!--{{obj}}-->
                 <label class="w-50 d-inline-block">灌區:</label> 
@@ -867,6 +875,53 @@ export default {
                 <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
             </div>
             <div class="offcanvas-body">
+                
+                <div class="row" v-if="pickedPondInfo.gisData != null">
+                    <!--{{pickedPondInfo.gisData}}-->
+                    <h5 class="my-2">現況摘要</h5>
+                    <div class="col-md-3">
+
+                            <span class="text-center w-100 d-inline-block" style="font-size: xx-large" v-html="pondProfile.currentQtyLevelStyle[getLevelFlag(pickedPondInfo.dep1Data['Dummy目前容量比率'])].symbol">
+                            </span>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="fw-bold">目前貯水量:</label>
+                        <span class="d-block">
+                            
+                            <math xmlns="http://www.w3.org/1998/Math/MathML">
+                                <mn>{{pickedPondInfo.dep1Data['Dummy目前容量']}}</mn>
+                                <mi>m</mi>
+                                <msup>
+                                    <mn></mn>
+                                    <mn>3</mn>
+                                </msup>
+                            </math>
+                        </span>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="fw-bold">最大貯水量:</label>
+                        <span class="d-block">
+                            <math xmlns="http://www.w3.org/1998/Math/MathML">
+                                <mn>{{pickedPondInfo.dep1Data['有效庫容(m3)']}}</mn>
+                                <mi>m</mi>
+                                <msup>
+                                    <mn></mn>
+                                    <mn>3</mn>
+                                </msup>
+                            </math>
+                        </span>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="fw-bold">貯水率:</label>
+                        <span class="d-block">
+                            <math xmlns="http://www.w3.org/1998/Math/MathML">
+                                <mn>{{pickedPondInfo.dep1Data['Dummy目前容量比率']}}</mn>
+                                <mi>%</mi>
+                            </math>
+                        </span>
+                    </div>
+                </div>
+                <hr class="w-100 my-2"/>
                 <div class="row" v-if="pickedPondInfo.gisData != null">
                     <!--{{pickedPondInfo.gisData}}-->
                     <h5 class="my-2">管理資訊</h5>
@@ -875,6 +930,7 @@ export default {
                         <span class="d-block">{{pickedPondInfo.gisData[item.field]}}</span>
                     </div>
                 </div>
+                <hr class="w-100 my-2"/>
                 <div class="row" v-if="pickedPondInfo.dep1Data != null">
                     <!--{{pickedPondInfo.dep1Data}}-->
                     <h5 class="my-2">貯水資訊</h5>
@@ -883,6 +939,7 @@ export default {
                         <span class="d-block">{{pickedPondInfo.dep1Data[item.field]}}</span>
                     </div>
                 </div>
+                <hr class="w-100 my-2"/>
                 <div class="row" v-if="pickedPondInfo.dep1Data != null">
                     <!--{{pickedPondInfo.dep1Data}}-->
                     <h5 class="my-2">其他資訊</h5>
@@ -891,8 +948,10 @@ export default {
                         <span class="d-block">{{pickedPondInfo.dep1Data[item.field]}}</span>
                     </div>
                 </div>
+                <hr class="w-100 my-2"/>
                 <div class="row" v-if="pickedPondInfo.dep1Data != null">
                     <!--{{pickedPondInfo.hvCurveData}}-->
+                    <h5 class="my-2">HV Curve</h5>
                      <DataTable :value="pickedPondInfo.hvCurveData" tableStyle="min-width: 50rem"
                         
                         sortField="WaterDepth"
