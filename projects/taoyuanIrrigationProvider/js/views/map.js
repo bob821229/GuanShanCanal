@@ -145,6 +145,8 @@ export default {
                 ], 
             }, 
             rightOffCanvas: null,
+            rightOffCanvasChart: null, 
+            pondChart: null, 
             dataAccess: null
         }
     },
@@ -160,6 +162,7 @@ export default {
             this.removeHighlightLayer(14);
             this.removeHighlightLayer(10);
             this.highlightPonds(`工作站名稱 = '${n}'`, 13);
+            this.drawChart();
         }, 
         'mapProfile.search.group': function(n, o){
             //console.log('mapProfile.search.workstation', n, o)
@@ -239,7 +242,12 @@ export default {
             this.loadData();
             
             let offcanvasEl = document.getElementById('right-offcanvas')
+            let offcanvasChartEl = document.getElementById('right-offcanvas-chart')
+            
             this.rightOffCanvas = new bootstrap.Offcanvas(offcanvasEl);
+            this.rightOffCanvasChart = new bootstrap.Offcanvas(offcanvasChartEl);
+
+            this.pondChart = echarts.init(document.getElementById("pond-chart"));
 
             this.$nextTick(() => {
                 this.initMap();
@@ -269,14 +277,25 @@ export default {
                     this.pondProfile.pondInfoList.forEach(obj => {
                         let dummyCurrent = 0;
                         let dummyCurrentPercentage = 0;
+                        
+                        let recognizedAreaPeriod1 = 0;
+                        let recognizedAreaPeriod2 = 0;
                         try {
                             dummyCurrent = getRandomNumber(0, Number(obj["有效庫容(m3)"]));
                             dummyCurrentPercentage = Math.round10((dummyCurrent / Number(obj["有效庫容(m3)"])) * 100, -2);
+                        
+                            let planArea = Number(obj["灌溉面積(公頃)"]);
+                            recognizedAreaPeriod1 = getRandomNumber(0, Number(obj["灌溉面積(公頃)"]));
+                            recognizedAreaPeriod2 = getRandomNumber(0, Number(obj["灌溉面積(公頃)"]));
+                            
                         } catch (ex) {
                             console.log('random error: ', ex);
                         }
                         obj["Dummy目前容量"] = dummyCurrent;
                         obj["Dummy目前容量比率"] = dummyCurrentPercentage;
+
+                        obj["判釋面積-1期作(公頃)"] = recognizedAreaPeriod1;
+                        obj["判釋面積-2期作(公頃)"] = recognizedAreaPeriod2;
                     });
                 }
             );
@@ -632,8 +651,153 @@ export default {
                 .where(`OBJECTID = ${OBJECTID}`)
                 .run(this.showPondContent);
 
-
         },
+        drawChart: function(){
+            let collections = {
+                pondNameList: [], 
+                recognizedAreaPeriod1List: [], 
+                recognizedAreaPeriod2List: [], 
+                planedArea: [], 
+                currentQty: [], 
+                maxQty: [], 
+                availabelQty: [], 
+            }
+            let fieldMappings = [
+                {
+                    dataField: '埤塘名稱', 
+                    collectionField: 'pondNameList'
+                }, 
+                {
+                    dataField: '判釋面積-1期作(公頃)', 
+                    collectionField: 'recognizedAreaPeriod1List'
+                }, 
+                {
+                    dataField: '判釋面積-2期作(公頃)', 
+                    collectionField: 'recognizedAreaPeriod2List'
+                }, 
+                {
+                    dataField: '灌溉面積(公頃)', 
+                    collectionField: 'planedArea'
+                }, 
+                {
+                    dataField: 'Dummy目前容量', 
+                    collectionField: 'currentQty'
+                }, 
+                {
+                    dataField: 'Dummy目前容量', 
+                    collectionField: 'availabelQty', 
+                    callback: (v) => {
+                        return getRandomNumber(0, v);
+                    }
+                }, 
+                {
+                    dataField: '有效庫容(m3)', 
+                    collectionField: 'maxQty'
+                }, 
+            ]
+            console.log('drawChart', this.pondListData);
+            this.pondListData.forEach(data => {
+                fieldMappings.forEach(f => {
+                    if(f.callback == null){
+
+                        collections[f.collectionField].push(
+                            data[f.dataField]
+                        );
+                    }else{
+
+                        collections[f.collectionField].push(
+                            f.callback(data[f.dataField])
+                        );
+                    }
+                });
+            });
+            console.log('drawChart', collections);
+
+            let xAxisData = null; 
+            let yAxisData = null;
+            let option = {
+                title: {
+                  text: ` ${this.mapProfile.search.workstation} ${this.pondListData.length}口埤塘 供水及灌溉面積關係圖`,
+                },
+                tooltip: {},
+                legend: {
+                  data: ["目前庫容量", "最大庫容量", "可供灌容量", "判釋面積"],
+                },
+                xAxis: {
+                  //注意，切換座標軸的籤時，要也要切換type值
+                  //type: ((this.xAxisData == null) ? 'value' : 'category'),  
+                  data: collections.pondNameList
+                  //this.xAxisData
+                },
+                yAxis: [
+                    {
+                        type: 'value',
+                        name: '容量',
+                        position: 'left',
+                        alignTicks: true,
+                        axisLine: {
+                          show: true,
+                          lineStyle: {
+                            color: 'blue'
+                          }
+                        },
+                        axisLabel: {
+                          formatter: '{value} 立方公尺'
+                        }
+                    }, 
+                    {
+                        type: 'value',
+                        name: '面積',
+                        position: 'right',
+                        alignTicks: true,
+                        axisLine: {
+                          show: true,
+                          lineStyle: {
+                            color: 'red'
+                          }
+                        },
+                        axisLabel: {
+                          formatter: '{value} 公頃'
+                        }
+                    }
+                ], 
+                series: [
+                    {
+                        name: '目前庫容量',
+                        type: 'line',
+                        data: collections.currentQty
+                    },
+                    {
+                        name: '最大庫容量',
+                        type: 'line',
+                        data: collections.maxQty
+                    },
+                    {
+                        name: '可供灌容量',
+                        type: 'line',
+                        data: collections.availabelQty
+                    },
+                    {
+                        name: '判釋面積',
+                        type: 'scatter',
+                        yAxisIndex: 1,
+                        data: collections.recognizedAreaPeriod1List
+                    },
+                    // {
+                    //     name: '判釋面積-2期作(公頃)',
+                    //     type: 'scatter',
+                    //     yAxisIndex: 1,
+                    //     data: collections.recognizedAreaPeriod2List
+                    // },
+                ],
+              };
+        
+        
+              // Display the chart using the configuration items and data just specified.
+              this.pondChart.setOption(option);
+
+            this.rightOffCanvasChart.show();
+        }, 
     },
     mounted() {
         this.init();
@@ -706,8 +870,9 @@ export default {
                 
                 <br>
                 <label class="w-50 d-inline-block">工作站:</label> 
-                <span class="w-50 d-inline-block text-end">{{obj["工作站"]}} 
-                    <a href="#" @click="mapProfile.search.workstation = obj['工作站']"><i class="fa-solid fa-magnifying-glass-location"></i></a>
+                <span class="w-50 d-inline-block text-end">
+                    {{obj["工作站"]}} 
+                    <!--<a href="#" @click="mapProfile.search.workstation = obj['工作站']"><i class="fa-solid fa-magnifying-glass-location"></i></a>-->
                 </span>
                 
                 <br>
@@ -915,8 +1080,7 @@ export default {
                         :rows="10" 
                         :rowsPerPageOptions="[10, 20, 50]"
                     
-                        :loading="loading"
->
+                        :loading="loading">
 
                         <template #empty> 查無資料 </template>
                         <template #loading> 載入資料中… </template>
@@ -927,6 +1091,17 @@ export default {
                         
                     </DataTable>      
                 </div>
+            </div>
+        </div>
+        <div id="right-offcanvas-chart" class="offcanvas offcanvas-end" data-bs-backdrop="static" tabindex="-1" id="staticBackdrop" aria-labelledby="staticBackdropLabel">
+            <div class="offcanvas-header">
+                <h5 class="offcanvas-title" id="staticBackdropLabel" >
+                    <b>{{this.mapProfile.search.workstation}}</b> 共 <b>{{pondListData.length}}<b> 口埤塘
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body">
+                <div id="pond-chart"  style="width: 90%;height:500px;"></div>
             </div>
         </div>
 
