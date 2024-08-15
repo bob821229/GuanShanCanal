@@ -180,8 +180,18 @@ export default {
                 w.totalCurrentPercentage = Math.round10(w.totalCurrentQty / w.totalQty * 100, -2);
             });
             let sorted = Enumerable.from(filteredList).orderBy(f=>f.totalCurrentPercentage);
-            return sorted;
+            //return sorted;
+            return filteredList;
         },
+        pickedWorkstationGroupListData(){
+            if(this.mapProfile.search.workstation == null || this.mapProfile.search.workstation == ''){
+                return this.workstationGroupListData;
+            }else{
+                let r = Enumerable.from(this.workstationGroupListData).where(f => f['工作站'] == this.mapProfile.search.workstation).toArray();
+                return r;
+            }
+            
+        }, 
         associationList() {
             if (this.pondProfile.hierarchyList == null) {
                 return [];
@@ -275,7 +285,9 @@ export default {
                     path: '/bigboss-workstation-group'
                 },
                 (returnList) => {
+
                     this.pondProfile.workstationGroupList = returnList;
+                    console.log('this.pondProfile.workstationGroupList', this.pondProfile.workstationGroupList.length, this.pondProfile.workstationGroupList)
                 }
             );
             this.dataAccess.getData(
@@ -552,65 +564,6 @@ export default {
             }
             return r;
         },
-        // testMap: function () {
-        //     let url = 'https://gisportal.triwra.org.tw/server/rest/services/BigBossTaoyuanPonds2/MapServer';
-        //     this.mapProfile.map = L.map("map").setView(
-        //         [23.80745279701942, 120.29574021937988],
-        //         //[23.973993,120.9772426],
-        //         16
-        //     );
-
-        //     if (this.mapProfile.layer != null) {
-
-        //         this.mapProfile.map.removeLayer(this.mapProfile.layer);
-
-        //     }
-
-        //     let where = "工作站名稱 = '新屋工作站'";
-        //     this.mapProfile.layer = L.esri
-        //         .dynamicMapLayer({
-        //             url: url,
-        //             opacity: 0.7,
-        //             // layers: [3, 6], //[3, 59]//[65, 64, 63]
-        //             layerDefs: {
-        //                 10: where//"工作站名稱 = '新屋工作站'"
-        //             }
-        //             // layerDefs: { 
-        //             //   3: "IA_CNS='雲林'", 
-        //             //   6: "COUNTYNAME='雲林縣'" }, 
-        //             // //and Mng_cns = '西螺分處'
-        //         })
-        //         .addTo(this.mapProfile.map);
-
-        //     this.mapProfile.layer
-        //         .query()
-        //         .layer(10)
-        //         .where(where)
-        //         .bounds((error, latlngbounds) => {
-        //             if (error) {
-        //                 console.error("Error querying feature layer bounds:", error);
-        //                 alert('查無資料');
-        //                 return;
-        //             }
-
-        //             if (latlngbounds._northEast == null) {
-        //                 alert('查無資料');
-        //                 return;
-        //             }
-        //             //this.ifFeatureLayerQuery = true;
-        //             // Fit the map to the bounds of the features
-        //             this.mapProfile.map.fitBounds(latlngbounds);
-        //         });
-
-        //     this.mapProfile.layer.bindPopup(function (err, featureCollection, response) {
-        //         console.log('dynamicMapLayer.bindPopup');
-        //         featureCollection.features.forEach(f => {
-        //             console.log(f);
-        //         });
-        //         var count = featureCollection.features.length;
-        //         return (count) ? count + ' features' : false;
-        //     });
-        // },
         searchMap: function () {
             let where = '';
             where = this.getWhereQuery(where, 'association', '管理處名稱');
@@ -720,10 +673,7 @@ export default {
 
         <div id="map">
         </div>
-        <!--
-        <div id="pane-content">
-        </div>
-        -->
+
         <div id="legend">
             <div @click="ifShowLegend = !ifShowLegend" class="w-100" style="cursor: pointer">
                 <label class="w-50">圖例</label>
@@ -744,8 +694,12 @@ export default {
             </div>
         </div>
         <div id="summary-content-workstation-list" :style="{'background-color': mapProfile.highlightLayer['13'].style.fillColor}">
-            <b>{{this.mapProfile.search.association}}</b> 共 <b>{{workstationGroupListData.length}}</b> <b>{{workstationList.length}}</b> 個工作站； <b>{{pondProfile.pondInfoList.length}}</b> 口埤塘
-            <div class="col-md-12 p-2" :class="{'border': mapProfile.search.workstation == obj['工作站'], 'border-danger': mapProfile.search.workstation == obj['工作站']}" v-for="(obj, idx) in workstationGroupListData" :key="obj['工作站']">
+            <b>{{this.mapProfile.search.association}}</b> 
+            共 <b>{{pickedWorkstationGroupListData.length}}</b> 個工作站 
+            <b>{{pondProfile.pondInfoList.length}}</b> 口埤塘
+            <div class="col-md-12 p-2" 
+                v-for="(obj, idx) in pickedWorkstationGroupListData" 
+                :key="obj['工作站']">
                 <!--{{obj}}-->
                 <label class="w-50 d-inline-block">灌區:</label> 
                 <span class="w-50 d-inline-block text-end">{{obj["分類"]}}</span>

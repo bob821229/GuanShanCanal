@@ -59,6 +59,8 @@ for json path, include_null_values
 /*產出給firebase的資料*/
 select * from [dbo].['gis-埤塘-石門管理處、桃園管理處'] for json path, include_null_values
 
+/*
+--replaced by 
 select 
     dep1."埤塘編號", 
     dep1."管理處", 
@@ -109,10 +111,57 @@ from [dbo].['桃管處埤塘基本資料284口'] dep1
                         and dep1.[工作站] = '湖口工作站'
 --where dep1.[工作站] = '湖口工作站'
 for json path, include_null_values
+*/
+-- SELECT *
+-- from [dbo].['桃管處埤塘基本資料284口']
 
-SELECT *
-from [dbo].['桃管處埤塘基本資料284口']
+select
+        [CanalName]
+        ,cast([DeadWaterHeight] as Decimal(18, 8)) [DeadWaterHeight]
+        ,cast([FieldArea] as Decimal(18, 8)) [FieldArea]
+        ,cast([FullWaterHeight] as Decimal(18, 8)) [FullWaterHeight]
+        ,[FullWaterHeightLoc]
+        ,[OBJECTID] 
+        ,cast([SurfaceAreaMaximum] as Decimal(18, 8)) [SurfaceAreaMaximum]
+        ,cast([WaterDepthMaximum] as Decimal(18, 8)) [WaterDepthMaximum]
+        ,cast([WaterStorageMaximum] as Decimal(18, 8)) [WaterStorageMaximum]
+        ,[休憩綠美化用途] 
+        ,[供水支渠] 
+        ,[備註1] 
+        ,[備註2] 
+        ,cast([土地持分比例(%)] as Decimal(18, 8)) [土地持分比例(%)]
+        ,[埤塘名稱] 
+        ,[埤塘編號] 
+        ,cast([埤池面積(m2)] as Decimal(18, 8)) [埤池面積(m2)]
+        ,[工作站] 
+        ,[工業用水用途] 
+        ,[支線] 
+        ,cast([有效庫容(m3)] as Decimal(18, 8)) [有效庫容(m3)]
+        ,[水利小組名稱] 
+        ,[水源別] 
+        ,[滿水位] 
+        ,cast([滿水位標高(m)] as Decimal(18, 8)) [滿水位標高(m)]
+        ,[灌溉功能] 
+        ,cast([灌溉面積(公頃)] as Decimal(18, 8)) [灌溉面積(公頃)]
+        ,[生態敏感區域] 
+        ,[管理處] 
+        ,cast([給水塔底標高(m)] as Decimal(18, 8)) [給水塔底標高(m)]
+        ,cast([經度座標] as Decimal(18, 8)) [經度座標]
+        ,cast([緯度座標] as Decimal(18, 8)) [緯度座標]
+        ,[行政區] 
+        ,cast([設計庫容(m3)] as Decimal(18, 8)) [設計庫容(m3)] 
+        ,[農業供灌用途] 
+        ,[重要濕地] 
+        ,[魚介用途] 
+        ,[F38] 
+        ,[直灌] 
+        ,[埤塘] 
+        ,[河水堰] 
+        -- ,cast([判釋面積-1期作(公頃)] as Decimal(18, 8))
+        -- ,cast([判釋面積-2期作(公頃)] as Decimal(18, 8))
 
+from [dbo].[桃園管理處-水利小組-埤塘清單-20240814]
+for json path, include_null_values
 
 -- select distinct cap.[工作站], cap.[埤塘編號]
 -- from [dbo].['桃園管理處各貯水池能量表(總表)_修'] cap
