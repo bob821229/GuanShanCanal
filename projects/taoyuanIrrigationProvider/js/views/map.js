@@ -422,9 +422,9 @@ export default {
                             dummyCurrentPercentage = 
                                 (Number(obj["有效庫容(m3)"]) == 0) ? 0 : Math.round10((dummyCurrent / Number(obj["有效庫容(m3)"])) * 100, -2);
                         
-                            let planArea = Number(obj["灌溉面積(公頃)"]);
-                            recognizedAreaPeriod1 = getRandomNumber(0, Number(obj["灌溉面積(公頃)"]));
-                            recognizedAreaPeriod2 = getRandomNumber(0, Number(obj["灌溉面積(公頃)"]));
+                            // let planArea = Number(obj["灌溉面積(公頃)"]);
+                            // recognizedAreaPeriod1 = getRandomNumber(0, Number(obj["灌溉面積(公頃)"]));
+                            // recognizedAreaPeriod2 = getRandomNumber(0, Number(obj["灌溉面積(公頃)"]));
                             
                         } catch (ex) {
                             console.log('random error: ', ex);
@@ -432,8 +432,8 @@ export default {
                         obj["Dummy目前容量"] = dummyCurrent;
                         obj["Dummy目前容量比率"] = dummyCurrentPercentage;
 
-                        obj["判釋面積-1期作(公頃)"] = recognizedAreaPeriod1;
-                        obj["判釋面積-2期作(公頃)"] = recognizedAreaPeriod2;
+                        // obj["判釋面積-1期作(公頃)"] = recognizedAreaPeriod1;
+                        // obj["判釋面積-2期作(公頃)"] = recognizedAreaPeriod2;
                     });
                 }
             );
@@ -1238,6 +1238,35 @@ export default {
                             <math xmlns="http://www.w3.org/1998/Math/MathML">
                                 <mn>{{pickedPondInfo.dep1Data['Dummy目前容量比率']}}</mn>
                                 <mi>%</mi>
+                            </math>
+                        </span>
+                    </div>
+
+
+                    <div class="col-md-3 offset-md-3">
+                        <label class="fw-bold">灌溉面積:</label>
+                        <span class="d-block">
+                            <math xmlns="http://www.w3.org/1998/Math/MathML">
+                                <mn>{{pickedPondInfo.dep1Data['灌溉面積(公頃)']}}</mn>
+                                <mi>公頃</mi>
+                            </math>
+                        </span>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="fw-bold">判釋面積-1期作:</label>
+                        <span class="d-block">
+                            <math xmlns="http://www.w3.org/1998/Math/MathML">
+                                <mn>{{pickedPondInfo.dep1Data['判釋面積-1期作(公頃)']}}</mn>
+                                <mi>公頃</mi>
+                            </math>
+                        </span>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="fw-bold">判釋面積-2期作:</label>
+                        <span class="d-block">
+                            <math xmlns="http://www.w3.org/1998/Math/MathML">
+                                <mn>{{pickedPondInfo.dep1Data['判釋面積-2期作(公頃)']}}</mn>
+                                <mi>公頃</mi>
                             </math>
                         </span>
                     </div>

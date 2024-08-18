@@ -154,13 +154,14 @@ select
         ,[重要濕地] 
         ,[魚介用途] 
         ,[F38] 
-        ,[直灌] 
-        ,[埤塘] 
-        ,[河水堰] 
-        -- ,cast([判釋面積-1期作(公頃)] as Decimal(18, 8))
-        -- ,cast([判釋面積-2期作(公頃)] as Decimal(18, 8))
+        ,cast([直灌] as bit) as [直灌]
+        ,cast([埤塘]  as bit) as [埤塘]
+        ,cast([河水堰]  as bit) as [河水堰]
+        ,cast([判釋面積-1期作(公頃)] as Decimal(18, 2)) as [判釋面積-1期作(公頃)]
+        ,cast([判釋面積-2期作(公頃)] as Decimal(18, 2)) as [判釋面積-2期作(公頃)]
 
-from [dbo].[桃園管理處-水利小組-埤塘清單-20240814]
+--from [dbo].[桃園管理處-水利小組-埤塘清單-20240814]
+from [dbo].[桃園管理處-水利小組-埤塘清單-20240819]
 for json path, include_null_values
 
 -- select distinct cap.[工作站], cap.[埤塘編號]
