@@ -223,13 +223,13 @@ export default {
                     // {field: "滿水位標高(m)", caption: "滿水位標高(公尺)"}, 
                     // {field: "滿水位", caption: "滿水位"}, 
 
-                    {field: "WaterStorageMaximum", caption: '最大貯水量(立方公尺)'},
-                    {field: "WaterDepthMaximum", caption: '最高水深(公尺)'},
-                    {field: "SurfaceAreaMaximum", caption: '滿水面積(平方公尺)'},
-                    {field: "DeadWaterHeight", caption: '給水塔底標高(公尺)'},
-                    {field: "FullWaterHeight", caption: '滿水位標高(公尺)'},
-                    {field: "FullWaterHeightLoc", caption: '滿水位位置'},
-                    {field: "FieldArea", caption: '小組面積'},
+                    {field: "WaterStorageMaximum", caption: '最大貯水量(立方公尺)', display: (obj, field, value) => { return ((value != null) ? value.toLocaleString() : value);}},
+                    {field: "WaterDepthMaximum", caption: '最高水深(公尺)', display: (obj, field, value) => { return ((value != null) ? value.toLocaleString() : value);}},
+                    {field: "SurfaceAreaMaximum", caption: '滿水面積(平方公尺)', display: (obj, field, value) => { return ((value != null) ? value.toLocaleString() : value);}},
+                    {field: "DeadWaterHeight", caption: '給水塔底標高(公尺)', display: (obj, field, value) => { return ((value != null) ? value.toLocaleString() : value);}},
+                    {field: "FullWaterHeight", caption: '滿水位標高(公尺)', display: (obj, field, value) => { return ((value != null) ? value.toLocaleString() : value);}},
+                    {field: "FullWaterHeightLoc", caption: '滿水位位置', display: (obj, field, value) => { return ((value != null) ? value.toLocaleString() : value);}},
+                    {field: "FieldArea", caption: '小組面積', display: (obj, field, value) => { return ((value != null) ? value.toLocaleString() : value);}},
                     {field: "CanalName", caption: '支渠名稱'},
 
                     {field: "水源別", },
@@ -417,6 +417,7 @@ export default {
                         
                         let recognizedAreaPeriod1 = 0;
                         let recognizedAreaPeriod2 = 0;
+                        let availabelQty = 0;
                         try {
                             dummyCurrent = getRandomNumber(0, Number(obj["有效庫容(m3)"]));
                             dummyCurrentPercentage = 
@@ -425,12 +426,13 @@ export default {
                             // let planArea = Number(obj["灌溉面積(公頃)"]);
                             // recognizedAreaPeriod1 = getRandomNumber(0, Number(obj["灌溉面積(公頃)"]));
                             // recognizedAreaPeriod2 = getRandomNumber(0, Number(obj["灌溉面積(公頃)"]));
-                            
+                            availabelQty = getRandomNumber(dummyCurrent * 0.5, dummyCurrent * 0.8);
                         } catch (ex) {
                             console.log('random error: ', ex);
                         }
                         obj["Dummy目前容量"] = dummyCurrent;
                         obj["Dummy目前容量比率"] = dummyCurrentPercentage;
+                        obj["可供灌容量"] = availabelQty;
 
                         // obj["判釋面積-1期作(公頃)"] = recognizedAreaPeriod1;
                         // obj["判釋面積-2期作(公頃)"] = recognizedAreaPeriod2;
@@ -822,11 +824,13 @@ export default {
                     collectionField: 'currentQty'
                 }, 
                 {
-                    dataField: 'Dummy目前容量', 
+                    // dataField: 'Dummy目前容量', 
+                    // collectionField: 'availabelQty', 
+                    // callback: (v) => {
+                    //     return getRandomNumber(0, v);
+                    // }
+                    dataField: '可供灌容量', 
                     collectionField: 'availabelQty', 
-                    callback: (v) => {
-                        return getRandomNumber(0, v);
-                    }
                 }, 
                 {
                     dataField: '有效庫容(m3)', 
@@ -1021,7 +1025,7 @@ export default {
                 <label class="w-50">總有效貯水量:</label> 
                 <span class="w-50 d-inline-block text-end">
                     <math xmlns="http://www.w3.org/1998/Math/MathML">
-                        <mn>{{obj["totalQty"]}}</mn>
+                        <mn>{{obj["totalQty"].toLocaleString()}}</mn>
                         <mi>m</mi>
                         <msup>
                             <mn></mn>
@@ -1034,7 +1038,7 @@ export default {
                 <label class="w-50">總貯水量:</label> 
                 <span class="w-50 d-inline-block text-end">
                     <math xmlns="http://www.w3.org/1998/Math/MathML">
-                        <mn>{{obj["totalCurrentQty"]}}</mn>
+                        <mn>{{obj["totalCurrentQty"].toLocaleString()}}</mn>
                         <mi>m</mi>
                         <msup>
                             <mn></mn>
@@ -1122,7 +1126,7 @@ export default {
                     <label class="w-50">有效貯水量:</label> 
                     <span class="w-50 d-inline-block text-end"> 
                         <math xmlns="http://www.w3.org/1998/Math/MathML">
-                            <mn>{{obj["有效庫容(m3)"]}}</mn>
+                            <mn>{{obj["有效庫容(m3)"].toLocaleString()}}</mn>
                             <mi>m</mi>
                             <msup>
                                 <mn></mn>
@@ -1136,7 +1140,7 @@ export default {
                     <span class="w-50 d-inline-block text-end">
                         
                         <math xmlns="http://www.w3.org/1998/Math/MathML">
-                            <mn>{{obj["Dummy目前容量"]}}</mn>
+                            <mn>{{obj["Dummy目前容量"].toLocaleString()}}</mn>
                             <mi>m</mi>
                             <msup>
                                 <mn></mn>
@@ -1149,7 +1153,7 @@ export default {
                     <label class="w-50">貯水率:</label> 
                     <span class="w-50 d-inline-block text-end">
                         <math xmlns="http://www.w3.org/1998/Math/MathML">
-                            <mn>{{obj["Dummy目前容量比率"]}}</mn>
+                            <mn>{{obj["Dummy目前容量比率"].toLocaleString()}}</mn>
                             <mi>%</mi>
                         </math>
                     </span>
@@ -1158,7 +1162,7 @@ export default {
                     <label class="w-50">灌溉面積:</label> 
                     <span class="w-50 d-inline-block text-end">
                         <math xmlns="http://www.w3.org/1998/Math/MathML">
-                            <mn>{{obj["灌溉面積(公頃)"]}}</mn>
+                            <mn>{{obj["灌溉面積(公頃)"].toLocaleString()}}</mn>
                             <mi>公頃</mi>
                         </math>
                     </span>
@@ -1167,7 +1171,7 @@ export default {
                     <label class="w-50">判釋面積-1期作:</label> 
                     <span class="w-50 d-inline-block text-end">
                         <math xmlns="http://www.w3.org/1998/Math/MathML">
-                            <mn>{{obj["判釋面積-1期作(公頃)"]}}</mn>
+                            <mn>{{obj["判釋面積-1期作(公頃)"].toLocaleString()}}</mn>
                             <mi>公頃</mi>
                         </math>
                     </span>
@@ -1175,7 +1179,7 @@ export default {
                     <label class="w-50">判釋面積-2期作:</label> 
                     <span class="w-50 d-inline-block text-end">
                         <math xmlns="http://www.w3.org/1998/Math/MathML">
-                            <mn>{{obj["判釋面積-2期作(公頃)"]}}</mn>
+                            <mn>{{obj["判釋面積-2期作(公頃)"].toLocaleString()}}</mn>
                             <mi>公頃</mi>
                         </math>
                     </span>
@@ -1210,7 +1214,7 @@ export default {
                         <span class="d-block">
                             
                             <math xmlns="http://www.w3.org/1998/Math/MathML">
-                                <mn>{{pickedPondInfo.dep1Data['Dummy目前容量']}}</mn>
+                                <mn>{{pickedPondInfo.dep1Data['Dummy目前容量'].toLocaleString()}}</mn>
                                 <mi>m</mi>
                                 <msup>
                                     <mn></mn>
@@ -1223,7 +1227,7 @@ export default {
                         <label class="fw-bold">最大貯水量:</label>
                         <span class="d-block">
                             <math xmlns="http://www.w3.org/1998/Math/MathML">
-                                <mn>{{pickedPondInfo.dep1Data['有效庫容(m3)']}}</mn>
+                                <mn>{{pickedPondInfo.dep1Data['有效庫容(m3)'].toLocaleString()}}</mn>
                                 <mi>m</mi>
                                 <msup>
                                     <mn></mn>
@@ -1236,7 +1240,7 @@ export default {
                         <label class="fw-bold">貯水率:</label>
                         <span class="d-block">
                             <math xmlns="http://www.w3.org/1998/Math/MathML">
-                                <mn>{{pickedPondInfo.dep1Data['Dummy目前容量比率']}}</mn>
+                                <mn>{{pickedPondInfo.dep1Data['Dummy目前容量比率'].toLocaleString()}}</mn>
                                 <mi>%</mi>
                             </math>
                         </span>
@@ -1247,7 +1251,7 @@ export default {
                         <label class="fw-bold">灌溉面積:</label>
                         <span class="d-block">
                             <math xmlns="http://www.w3.org/1998/Math/MathML">
-                                <mn>{{pickedPondInfo.dep1Data['灌溉面積(公頃)']}}</mn>
+                                <mn>{{pickedPondInfo.dep1Data['灌溉面積(公頃)'].toLocaleString()}}</mn>
                                 <mi>公頃</mi>
                             </math>
                         </span>
@@ -1256,7 +1260,7 @@ export default {
                         <label class="fw-bold">判釋面積-1期作:</label>
                         <span class="d-block">
                             <math xmlns="http://www.w3.org/1998/Math/MathML">
-                                <mn>{{pickedPondInfo.dep1Data['判釋面積-1期作(公頃)']}}</mn>
+                                <mn>{{pickedPondInfo.dep1Data['判釋面積-1期作(公頃)'].toLocaleString()}}</mn>
                                 <mi>公頃</mi>
                             </math>
                         </span>
@@ -1265,7 +1269,7 @@ export default {
                         <label class="fw-bold">判釋面積-2期作:</label>
                         <span class="d-block">
                             <math xmlns="http://www.w3.org/1998/Math/MathML">
-                                <mn>{{pickedPondInfo.dep1Data['判釋面積-2期作(公頃)']}}</mn>
+                                <mn>{{pickedPondInfo.dep1Data['判釋面積-2期作(公頃)'].toLocaleString()}}</mn>
                                 <mi>公頃</mi>
                             </math>
                         </span>
@@ -1286,7 +1290,9 @@ export default {
                     <h5 class="my-2">貯水資訊</h5>
                     <div class="col-md-6" v-for="(item, idx) in pickedPondInfo.dep1DataDisplayFieldWaterStorageList">
                         <label class="fw-bold">{{(item.caption != null) ? item.caption : item.field}}:</label>
-                        <span class="d-block">{{pickedPondInfo.dep1Data[item.field]}}</span>
+                        <span class="d-block">
+                            {{(item.display != null) ? item.display(pickedPondInfo.dep1Data, item.field, pickedPondInfo.dep1Data[item.field]) : pickedPondInfo.dep1Data[item.field]}}
+                        </span>
                     </div>
                 </div>
                 <hr class="w-100 my-2"/>
