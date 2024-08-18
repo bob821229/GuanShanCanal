@@ -92,7 +92,119 @@ export default {
                         definition: '> 61%', 
                         symbol: '<i class="fa-regular fa-face-laugh-beam mx-2" style="color: green;"></i>'
                     , }
-                }
+                }, 
+                pondListDataSort:{
+                    field: 'Dummy目前容量', 
+                    desc: true
+                }, 
+                pondListDataColumn: [
+                    {
+                        key: uuid(),
+                        caption: "埤塘名稱", 
+                        field: "埤塘名稱", 
+                    }, 
+                    {
+                        key: uuid(),
+                        caption: "工作站", 
+                        field: "工作站", 
+                        canSort: false, 
+                    }, 
+                    {
+                        key: uuid(),
+                        caption: "有效貯水量", 
+                        field: "有效庫容(m3)", 
+                        display: (obj, field, value) => {
+                            return `
+                            <math xmlns="http://www.w3.org/1998/Math/MathML">
+                                <mn>${value}</mn>
+                                <mi>m</mi>
+                                <msup>
+                                    <mn></mn>
+                                    <mn>3</mn>
+                                </msup>
+
+                            </math>
+                            `;
+                        }
+                    }, 
+                    {
+                        key: uuid(),
+                        caption: "目前貯水量", 
+                        field: "Dummy目前容量", 
+                        display: (obj, field, value) => {
+                            return `
+                            <math xmlns="http://www.w3.org/1998/Math/MathML">
+                                <mn>${value}</mn>
+                                <mi>m</mi>
+                                <msup>
+                                    <mn></mn>
+                                    <mn>3</mn>
+                                </msup>
+                            </math>
+                            `;
+                        }
+                    }, 
+                    {
+                        key: uuid(),
+                        caption: "貯水率", 
+                        field: "Dummy目前容量比率", 
+                        display: (obj, field, value) => {
+                            return `
+                            <math xmlns="http://www.w3.org/1998/Math/MathML">
+                                <mn>${value}</mn>
+                                <mi>%</mi>
+                            </math>
+                            `;
+                        }
+                    }, 
+                    {
+                        key: uuid(),
+                        caption: "灌溉面積", 
+                        field: "灌溉面積(公頃)", 
+                        display: (obj) => {
+                            return `
+                            <math xmlns="http://www.w3.org/1998/Math/MathML">
+                                <mn>${obj["灌溉面積(公頃)"]}</mn>
+                                <mi>公頃</mi>
+                            </math>
+                            `;
+                        }
+                    }, 
+                    {
+                        key: uuid(),
+                        caption: "判釋面積-1期作", 
+                        field: "判釋面積-1期作(公頃)", 
+                        display: (obj) => {
+                            return `
+                            <math xmlns="http://www.w3.org/1998/Math/MathML">
+                                <mn>${obj["判釋面積-1期作(公頃)"]}</mn>
+                                <mi>公頃</mi>
+                            </math>
+                            `;
+                        }
+                    }, 
+                    {
+                        key: uuid(),
+                        caption: "判釋面積-2期作", 
+                        field: "判釋面積-2期作(公頃)", 
+                        display: (obj) => {
+                            return `
+                            <math xmlns="http://www.w3.org/1998/Math/MathML">
+                                <mn>${obj["判釋面積-2期作(公頃)"]}</mn>
+                                <mi>公頃</mi>
+                            </math>
+                            `;
+                        }
+                    }, 
+                    {
+                        key: uuid(),
+                        caption: "水情", 
+                        field: "Dummy目前容量比率", 
+                        display: (obj) => {
+                            return `${this.pondProfile.currentQtyLevelStyle[this.getLevelFlag(obj['Dummy目前容量比率'])].symbol}`;
+                        }
+                    }
+                ]
             },
             pickedPondInfo: {
                 gisData: null, 
@@ -146,6 +258,7 @@ export default {
             }, 
             rightOffCanvas: null,
             rightOffCanvasChart: null, 
+            topOffCanvasPondFilter: null, 
             pondChart: null, 
             dataAccess: null
         }
@@ -162,7 +275,9 @@ export default {
             this.removeHighlightLayer(14);
             this.removeHighlightLayer(10);
             this.highlightPonds(`工作站名稱 = '${n}'`, 13);
-            this.drawChart();
+            if(n != ''){
+                this.drawChart();
+            }
         }, 
         'mapProfile.search.group': function(n, o){
             //console.log('mapProfile.search.workstation', n, o)
@@ -229,13 +344,32 @@ export default {
                             //f['工作站']
                         ((this.mapProfile.search.workstation != null && this.mapProfile.search.workstation.length > 0) ? this.mapProfile.search.workstation : f['工作站'])
                     );
-                })
-                .orderBy(
-                    item =>  item["Dummy目前容量比率"]
+                });
+            let sorted;
+            if(this.pondProfile.pondListDataSort.desc){
+                sorted = arr.orderByDescending(
+                    item =>  item[this.pondProfile.pondListDataSort.field]
                 );
+            }else{
+                sorted = arr.orderBy(
+                    item =>  item[this.pondProfile.pondListDataSort.field]
+                );
+            }
+
+            // sorted = 
+            //     sorted.orderBy(
+            //         item =>  item["埤塘名稱"]
+            //     );
             
-            return arr.toArray();
-        }
+            //return arr.toArray();
+            return sorted.toArray();
+        }, 
+        pondListDataColumnSortOptionListData(){
+            let r = Enumerable.from(this.pondProfile.pondListDataColumn).where(
+                f => (f.canSort != false) 
+            ).toArray();
+            return r;
+        }, 
     },
     methods: {
         init: function () {
@@ -243,11 +377,15 @@ export default {
             
             let offcanvasEl = document.getElementById('right-offcanvas')
             let offcanvasChartEl = document.getElementById('right-offcanvas-chart')
+            let offcanvasPondFilterEl = document.getElementById('top-offcanvas-pond-filter')
             
             this.rightOffCanvas = new bootstrap.Offcanvas(offcanvasEl);
             this.rightOffCanvasChart = new bootstrap.Offcanvas(offcanvasChartEl);
+            this.topOffCanvasPondFilter = new bootstrap.Offcanvas(offcanvasPondFilterEl);
 
             this.pondChart = echarts.init(document.getElementById("pond-chart"));
+
+            //
 
             this.$nextTick(() => {
                 this.initMap();
@@ -880,7 +1018,7 @@ export default {
                 <span class="w-50 d-inline-block text-end">{{obj["pondCount"]}}</span>
 
                 <br>
-                <label class="w-50">總有效庫容:</label> 
+                <label class="w-50">總有效貯水量:</label> 
                 <span class="w-50 d-inline-block text-end">
                     <math xmlns="http://www.w3.org/1998/Math/MathML">
                         <mn>{{obj["totalQty"]}}</mn>
@@ -893,7 +1031,7 @@ export default {
                 </span>
 
                 <br>
-                <label class="w-50">總目前庫容:</label> 
+                <label class="w-50">總貯水量:</label> 
                 <span class="w-50 d-inline-block text-end">
                     <math xmlns="http://www.w3.org/1998/Math/MathML">
                         <mn>{{obj["totalCurrentQty"]}}</mn>
@@ -906,7 +1044,7 @@ export default {
                 </span>
                 
                 <br>
-                <label class="w-50">總目前庫容佔比:</label> 
+                <label class="w-50">貯水率:</label> 
                 <span class="w-50 d-inline-block text-end">
                     <math xmlns="http://www.w3.org/1998/Math/MathML">
                         <mn>{{obj["totalCurrentPercentage"]}}</mn>
@@ -918,77 +1056,141 @@ export default {
                 <label class="w-50">總水情:</label> 
                 <span class="w-50 d-inline-block text-end" v-html="pondProfile.currentQtyLevelStyle[getLevelFlag(obj['totalCurrentPercentage'])].symbol">
                 </span>
+
+                <div v-if="this.mapProfile.search.workstation != ''">
+                    <label class="w-50">統計圖:</label> 
+                    <span class="w-50 d-inline-block text-end">
+                        <a href="#" @click="drawChart()"><i class="fa-solid fa-chart-simple"></i></a>
+                    </span>
+                </div>
     
                 <hr class="w-100" v-if="idx != workstationGroupListData.length">
             </div>
         </div>
         <div id="summary-content-pond-list" :style="{'background-color': mapProfile.highlightLayer['14'].style.fillColor}">
             <!--{{this.mapProfile.search.association}}-->
-            <b>{{this.mapProfile.search.workstation}}</b> 共 <b>{{pondListData.length}}<b> 口埤塘
+            <div class="col-md-12">
+            <b>{{this.mapProfile.search.workstation}}</b> 共 <b>{{pondListData.length}}</b> 口埤塘
+            </div>
+            
+            <a v-if="false" href="#" @click="topOffCanvasPondFilter.show();"><i class="fa-solid fa-sort"></i></a>
+
+            <div class="col-md-12">
+                <div class="input-group input-group-sm mb-3">
+                    <label class="input-group-text" for="inputGroupSelect01">排序</label>
+                    <select v-model="pondProfile.pondListDataSort.field">
+                        <option v-for="(col, colIdx) in pondListDataColumnSortOptionListData" :value="col.field">{{col.caption}}</option>
+                    </select>
+                    <button class="btn btn-outline-secondary" type="button" id="button-addon2">
+                        <i class="fa-solid" :class="[(pondProfile.pondListDataSort.desc) ? 'fa-arrow-down-z-a' : 'fa-arrow-down-a-z']" @click="pondProfile.pondListDataSort.desc = !pondProfile.pondListDataSort.desc"></i>
+                    </button>
+                </div>
+            </div>
+
             <div class="col-md-12" v-for="(obj, idx) in pondListData" :key="obj.OBJECTID" 
                 :class="{'border': (pickedPondInfo.gisData != null && pickedPondInfo.gisData['埤塘名稱'] == obj['埤塘名稱'] && pickedPondInfo.gisData['工作站名稱'] == obj['工作站'])}">
                 <!--{{obj}}-->
-                <label class="w-50">埤塘名稱:</label> 
-                <span class="w-50 d-inline-block text-end">
-                    {{obj["埤塘名稱"]}} 
-                    <a href="#" @click="pinPond(obj.OBJECTID, obj['水利小組名稱'])">
-                        <i class="fa-solid fa-magnifying-glass-location"></i>
-                    </a>
-                </span>
 
-                <br>
-                <label class="w-50">工作站:</label> 
-                <span class="w-50 d-inline-block text-end">
-                    {{obj["工作站"]}} 
-                </span>
+                <div v-for="(col, colIdx) in pondProfile.pondListDataColumn" :key="col.field">
+                    <label class="w-50">{{col.caption}}:</label> 
+                    <span class="w-50 d-inline-block text-end" v-if="col.display == null">
+                        {{obj[col.field]}} 
+                        <a v-if="colIdx == 0" href="#" @click="pinPond(obj.OBJECTID, obj['水利小組名稱'])">
+                            <i class="fa-solid fa-magnifying-glass-location"></i>
+                        </a>
+                    </span>
+                    <span class="w-50 d-inline-block text-end" v-else v-html="col.display(obj, col.field, obj[col.field])">
+                    </span>
+                </div>
 
-                <br>
-                <label class="w-50">有效庫容:</label> 
-                <span class="w-50 d-inline-block text-end"> 
-                    <math xmlns="http://www.w3.org/1998/Math/MathML">
-                        <mn>{{obj["有效庫容(m3)"]}}</mn>
-                        <mi>m</mi>
-                        <msup>
-                            <mn></mn>
-                            <mn>3</mn>
-                        </msup>
-                    </math>
-                </span>
-                
-                <br>
-                <label class="w-50">目前庫容:</label> 
-                <span class="w-50 d-inline-block text-end">
+                <!--
+                    <label class="w-50">埤塘名稱:</label> 
+                    <span class="w-50 d-inline-block text-end">
+                        {{obj["埤塘名稱"]}} 
+                        <a href="#" @click="pinPond(obj.OBJECTID, obj['水利小組名稱'])">
+                            <i class="fa-solid fa-magnifying-glass-location"></i>
+                        </a>
+                    </span>
+
+                    <br>
+                    <label class="w-50">工作站:</label> 
+                    <span class="w-50 d-inline-block text-end">
+                        {{obj["工作站"]}} 
+                    </span>
+
+                    <br>
+                    <label class="w-50">有效貯水量:</label> 
+                    <span class="w-50 d-inline-block text-end"> 
+                        <math xmlns="http://www.w3.org/1998/Math/MathML">
+                            <mn>{{obj["有效庫容(m3)"]}}</mn>
+                            <mi>m</mi>
+                            <msup>
+                                <mn></mn>
+                                <mn>3</mn>
+                            </msup>
+                        </math>
+                    </span>
                     
-                    <math xmlns="http://www.w3.org/1998/Math/MathML">
-                        <mn>{{obj["Dummy目前容量"]}}</mn>
-                        <mi>m</mi>
-                        <msup>
-                            <mn></mn>
-                            <mn>3</mn>
-                        </msup>
-                    </math>
-                </span>
+                    <br>
+                    <label class="w-50">目前貯水量:</label> 
+                    <span class="w-50 d-inline-block text-end">
+                        
+                        <math xmlns="http://www.w3.org/1998/Math/MathML">
+                            <mn>{{obj["Dummy目前容量"]}}</mn>
+                            <mi>m</mi>
+                            <msup>
+                                <mn></mn>
+                                <mn>3</mn>
+                            </msup>
+                        </math>
+                    </span>
 
-                <br>
-                <label class="w-50">目前庫容佔比:</label> 
-                <span class="w-50 d-inline-block text-end">
-                    <math xmlns="http://www.w3.org/1998/Math/MathML">
-                        <mn>{{obj["Dummy目前容量比率"]}}</mn>
-                        <mi>%</mi>
-                    </math>
-                </span>
+                    <br>
+                    <label class="w-50">貯水率:</label> 
+                    <span class="w-50 d-inline-block text-end">
+                        <math xmlns="http://www.w3.org/1998/Math/MathML">
+                            <mn>{{obj["Dummy目前容量比率"]}}</mn>
+                            <mi>%</mi>
+                        </math>
+                    </span>
 
-                <br>
-                <label class="w-50">水情:</label> 
-                <span class="w-50 d-inline-block text-end" v-html="pondProfile.currentQtyLevelStyle[getLevelFlag(obj['Dummy目前容量比率'])].symbol">
-                </span>
-                
+                    <br>
+                    <label class="w-50">灌溉面積:</label> 
+                    <span class="w-50 d-inline-block text-end">
+                        <math xmlns="http://www.w3.org/1998/Math/MathML">
+                            <mn>{{obj["灌溉面積(公頃)"]}}</mn>
+                            <mi>公頃</mi>
+                        </math>
+                    </span>
+
+                    <br>
+                    <label class="w-50">判釋面積-1期作:</label> 
+                    <span class="w-50 d-inline-block text-end">
+                        <math xmlns="http://www.w3.org/1998/Math/MathML">
+                            <mn>{{obj["判釋面積-1期作(公頃)"]}}</mn>
+                            <mi>公頃</mi>
+                        </math>
+                    </span>
+                    <br>
+                    <label class="w-50">判釋面積-2期作:</label> 
+                    <span class="w-50 d-inline-block text-end">
+                        <math xmlns="http://www.w3.org/1998/Math/MathML">
+                            <mn>{{obj["判釋面積-2期作(公頃)"]}}</mn>
+                            <mi>公頃</mi>
+                        </math>
+                    </span>
+                    
+                    <br>
+                    <label class="w-50">水情:</label> 
+                    <span class="w-50 d-inline-block text-end" v-html="pondProfile.currentQtyLevelStyle[getLevelFlag(obj['Dummy目前容量比率'])].symbol">
+                    </span>
+                -->
                 <hr class="w-100" v-if="idx != (pondListData.length - 1)">
             </div>
 
         </div>
 
-        <div id="right-offcanvas" class="offcanvas offcanvas-end" data-bs-backdrop="static" tabindex="-1" id="staticBackdrop" aria-labelledby="staticBackdropLabel">
+        <div id="right-offcanvas" class="offcanvas offcanvas-end" data-bs-backdrop="static" tabindex="-1" aria-labelledby="staticBackdropLabel">
             <div class="offcanvas-header">
                 <h5 class="offcanvas-title" id="staticBackdropLabel" v-if="pickedPondInfo.gisData != null">埤塘名稱: {{pickedPondInfo.gisData["埤塘名稱"]}}</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
@@ -1093,15 +1295,36 @@ export default {
                 </div>
             </div>
         </div>
-        <div id="right-offcanvas-chart" class="offcanvas offcanvas-end" data-bs-backdrop="static" tabindex="-1" id="staticBackdrop" aria-labelledby="staticBackdropLabel">
+        <div id="right-offcanvas-chart" class="offcanvas offcanvas-end" data-bs-backdrop="static" tabindex="-1" aria-labelledby="staticBackdropLabel">
             <div class="offcanvas-header">
                 <h5 class="offcanvas-title" id="staticBackdropLabel" >
-                    <b>{{this.mapProfile.search.workstation}}</b> 共 <b>{{pondListData.length}}<b> 口埤塘
+                    <b>{{this.mapProfile.search.workstation}}</b> 共 <b>{{pondListData.length}}</b> 口埤塘
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
             </div>
             <div class="offcanvas-body">
                 <div id="pond-chart"  style="width: 90%;height:500px;"></div>
+            </div>
+        </div>
+
+        <div id="top-offcanvas-pond-filter" class="offcanvas offcanvas-top" data-bs-backdrop="static" tabindex="-1" aria-labelledby="staticBackdropLabel">
+            <div class="offcanvas-header">
+                <h5 class="offcanvas-title" id="staticBackdropLabel" >
+                    <b>{{this.mapProfile.search.workstation}}</b> 共 <b>{{pondListData.length}}</b> 口埤塘排序設定
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        埤塘名稱 
+                    </div>
+                    <div class="col-md-12">
+                        <button @click="" class="btn btn-primary">確定</button>
+                    </div>
+
+                </div>
+
             </div>
         </div>
 
