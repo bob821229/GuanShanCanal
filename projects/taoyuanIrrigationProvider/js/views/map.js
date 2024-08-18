@@ -295,10 +295,9 @@ export default {
                 w.pondCount = Enumerable.from(this.pondProfile.pondInfoList).where(p => p['工作站'] == w.工作站).count()
                 w.totalQty = Enumerable.from(this.pondProfile.pondInfoList).where(p => p['工作站'] == w.工作站).sum(item => item['有效庫容(m3)'])
                 w.totalCurrentQty = Enumerable.from(this.pondProfile.pondInfoList).where(p => p['工作站'] == w.工作站).sum(item => item['Dummy目前容量'])
-                w.totalCurrentPercentage = Math.round10(w.totalCurrentQty / w.totalQty * 100, -2);
+                w.totalCurrentPercentage = 
+                    (w.totalQty == 0) ? 0 : Math.round10(w.totalCurrentQty / w.totalQty * 100, -2);
             });
-            let sorted = Enumerable.from(filteredList).orderBy(f=>f.totalCurrentPercentage);
-            //return sorted;
             return filteredList;
         },
         pickedWorkstationGroupListData(){
@@ -420,7 +419,8 @@ export default {
                         let recognizedAreaPeriod2 = 0;
                         try {
                             dummyCurrent = getRandomNumber(0, Number(obj["有效庫容(m3)"]));
-                            dummyCurrentPercentage = Math.round10((dummyCurrent / Number(obj["有效庫容(m3)"])) * 100, -2);
+                            dummyCurrentPercentage = 
+                                (Number(obj["有效庫容(m3)"]) == 0) ? 0 : Math.round10((dummyCurrent / Number(obj["有效庫容(m3)"])) * 100, -2);
                         
                             let planArea = Number(obj["灌溉面積(公頃)"]);
                             recognizedAreaPeriod1 = getRandomNumber(0, Number(obj["灌溉面積(公頃)"]));
