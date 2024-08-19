@@ -116,7 +116,7 @@ export default {
                         display: (obj, field, value) => {
                             return `
                             <math xmlns="http://www.w3.org/1998/Math/MathML">
-                                <mn>${value}</mn>
+                                <mn>${(value != null) ? value.toLocaleString() : value}</mn>
                                 <mi>m</mi>
                                 <msup>
                                     <mn></mn>
@@ -134,7 +134,7 @@ export default {
                         display: (obj, field, value) => {
                             return `
                             <math xmlns="http://www.w3.org/1998/Math/MathML">
-                                <mn>${value}</mn>
+                                <mn>${(value != null) ? value.toLocaleString() : value}</mn>
                                 <mi>m</mi>
                                 <msup>
                                     <mn></mn>
@@ -151,7 +151,7 @@ export default {
                         display: (obj, field, value) => {
                             return `
                             <math xmlns="http://www.w3.org/1998/Math/MathML">
-                                <mn>${value}</mn>
+                                <mn>${(value != null) ? value.toLocaleString() : value}</mn>
                                 <mi>%</mi>
                             </math>
                             `;
@@ -161,10 +161,10 @@ export default {
                         key: uuid(),
                         caption: "灌溉面積", 
                         field: "灌溉面積(公頃)", 
-                        display: (obj) => {
+                        display: (obj, field, value) => {
                             return `
                             <math xmlns="http://www.w3.org/1998/Math/MathML">
-                                <mn>${obj["灌溉面積(公頃)"]}</mn>
+                                <mn>${(value != null) ? value.toLocaleString() : value}</mn>
                                 <mi>公頃</mi>
                             </math>
                             `;
@@ -174,10 +174,10 @@ export default {
                         key: uuid(),
                         caption: "判釋面積-1期作", 
                         field: "判釋面積-1期作(公頃)", 
-                        display: (obj) => {
+                        display: (obj, field, value) => {
                             return `
                             <math xmlns="http://www.w3.org/1998/Math/MathML">
-                                <mn>${obj["判釋面積-1期作(公頃)"]}</mn>
+                                <mn>${(value != null) ? value.toLocaleString() : value}</mn>
                                 <mi>公頃</mi>
                             </math>
                             `;
@@ -187,10 +187,10 @@ export default {
                         key: uuid(),
                         caption: "判釋面積-2期作", 
                         field: "判釋面積-2期作(公頃)", 
-                        display: (obj) => {
+                        display: (obj, field, value) => {
                             return `
                             <math xmlns="http://www.w3.org/1998/Math/MathML">
-                                <mn>${obj["判釋面積-2期作(公頃)"]}</mn>
+                                <mn>${(value != null) ? value.toLocaleString() : value}</mn>
                                 <mi>公頃</mi>
                             </math>
                             `;
@@ -863,7 +863,7 @@ export default {
                 },
                 tooltip: {},
                 legend: {
-                  data: ["目前庫容量", "最大庫容量", "可供灌容量", "判釋面積"],
+                  data: ["目前貯水量", "有效貯水量", "可供灌容量", "判釋面積-1期作", "判釋面積-2期作"],
                 },
                 xAxis: {
                   //注意，切換座標軸的籤時，要也要切換type值
@@ -905,12 +905,12 @@ export default {
                 ], 
                 series: [
                     {
-                        name: '目前庫容量',
+                        name: '目前貯水量',
                         type: 'line',
                         data: collections.currentQty
                     },
                     {
-                        name: '最大庫容量',
+                        name: '有效貯水量',
                         type: 'line',
                         data: collections.maxQty
                     },
@@ -920,17 +920,17 @@ export default {
                         data: collections.availabelQty
                     },
                     {
-                        name: '判釋面積',
+                        name: '判釋面積-1期作',
                         type: 'scatter',
                         yAxisIndex: 1,
                         data: collections.recognizedAreaPeriod1List
                     },
-                    // {
-                    //     name: '判釋面積-2期作(公頃)',
-                    //     type: 'scatter',
-                    //     yAxisIndex: 1,
-                    //     data: collections.recognizedAreaPeriod2List
-                    // },
+                    {
+                        name: '判釋面積-2期作',
+                        type: 'scatter',
+                        yAxisIndex: 1,
+                        data: collections.recognizedAreaPeriod2List
+                    },
                 ],
               };
         
