@@ -9,12 +9,20 @@
   <meta name="generator" content="Hugo 0.88.1" />
   <title>Sample</title>
   <style>
-    #map {
+    #map, #notes {
       width: 90vw;
-      height: 90vh;
-      margin: 0;
-      padding: 0;
+      margin: 1rem;
+      /* padding: 1rem; */
       border: solid 1px blue;
+    }
+    #map{
+      height: 80vh;
+    }
+    #notes{
+      height: 15vh;
+    }
+    #notes-container{
+      margin: 1rem;
     }
 
     .parent div {
@@ -25,7 +33,12 @@
 
 <body>
 
-
+  <div id="notes">
+    <div id="notes-container">
+      Layer樣式線上產生器：
+      <a href="https://sagewall.github.io/symbol-builder/" target="_blank">Symbol Builder</a>
+    </div>
+  </div>
   <div id="map"></div>
 
   <link rel="stylesheet" href="https://js.arcgis.com/4.30/esri/themes/light/main.css">
@@ -38,125 +51,147 @@
       "esri/WebMap",
       "esri/layers/TileLayer",
       "esri/layers/MapImageLayer",
-      "esri/views/MapView"], function (esriConfig, Map, WebMap, TileLayer, MapImageLayer, MapView) {
+      "esri/views/MapView",
 
-        const tileLayer = new TileLayer({
-          //gis tile layer
-          url: "https://gisportal.triwra.org.tw/server/rest/services/Hosted/Hillshade_80_2022/MapServer",
-        });
+      "esri/symbols/SimpleFillSymbol", 
+      "esri/symbols/TextSymbol"
 
-        const mapImagelayer = new MapImageLayer({
-          //gis Map Image Layer
-          url:
-            "https://gisportal.triwra.org.tw/server/rest/services/BigBossTaoyuanPonds2/MapServer",
+    ], function (esriConfig, Map, WebMap, TileLayer, MapImageLayer, MapView
+      , SimpleFillSymbol
+      , TextSymbol
+    ) {
 
-          //cannot feed gis WMS
-          //"https://gisportal.triwra.org.tw/server/services/BigBossTaoyuanPonds2/MapServer/WMSServer", 
-          sublayers: [
-
-            {
-              id: 15,   //BB_1管理處範圍_桃管_石管
-              //definitionExpression: `管理處名稱 = '石門管理處'`
-            },
-            // {
-            //   id: 13  //BB_3工作站範圍_桃管_石管
-            // }, 
-            // {
-            //   id: 10  //BB_4水利小組範圍_桃管_石管
-            // }, 
-            {
-              id: 14  //BB_6埤塘_1120512_桃管_石管
-            },
-            // {
-            //   id: 11  //BB_5圳路渠道_桃管_石管_幹支線
-            // }, 
-          ]
-        });
-
-        // Create a map and add the Image Map Layer to it
-        const map = new Map({
-          //basemap: "topo-vector", // You can choose other basemaps as well
-          layers: [
-            //tileLayer,  //最下層
-            mapImagelayer,  //次下層
-          ]
-        });
-
-
-
-        const view = new MapView({
-          map: map,
-          // map: webmap,
-          center: [121.2230158, 24.9536558], // Longitude, latitude
-          zoom: 10, // Zoom level
-          container: "map",  // Div element
-
-          // //basemap: "oceans",
-          // layers: [
-          //   housingLayer, 
-          //   layer, 
-          // ] // layers can be added as an array to the map's constructor
-        });
-
-        let sub = mapImagelayer.findSublayerById(14);
-        console.log('sub layers: ', sub);
-        setTimeout(() => {
-          console.log('timeout')
-          //sub.definitionExpression = `管理處名稱 = '石門管理處'`;
-          sub.renderer = {
-            type: "simple", // autocasts as new SimpleRenderer()
-            // symbol: {
-            //   type: "simple-marker", // autocasts as new SimpleMarkerSymbol()
-            //   size: 3,
-            //   color: "white"
-            // }
-            symbol: {
-              color: '#2D2670',
-              type: "simple-fill",
-              style: "solid",
-              outline: {
-                style: "none"
-              }
-            },
-          };
-          sub.renderer = {
-            type: "unique-value",
-            field: "埤塘名稱",
-            uniqueValueInfos: [
-              {
-                "value": '2-10號池',
-                "symbol": {
-                  "color": 'yellow',
-                  "type": "simple-fill",
-                  "style": "solid",
-                  "outline": {
-                    "style": "none"
-                  }
-                },
-                "label": '2-10號池'
-              },
-              {
-                "value": '2-11號池',
-                "symbol": {
-                  "color": 'green',
-                  "type": "simple-fill",
-                  "style": "solid",
-                  "outline": {
-                    "style": "dashed", 
-                    color: 'black'
-                  }
-                },
-                "label": '2-11號池'
-              },
-            ]
-          };
-        }, 3000);
-
-        // setTimeout(() => {
-        //   console.log('2nd timeout')
-        //   sub.definitionExpression = ``;
-        // }, 6000);
+      const tileLayer = new TileLayer({
+        //gis tile layer
+        url: "https://gisportal.triwra.org.tw/server/rest/services/Hosted/Hillshade_80_2022/MapServer",
       });
+
+      const mapImagelayer = new MapImageLayer({
+        //gis Map Image Layer
+        url:
+          "https://gisportal.triwra.org.tw/server/rest/services/BigBossTaoyuanPonds2/MapServer",
+
+        //cannot feed gis WMS
+        //"https://gisportal.triwra.org.tw/server/services/BigBossTaoyuanPonds2/MapServer/WMSServer", 
+        sublayers: [
+
+          {
+            id: 15,   //BB_1管理處範圍_桃管_石管
+            //definitionExpression: `管理處名稱 = '石門管理處'`
+          },
+          // {
+          //   id: 13  //BB_3工作站範圍_桃管_石管
+          // }, 
+          // {
+          //   id: 10  //BB_4水利小組範圍_桃管_石管
+          // }, 
+          {
+            id: 14  //BB_6埤塘_1120512_桃管_石管
+          },
+          // {
+          //   id: 11  //BB_5圳路渠道_桃管_石管_幹支線
+          // }, 
+        ]
+      });
+
+      // Create a map and add the Image Map Layer to it
+      const map = new Map({
+        //basemap: "topo-vector", // You can choose other basemaps as well
+        layers: [
+          //tileLayer,  //最下層
+          mapImagelayer,  //次下層
+        ]
+      });
+
+
+
+      const view = new MapView({
+        map: map,
+        // map: webmap,
+        center: [121.2230158, 24.9536558], // Longitude, latitude
+        zoom: 10, // Zoom level
+        container: "map",  // Div element
+
+        // //basemap: "oceans",
+        // layers: [
+        //   housingLayer, 
+        //   layer, 
+        // ] // layers can be added as an array to the map's constructor
+      });
+
+      let simpleFillSymbol = new SimpleFillSymbol({
+        color: [0, 122, 194, 1],
+        outline: {
+          cap: "round",
+          color: [0, 122, 194, 1],
+          join: "round",
+          miterLimit: 1,
+          style: "solid",
+          width: 1
+        },
+        style: "solid"
+      });
+
+      let sub = mapImagelayer.findSublayerById(14);
+      console.log('sub layers: ', sub);
+      setTimeout(() => {
+        console.log('timeout')
+        //sub.definitionExpression = `管理處名稱 = '石門管理處'`;
+        // sub.renderer = {
+        //   type: "simple", // autocasts as new SimpleRenderer()
+        //   // symbol: {
+        //   //   type: "simple-marker", // autocasts as new SimpleMarkerSymbol()
+        //   //   size: 3,
+        //   //   color: "white"
+        //   // }
+        //   symbol: {
+        //     color: '#2D2670',
+        //     type: "simple-fill",
+        //     style: "solid",
+        //     outline: {
+        //       style: "none"
+        //     }
+        //   },
+        // };
+        sub.renderer = {
+          type: "unique-value",
+          field: "埤塘名稱",
+          uniqueValueInfos: [
+            {
+              "value": '2-10號池',
+              "symbol": {
+                "color": 'yellow',
+                "type": "simple-fill",
+                "style": "solid",
+                "outline": {
+                  "style": "none"
+                }
+              },
+              "label": '2-10號池'
+            },
+            {
+              "value": '2-11號池',
+              "symbol": simpleFillSymbol, 
+              // "symbol": {
+              //   "color": 'green',
+              //   "type": "simple-fill",
+              //   "style": "solid",
+              //   "outline": {
+              //     "style": "dashed",
+              //     color: 'black'
+              //   }
+              // },
+              "label": '2-11號池'
+            },
+          ]
+        };
+      }, 3000);
+
+      // setTimeout(() => {
+      //   console.log('2nd timeout')
+      //   sub.definitionExpression = ``;
+      // }, 6000);
+    });
 
   </script>
 </body>
