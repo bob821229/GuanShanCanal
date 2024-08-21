@@ -164,6 +164,139 @@ select
 from [dbo].[桃園管理處-水利小組-埤塘清單-20240819]
 for json path, include_null_values
 
+
+--以水利小組為單位join資料
+select
+        grp.[水利小組名稱], 
+        grp.[工作站編號],
+        grp.[工作站名稱],
+        grp.[水利小組編號],
+
+        pond.[CanalName]
+        ,cast(pond.[DeadWaterHeight] as Decimal(18, 8)) [DeadWaterHeight]
+        ,cast(pond.[FieldArea] as Decimal(18, 8)) [FieldArea]
+        ,cast(pond.[FullWaterHeight] as Decimal(18, 8)) [FullWaterHeight]
+        ,pond.[FullWaterHeightLoc]
+        ,pond.[OBJECTID] 
+        ,cast(pond.[SurfaceAreaMaximum] as Decimal(18, 8)) [SurfaceAreaMaximum]
+        ,cast(pond.[WaterDepthMaximum] as Decimal(18, 8)) [WaterDepthMaximum]
+        ,cast(pond.[WaterStorageMaximum] as Decimal(18, 8)) [WaterStorageMaximum]
+        ,pond.[休憩綠美化用途] 
+        ,pond.[供水支渠] 
+        ,pond.[備註1] 
+        ,pond.[備註2] 
+        ,cast(pond.[土地持分比例(%)] as Decimal(18, 8)) [土地持分比例(%)]
+        ,pond.[埤塘名稱] 
+        ,pond.[埤塘編號] 
+        ,cast(pond.[埤池面積(m2)] as Decimal(18, 8)) [埤池面積(m2)]
+        ,pond.[工作站] 
+        ,pond.[工業用水用途] 
+        ,pond.[支線] 
+        ,cast(pond.[有效庫容(m3)] as Decimal(18, 8)) [有效庫容(m3)]
+        ,pond.[水利小組名稱] 
+        ,pond.[水源別] 
+        ,pond.[滿水位] 
+        ,cast(pond.[滿水位標高(m)] as Decimal(18, 8)) [滿水位標高(m)]
+        ,pond.[灌溉功能] 
+        ,cast(pond.[灌溉面積(公頃)] as Decimal(18, 8)) [灌溉面積(公頃)]
+        ,pond.[生態敏感區域] 
+        ,pond.[管理處] 
+        ,cast(pond.[給水塔底標高(m)] as Decimal(18, 8)) [給水塔底標高(m)]
+        ,cast(pond.[經度座標] as Decimal(18, 8)) [經度座標]
+        ,cast(pond.[緯度座標] as Decimal(18, 8)) [緯度座標]
+        ,pond.[行政區] 
+        ,cast(pond.[設計庫容(m3)] as Decimal(18, 8)) [設計庫容(m3)] 
+        ,pond.[農業供灌用途] 
+        ,pond.[重要濕地] 
+        ,pond.[魚介用途] 
+        ,pond.[F38] 
+        ,cast(pond.[直灌] as bit) as [直灌]
+        ,cast(pond.[埤塘]  as bit) as [埤塘]
+        ,cast(pond.[河水堰]  as bit) as [河水堰]
+        ,cast(pond.[判釋面積-1期作(公頃)] as Decimal(18, 2)) as [判釋面積-1期作(公頃)]
+        ,cast(pond.[判釋面積-2期作(公頃)] as Decimal(18, 2)) as [判釋面積-2期作(公頃)]
+
+--from [dbo].[桃園管理處-水利小組-埤塘清單-20240814]
+from [dbo].[BB_4水利小組範圍_桃管_石管$] grp
+        FULL JOIN [dbo].[桃園管理處-水利小組-埤塘清單-20240819] pond
+                on grp.[管理處名稱] = pond.[管理處] + '管理處'
+                        and grp.[水利小組名稱] = pond.[水利小組名稱]
+where grp.[管理處名稱] = '桃園管理處'
+--order by pond.[埤塘名稱] desc
+union 
+
+--以水利小組為單位join資料
+select
+        null [水利小組名稱], 
+        null [工作站編號],
+        null [工作站名稱],
+        null [水利小組編號],
+
+        pond.[CanalName]
+        ,cast(pond.[DeadWaterHeight] as Decimal(18, 8)) [DeadWaterHeight]
+        ,cast(pond.[FieldArea] as Decimal(18, 8)) [FieldArea]
+        ,cast(pond.[FullWaterHeight] as Decimal(18, 8)) [FullWaterHeight]
+        ,pond.[FullWaterHeightLoc]
+        ,pond.[OBJECTID] 
+        ,cast(pond.[SurfaceAreaMaximum] as Decimal(18, 8)) [SurfaceAreaMaximum]
+        ,cast(pond.[WaterDepthMaximum] as Decimal(18, 8)) [WaterDepthMaximum]
+        ,cast(pond.[WaterStorageMaximum] as Decimal(18, 8)) [WaterStorageMaximum]
+        ,pond.[休憩綠美化用途] 
+        ,pond.[供水支渠] 
+        ,pond.[備註1] 
+        ,pond.[備註2] 
+        ,cast(pond.[土地持分比例(%)] as Decimal(18, 8)) [土地持分比例(%)]
+        ,pond.[埤塘名稱] 
+        ,pond.[埤塘編號] 
+        ,cast(pond.[埤池面積(m2)] as Decimal(18, 8)) [埤池面積(m2)]
+        ,pond.[工作站] 
+        ,pond.[工業用水用途] 
+        ,pond.[支線] 
+        ,cast(pond.[有效庫容(m3)] as Decimal(18, 8)) [有效庫容(m3)]
+        ,pond.[水利小組名稱] 
+        ,pond.[水源別] 
+        ,pond.[滿水位] 
+        ,cast(pond.[滿水位標高(m)] as Decimal(18, 8)) [滿水位標高(m)]
+        ,pond.[灌溉功能] 
+        ,cast(pond.[灌溉面積(公頃)] as Decimal(18, 8)) [灌溉面積(公頃)]
+        ,pond.[生態敏感區域] 
+        ,pond.[管理處] 
+        ,cast(pond.[給水塔底標高(m)] as Decimal(18, 8)) [給水塔底標高(m)]
+        ,cast(pond.[經度座標] as Decimal(18, 8)) [經度座標]
+        ,cast(pond.[緯度座標] as Decimal(18, 8)) [緯度座標]
+        ,pond.[行政區] 
+        ,cast(pond.[設計庫容(m3)] as Decimal(18, 8)) [設計庫容(m3)] 
+        ,pond.[農業供灌用途] 
+        ,pond.[重要濕地] 
+        ,pond.[魚介用途] 
+        ,pond.[F38] 
+        ,cast(pond.[直灌] as bit) as [直灌]
+        ,cast(pond.[埤塘]  as bit) as [埤塘]
+        ,cast(pond.[河水堰]  as bit) as [河水堰]
+        ,cast(pond.[判釋面積-1期作(公頃)] as Decimal(18, 2)) as [判釋面積-1期作(公頃)]
+        ,cast(pond.[判釋面積-2期作(公頃)] as Decimal(18, 2)) as [判釋面積-2期作(公頃)]
+
+--from [dbo].[桃園管理處-水利小組-埤塘清單-20240814]
+from [dbo].[桃園管理處-水利小組-埤塘清單-20240819] pond
+where pond.[水利小組名稱]  = '<Null>'
+
+for json path, include_null_values
+
+
+SELECT [水利小組名稱]
+from [BB_4水利小組範圍_桃管_石管$]
+where [管理處名稱] = '桃園管理處' and [水利小組名稱] ='2-11、12號池小組'
+
+SELECT count([水利小組名稱]) cc, [水利小組名稱], [管理處], [埤塘名稱]
+from [桃園管理處-水利小組-埤塘清單-20240819]
+group by [水利小組名稱], [管理處], [埤塘名稱]
+order by cc desc
+where [管理處] + '管理處' = '桃園管理處' 
+        and ([水利小組名稱] ='2-10號池小組' or [水利小組名稱] like '1-3%')
+
+-- select distinct [管理處名稱], [工作站名稱], [水利小組名稱]
+-- from [dbo].[BB_4水利小組範圍_桃管_石管$]
+
 -- select distinct cap.[工作站], cap.[埤塘編號]
 -- from [dbo].['桃園管理處各貯水池能量表(總表)_修'] cap
 --         inner join [dbo].[BB_6埤塘_1120512_桃管_石管$] pond
@@ -197,3 +330,5 @@ select [WorkStationId],
         note
 from [dbo].[各埤塘蓄水量轉換對照表$]
 for json path, include_null_values
+
+
