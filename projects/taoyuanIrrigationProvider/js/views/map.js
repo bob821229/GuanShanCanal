@@ -131,7 +131,7 @@ export default {
                     },
                     {
                         key: uuid(),
-                        caption: "有效貯水量",
+                        caption: "有效庫容",
                         field: "有效庫容(m3)",
                         display: (obj, field, value) => {
                             return `
@@ -149,7 +149,7 @@ export default {
                     },
                     {
                         key: uuid(),
-                        caption: "目前貯水量",
+                        caption: "目前蓄水量",
                         field: "Dummy目前容量",
                         display: (obj, field, value) => {
                             return `
@@ -166,7 +166,7 @@ export default {
                     },
                     {
                         key: uuid(),
-                        caption: "貯水率",
+                        caption: "蓄水率",
                         field: "Dummy目前容量比率",
                         display: (obj, field, value) => {
                             return `
@@ -243,7 +243,7 @@ export default {
                     // {field: "滿水位標高(m)", caption: "滿水位標高(公尺)"}, 
                     // {field: "滿水位", caption: "滿水位"}, 
 
-                    { field: "WaterStorageMaximum", caption: '最大貯水量(立方公尺)', display: (obj, field, value) => { return ((value != null) ? value.toLocaleString() : value); } },
+                    { field: "WaterStorageMaximum", caption: '有效庫容(立方公尺)', display: (obj, field, value) => { return ((value != null) ? value.toLocaleString() : value); } },
                     { field: "WaterDepthMaximum", caption: '最高水深(公尺)', display: (obj, field, value) => { return ((value != null) ? value.toLocaleString() : value); } },
                     { field: "SurfaceAreaMaximum", caption: '滿水面積(平方公尺)', display: (obj, field, value) => { return ((value != null) ? value.toLocaleString() : value); } },
                     { field: "DeadWaterHeight", caption: '給水塔底標高(公尺)', display: (obj, field, value) => { return ((value != null) ? value.toLocaleString() : value); } },
@@ -272,8 +272,8 @@ export default {
                 hvCurveDataDisplayFieldList: [
                     { field: "WaterDepth", caption: "水深(m)" },
                     { field: "SurfaceArea", caption: "水面面積(平方公尺)" },
-                    { field: "WaterStorage", caption: "貯水量(立方公尺)" },
-                    { field: "PercentageOfStorage", caption: "貯水率(%)" },
+                    { field: "WaterStorage", caption: "蓄水量(立方公尺)" },
+                    { field: "PercentageOfStorage", caption: "蓄水率(%)" },
                 ],
             },
             rightOffCanvas: null,
@@ -1126,12 +1126,12 @@ export default {
             let xAxisData = null;
             let yAxisData = null;
             let option = {
-                title: {
-                    text: ` ${this.mapProfile.search.workstation} ${this.pondListData.length}口埤塘 供水及灌溉面積關係圖`,
-                },
+                // title: {
+                //     text: ` ${this.mapProfile.search.workstation} ${this.pondListData.length}口埤塘 供水及灌溉面積關係圖`,
+                // },
                 tooltip: {},
                 legend: {
-                    data: ["目前貯水量", "有效貯水量", "可供灌容量", "判釋面積-1期作", "判釋面積-2期作"],
+                    data: ["目前蓄水量", "有效庫容", "可供灌容量", "判釋面積-1期作", "判釋面積-2期作"],
                 },
                 xAxis: {
                     //注意，切換座標軸的籤時，要也要切換type值
@@ -1173,12 +1173,12 @@ export default {
                 ],
                 series: [
                     {
-                        name: '目前貯水量',
+                        name: '目前蓄水量',
                         type: 'line',
                         data: collections.currentQty
                     },
                     {
-                        name: '有效貯水量',
+                        name: '有效庫容',
                         type: 'line',
                         data: collections.maxQty
                     },
@@ -1290,7 +1290,7 @@ export default {
                 <span class="w-50 d-inline-block text-end">{{obj["pondCount"]}}</span>
 
                 <br>
-                <label class="w-50">總有效貯水量:</label> 
+                <label class="w-50">總有效庫容:</label> 
                 <span class="w-50 d-inline-block text-end">
                     <math xmlns="http://www.w3.org/1998/Math/MathML">
                         <mn>{{obj["totalQty"].toLocaleString()}}</mn>
@@ -1303,7 +1303,7 @@ export default {
                 </span>
 
                 <br>
-                <label class="w-50">總貯水量:</label> 
+                <label class="w-50">總蓄水量:</label> 
                 <span class="w-50 d-inline-block text-end">
                     <math xmlns="http://www.w3.org/1998/Math/MathML">
                         <mn>{{obj["totalCurrentQty"].toLocaleString()}}</mn>
@@ -1316,7 +1316,7 @@ export default {
                 </span>
                 
                 <br>
-                <label class="w-50">貯水率:</label> 
+                <label class="w-50">蓄水率:</label> 
                 <span class="w-50 d-inline-block text-end">
                     <math xmlns="http://www.w3.org/1998/Math/MathML">
                         <mn>{{obj["totalCurrentPercentage"]}}</mn>
@@ -1375,88 +1375,7 @@ export default {
                     </span>
                 </div>
 
-                <!--
-                    <label class="w-50">埤塘名稱:</label> 
-                    <span class="w-50 d-inline-block text-end">
-                        {{obj["埤塘名稱"]}} 
-                        <a href="#" @click="pinPond(obj.OBJECTID, obj['水利小組名稱'])">
-                            <i class="fa-solid fa-magnifying-glass-location"></i>
-                        </a>
-                    </span>
-
-                    <br>
-                    <label class="w-50">工作站:</label> 
-                    <span class="w-50 d-inline-block text-end">
-                        {{obj["工作站"]}} 
-                    </span>
-
-                    <br>
-                    <label class="w-50">有效貯水量:</label> 
-                    <span class="w-50 d-inline-block text-end"> 
-                        <math xmlns="http://www.w3.org/1998/Math/MathML">
-                            <mn>{{obj["有效庫容(m3)"].toLocaleString()}}</mn>
-                            <mi>m</mi>
-                            <msup>
-                                <mn></mn>
-                                <mn>3</mn>
-                            </msup>
-                        </math>
-                    </span>
-                    
-                    <br>
-                    <label class="w-50">目前貯水量:</label> 
-                    <span class="w-50 d-inline-block text-end">
-                        
-                        <math xmlns="http://www.w3.org/1998/Math/MathML">
-                            <mn>{{obj["Dummy目前容量"].toLocaleString()}}</mn>
-                            <mi>m</mi>
-                            <msup>
-                                <mn></mn>
-                                <mn>3</mn>
-                            </msup>
-                        </math>
-                    </span>
-
-                    <br>
-                    <label class="w-50">貯水率:</label> 
-                    <span class="w-50 d-inline-block text-end">
-                        <math xmlns="http://www.w3.org/1998/Math/MathML">
-                            <mn>{{obj["Dummy目前容量比率"].toLocaleString()}}</mn>
-                            <mi>%</mi>
-                        </math>
-                    </span>
-
-                    <br>
-                    <label class="w-50">灌溉面積:</label> 
-                    <span class="w-50 d-inline-block text-end">
-                        <math xmlns="http://www.w3.org/1998/Math/MathML">
-                            <mn>{{obj["灌溉面積(公頃)"].toLocaleString()}}</mn>
-                            <mi>公頃</mi>
-                        </math>
-                    </span>
-
-                    <br>
-                    <label class="w-50">判釋面積-1期作:</label> 
-                    <span class="w-50 d-inline-block text-end">
-                        <math xmlns="http://www.w3.org/1998/Math/MathML">
-                            <mn>{{obj["判釋面積-1期作(公頃)"].toLocaleString()}}</mn>
-                            <mi>公頃</mi>
-                        </math>
-                    </span>
-                    <br>
-                    <label class="w-50">判釋面積-2期作:</label> 
-                    <span class="w-50 d-inline-block text-end">
-                        <math xmlns="http://www.w3.org/1998/Math/MathML">
-                            <mn>{{obj["判釋面積-2期作(公頃)"].toLocaleString()}}</mn>
-                            <mi>公頃</mi>
-                        </math>
-                    </span>
-                    
-                    <br>
-                    <label class="w-50">水情:</label> 
-                    <span class="w-50 d-inline-block text-end" v-html="pondProfile.currentQtyLevelStyle[getLevelFlag(obj['Dummy目前容量比率'])].symbol">
-                    </span>
-                -->
+                
                 <hr class="w-100" v-if="idx != (pondListData.length - 1)">
             </div>
 
@@ -1478,7 +1397,7 @@ export default {
                             </span>
                     </div>
                     <div class="col-md-3">
-                        <label class="fw-bold">目前貯水量:</label>
+                        <label class="fw-bold">目前蓄水量:</label>
                         <span class="d-block">
                             
                             <math xmlns="http://www.w3.org/1998/Math/MathML">
@@ -1492,7 +1411,7 @@ export default {
                         </span>
                     </div>
                     <div class="col-md-3">
-                        <label class="fw-bold">最大貯水量:</label>
+                        <label class="fw-bold">有效庫容:</label>
                         <span class="d-block">
                             <math xmlns="http://www.w3.org/1998/Math/MathML">
                                 <mn>{{pickedPondInfo.dep1Data['有效庫容(m3)'].toLocaleString()}}</mn>
@@ -1505,7 +1424,7 @@ export default {
                         </span>
                     </div>
                     <div class="col-md-3">
-                        <label class="fw-bold">貯水率:</label>
+                        <label class="fw-bold">蓄水率:</label>
                         <span class="d-block">
                             <math xmlns="http://www.w3.org/1998/Math/MathML">
                                 <mn>{{pickedPondInfo.dep1Data['Dummy目前容量比率'].toLocaleString()}}</mn>
@@ -1555,7 +1474,7 @@ export default {
                 <hr class="w-100 my-2"/>
                 <div class="row" v-if="pickedPondInfo.dep1Data != null">
                     <!--{{pickedPondInfo.dep1Data}}-->
-                    <h5 class="my-2">貯水資訊</h5>
+                    <h5 class="my-2">蓄水資訊</h5>
                     <div class="col-md-6" v-for="(item, idx) in pickedPondInfo.dep1DataDisplayFieldWaterStorageList">
                         <label class="fw-bold">{{(item.caption != null) ? item.caption : item.field}}:</label>
                         <span class="d-block">
@@ -1601,7 +1520,7 @@ export default {
         <div id="right-offcanvas-chart" class="offcanvas offcanvas-end" data-bs-backdrop="static" tabindex="-1" aria-labelledby="staticBackdropLabel">
             <div class="offcanvas-header">
                 <h5 class="offcanvas-title" id="staticBackdropLabel" >
-                    <b>{{this.mapProfile.search.workstation}}</b> 共 <b>{{pondListData.length}}</b> 口埤塘
+                    <b>{{this.mapProfile.search.workstation}}</b> 共 <b>{{pondListData.length}}</b> 口埤塘 供水及灌溉面積關係圖
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
             </div>
