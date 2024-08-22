@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="" />
+  <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors" />
+  <meta name="generator" content="Hugo 0.88.1" />
+  <title>Sample</title>
+  <style>
+    #map,
+    #notes {
+      width: 90vw;
+      margin: 1rem;
+      /* padding: 1rem; */
+      border: solid 1px blue;
+    }
+
+    #map {
+      height: 80vh;
+    }
+
+    #notes {
+      height: 15vh;
+    }
+
+    #notes-container {
+      margin: 1rem;
+    }
+
+    .parent div {
+      margin-left: 20px;
+    }
+
+    label{
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="notes">
+    <div id="notes-container">
+      以下程式展示利用Query找出圖上河流(Polyline)有流經指定矩型(Polygon)的線條，並標示出顏色<br>
+      <input type="checkbox" id="ifHighlightRiverAcross"><label for="ifHighlightRiverAcross">標示出有流過方塊區域的河流</label>
+
+      <hr>
+      資源：<br>
+      Layer樣式線上產生器：
+      <a href="https://sagewall.github.io/symbol-builder/" target="_blank">Symbol Builder</a><br>
+      
+    </div>
+  </div>
+  <div id="map"></div>
+
+  <link rel="stylesheet" href="https://js.arcgis.com/4.30/esri/themes/light/main.css">
+  <script src="https://js.arcgis.com/4.30/"></script>
+
+  <script>
+    const EsriObject = {
+      esriFunction: {}
+    };
+    require([
+      "esri/Map",
+      "esri/views/MapView",
+      "esri/layers/FeatureLayer",
+      "esri/geometry/Polygon",
+      "esri/rest/support/Query",
+      "esri/symbols/SimpleLineSymbol",
+      "esri/symbols/SimpleFillSymbol",
+      "esri/layers/GraphicsLayer",
+      "esri/Graphic",
+    ], function (Map, MapView, FeatureLayer, Polygon, Query, SimpleLineSymbol, SimpleFillSymbol, GraphicsLayer, Graphic) {
+      EsriObject.esriFunction.Graphic = Graphic;
+      EsriObject.esriFunction.SimpleLineSymbol = SimpleLineSymbol;
+
+      // Set up the map and view
+      const map = new Map({
+        basemap: "streets",
+        layers: [
+          new FeatureLayer({
+            url: "https://gisportal.triwra.org.tw/server/rest/services/Hosted/Sample_Map_BB_5_River/FeatureServer/11" // URL of your polyline layer
+          }),
+          new GraphicsLayer() // Add a GraphicsLayer to display the highlighted polylines
+        ]
+      });
+
+      const view = new MapView({
+        container: "map",
+        map: map,
+        center: [121.2723367, 24.8099184], // Initial center
+        zoom: 11
+      });
+      //, 
+
+
+
+      view.when(() => {
+        // Define the polygon geometry you want to check for intersections
+        const polygon = new Polygon({
+          rings: [
+            [121.2723367, 24.8099184],
+            [121.248733, 24.8099184],
+            [121.248733, 24.849529],
+            [121.2723367, 24.849529],
+            [121.2723367, 24.8099184]
+          ],
+          spatialReference: { wkid: 4326 }
+        });
+
+        // Access the polyline layer
+        const polylineLayer = map.layers.getItemAt(0);
+        const graphicsLayer = map.layers.getItemAt(1); // Get the GraphicsLayer
+
+        // Create a graphic for the polygon and add it to the GraphicsLayer
+        const polygonGraphic = new Graphic({
+          geometry: polygon,
+          symbol: new SimpleFillSymbol({
+            color: [227, 139, 79, 0.4], // RGB for a light brown with transparency
+            outline: {
+              color: [255, 0, 0], // Red outline
+              width: 2
+            }
+          })
+        });
+        graphicsLayer.add(polygonGraphic); // Add the polygon to the map
+
+        EsriObject.map = map;
+        EsriObject.view = view;
+        EsriObject.polygonGraphic = polygonGraphic;
+        EsriObject.graphicsLayer = graphicsLayer;
+        EsriObject.polylineLayer = polylineLayer;
+
+        // // Set up the query
+        // const query = polylineLayer.createQuery();
+        // query.geometry = polygon; // Set the polygon as the query geometry
+        // query.spatialRelationship = "intersects"; // Find polylines that cross the polygon
+        // query.returnGeometry = true;
+        // query.outFields = ["*"]; // Return all fields
+
+        // // Execute the query
+        // polylineLayer.queryFeatures(query).then(function (result) {
+        //   if (result.features.length > 0) {
+        //     // Process the polylines that intersect the polygon
+        //     result.features.forEach(feature => {
+        //       console.log("Polyline found crossing the polygon: ", feature.attributes);
+        //       // You can highlight the polyline, display info, etc.
+
+        //       const graphic = new Graphic({
+        //         geometry: feature.geometry,
+        //         symbol: new SimpleLineSymbol({
+        //           cap: "round",
+        //           color: [3, 0, 194, 1],
+        //           join: "round",
+        //           miterLimit: 1,
+        //           style: "solid",
+        //           width: 3
+        //         }),
+        //         attributes: feature.attributes
+        //       });
+
+        //       // Add the graphic to the GraphicsLayer
+        //       graphicsLayer.add(graphic);
+
+        //     });
+        //   } else {
+        //     console.log("No polyline found crossing the polygon.");
+        //   }
+        // }).catch(function (error) {
+        //   console.error("Query failed: ", error);
+        // });
+      });
+    });
+
+    const cbkIfHighlightRiverAcross = document.getElementById('ifHighlightRiverAcross');
+    const highlightLayer = [];
+
+    cbkIfHighlightRiverAcross.addEventListener('click', (e) => {
+      console.log(e.target.checked);
+      if (e.target.checked) {
+
+        // Set up the query
+        const query = EsriObject.polylineLayer.createQuery();
+        query.geometry = EsriObject.polygonGraphic.geometry; // Set the polygon as the query geometry
+        query.spatialRelationship = "intersects"; // Find polylines that cross the polygon
+        query.returnGeometry = true;
+        query.outFields = ["*"]; // Return all fields
+
+        // Execute the query
+        EsriObject.polylineLayer.queryFeatures(query).then(function (result) {
+          if (result.features.length > 0) {
+            // Process the polylines that intersect the polygon
+            result.features.forEach(feature => {
+              console.log("Polyline found crossing the polygon: ", feature.attributes);
+              // You can highlight the polyline, display info, etc.
+
+              const graphic = new EsriObject.esriFunction.Graphic({
+                geometry: feature.geometry,
+                symbol: new EsriObject.esriFunction.SimpleLineSymbol({
+                  cap: "round",
+                  color: [3, 0, 194, 1],
+                  join: "round",
+                  miterLimit: 1,
+                  style: "solid",
+                  width: 3
+                }),
+                attributes: feature.attributes
+              });
+
+              // Add the graphic to the GraphicsLayer
+              EsriObject.graphicsLayer.add(graphic);
+              highlightLayer.push(graphic);
+
+            });
+          } else {
+            console.log("No polyline found crossing the polygon.");
+          }
+        }).catch(function (error) {
+          console.error("Query failed: ", error);
+        });
+      }
+      else{
+        highlightLayer.forEach((layer) => {
+          EsriObject.graphicsLayer.remove(layer);
+        });
+        highlightLayer.length = 0;
+      }
+    });
+
+
+
+  </script>
+</body>
+
+</html>
