@@ -1,4 +1,5 @@
 import { firebaseDataAccess } from '../firebaseDataAccess.js'
+const { toRaw } = Vue;
 import Enumerable from '../../plugins/linq.js'
 export default {
     components: {
@@ -7,112 +8,130 @@ export default {
     //inject: ['currentComponent'],
     data() {
         return {
-            ifShowLegend: true, 
+            esri: {
+                esriConfig: null,
+                Map: null,
+                WebMap: null,
+                MapImageLayer: null,
+                MapView: null,
+                SimpleFillSymbol: null,
+                TextSymbol: null, 
+                SimpleLineSymbol: null, 
+            },
+            ifShowLegend: true,
             mapProfile: {
                 map: null,
                 layer: null,
+                subLayers: {
+                    associationLayer: null,
+                    workstationLayer: null,
+                    groupLayer: null,
+                    pondLayer: null,
+                    riverLayer: null,
+                },
                 search: {
                     association: '桃園管理處',
-                    irrigationGroup: '', 
+                    irrigationGroup: '',
                     workstation: '',
                     group: '',
-                }, 
+                },
                 highlightLayer: {
                     //BB_4水利小組範圍_桃管_石管
                     '10': {
-                        cache: [], 
+                        cache: [],
                         style: {
                             //fillColor: 'rgba(128, 128, 128, 0.7)', 
-                            color: 'blue', 
+                            color: 'blue',
                             //opacity: 0, 
 
-                        }, 
-                        layerCaption: `水利小組範圍`, 
-                        legend: `#DBFCBD`, 
-                    }, 
+                        },
+                        layerCaption: `水利小組範圍`,
+                        legend: `#DBFCBD`,
+                    },
                     //BB_5圳路渠道_桃管_石管_幹支線
                     '11': {
-                        cache: [], 
+                        cache: [],
                         style: {
-                            fillColor: 'blue', 
+                            fillColor: 'blue',
                             color: 'black'
-                        }, 
-                        layerCaption: `圳路渠道(幹支線)`, 
-                        legend: `#FC0012`, 
-                    }, 
+                        },
+                        layerCaption: `圳路渠道(幹支線)`,
+                        legend: `#FC0012`,
+                    },
                     //BB_3工作站範圍_桃管_石管
                     '13': {
-                        cache: [], 
+                        cache: [],
                         style: {
                             // fillColor: 'rgba(255, 254, 78, 0.7)', 
-                             color: 'red'
-                        }, 
-                        layerCaption: `工作站範圍`, 
-                        legend: `#DBFCBD`, 
-                    }, 
+                            color: 'red'
+                        },
+                        layerCaption: `工作站範圍`,
+                        legend: `#DBFCBD`,
+                    },
                     //BB_6埤塘_1120512_桃管_石管
                     '14': {
-                        cache: [], 
+                        cache: [],
                         style: {
                             //fillColor: '#666666',//'rgba(128, 128, 128, 0.7)', 
-                            color: 'black', 
+                            color: 'black',
                             // opacity: 0, 
                             // fill: true, 
-                        }, 
-                        layerCaption: `埤塘`, 
+                        },
+                        layerCaption: `埤塘`,
                         legend: `#BED2FF`,
-                    },  
+                    },
                     //BB_1管理處範圍_桃管_石管
                     '15': {
-                        cache: [], 
+                        cache: [],
                         style: {
                             // fillColor: 'lime', 
                             color: 'black'
-                        }, 
-                        layerCaption: `管理處範圍`, 
-                        legend: `#FC0012`, 
-                    },  
+                        },
+                        layerCaption: `管理處範圍`,
+                        legend: `#FC0012`,
+                    },
                 }
             },
             pondProfile: {
                 hierarchyList: null,
                 pondInfoList: [],
                 workstationGroupList: [],
-                pondHvCurveList: [], 
+                pondHvCurveList: [],
                 currentQtyLevelStyle: {
                     'dangerous': {
-                        definition: '<= 40%', 
-                        symbol: '<i class="fa-regular fa-face-frown mx-2" style="color: red;"></i>', 
-                    }, 
+                        definition: '<= 40%',
+                        symbol: '<i class="fa-regular fa-face-frown mx-2" style="color: red;"></i>',
+                    },
                     'normal': {
-                        definition: '41% ~ 60%', 
+                        definition: '41% ~ 60%',
                         symbol: '<i class="fa-regular fa-face-smile mx-2" style="color: #FF943D;"></i>'
-                    }, 
+                    },
                     'good': {
-                        definition: '> 61%', 
+                        definition: '> 61%',
                         symbol: '<i class="fa-regular fa-face-laugh-beam mx-2" style="color: green;"></i>'
-                    , }
-                }, 
-                pondListDataSort:{
-                    field: 'Dummy目前容量', 
+                        ,
+                    }
+                },
+                pondListDataSort: {
+                    field: 'Dummy目前容量',
                     desc: true
-                }, 
+                },
                 pondListDataColumn: [
                     {
                         key: uuid(),
-                        caption: "埤塘名稱", 
-                        field: "埤塘名稱", 
-                    }, 
+                        caption: "埤塘名稱",
+                        field: "埤塘名稱",
+                    },
                     {
                         key: uuid(),
-                        caption: "工作站", 
-                        field: "工作站", 
-                        canSort: false, 
-                    }, 
+                        caption: "工作站",
+                        field: "工作站",
+                        canSort: false,
+                    },
                     {
                         key: uuid(),
-                        caption: "有效貯水量", 
-                        field: "有效庫容(m3)", 
+                        caption: "有效貯水量",
+                        field: "有效庫容(m3)",
                         display: (obj, field, value) => {
                             return `
                             <math xmlns="http://www.w3.org/1998/Math/MathML">
@@ -126,11 +145,11 @@ export default {
                             </math>
                             `;
                         }
-                    }, 
+                    },
                     {
                         key: uuid(),
-                        caption: "目前貯水量", 
-                        field: "Dummy目前容量", 
+                        caption: "目前貯水量",
+                        field: "Dummy目前容量",
                         display: (obj, field, value) => {
                             return `
                             <math xmlns="http://www.w3.org/1998/Math/MathML">
@@ -143,11 +162,11 @@ export default {
                             </math>
                             `;
                         }
-                    }, 
+                    },
                     {
                         key: uuid(),
-                        caption: "貯水率", 
-                        field: "Dummy目前容量比率", 
+                        caption: "貯水率",
+                        field: "Dummy目前容量比率",
                         display: (obj, field, value) => {
                             return `
                             <math xmlns="http://www.w3.org/1998/Math/MathML">
@@ -156,11 +175,11 @@ export default {
                             </math>
                             `;
                         }
-                    }, 
+                    },
                     {
                         key: uuid(),
-                        caption: "灌溉面積", 
-                        field: "灌溉面積(公頃)", 
+                        caption: "灌溉面積",
+                        field: "灌溉面積(公頃)",
                         display: (obj, field, value) => {
                             return `
                             <math xmlns="http://www.w3.org/1998/Math/MathML">
@@ -169,11 +188,11 @@ export default {
                             </math>
                             `;
                         }
-                    }, 
+                    },
                     {
                         key: uuid(),
-                        caption: "判釋面積-1期作", 
-                        field: "判釋面積-1期作(公頃)", 
+                        caption: "判釋面積-1期作",
+                        field: "判釋面積-1期作(公頃)",
                         display: (obj, field, value) => {
                             return `
                             <math xmlns="http://www.w3.org/1998/Math/MathML">
@@ -182,11 +201,11 @@ export default {
                             </math>
                             `;
                         }
-                    }, 
+                    },
                     {
                         key: uuid(),
-                        caption: "判釋面積-2期作", 
-                        field: "判釋面積-2期作(公頃)", 
+                        caption: "判釋面積-2期作",
+                        field: "判釋面積-2期作(公頃)",
                         display: (obj, field, value) => {
                             return `
                             <math xmlns="http://www.w3.org/1998/Math/MathML">
@@ -195,11 +214,11 @@ export default {
                             </math>
                             `;
                         }
-                    }, 
+                    },
                     {
                         key: uuid(),
-                        caption: "水情", 
-                        field: "Dummy目前容量比率", 
+                        caption: "水情",
+                        field: "Dummy目前容量比率",
                         display: (obj) => {
                             return `${this.pondProfile.currentQtyLevelStyle[this.getLevelFlag(obj['Dummy目前容量比率'])].symbol}`;
                         }
@@ -207,14 +226,14 @@ export default {
                 ]
             },
             pickedPondInfo: {
-                gisData: null, 
+                gisData: null,
                 gisDataDisplayFieldList: [
-                    {field: "管理處名稱", },
-                    {field: "工作站名稱", },
-                    {field: "原水利小組名稱", },
-                    {field: "水利小組名稱", },
-                ], 
-                dep1Data: null, 
+                    { field: "管理處名稱", },
+                    { field: "工作站名稱", },
+                    { field: "原水利小組名稱", },
+                    { field: "水利小組名稱", },
+                ],
+                dep1Data: null,
                 dep1DataDisplayFieldWaterStorageList: [
                     // {field: "埤池面積(m2)", caption: "埤池面積(平方公尺)"}, 
                     // {field: "有效庫容(m3)", caption: "有效庫容(立方公尺)"}, 
@@ -223,43 +242,43 @@ export default {
                     // {field: "滿水位標高(m)", caption: "滿水位標高(公尺)"}, 
                     // {field: "滿水位", caption: "滿水位"}, 
 
-                    {field: "WaterStorageMaximum", caption: '最大貯水量(立方公尺)', display: (obj, field, value) => { return ((value != null) ? value.toLocaleString() : value);}},
-                    {field: "WaterDepthMaximum", caption: '最高水深(公尺)', display: (obj, field, value) => { return ((value != null) ? value.toLocaleString() : value);}},
-                    {field: "SurfaceAreaMaximum", caption: '滿水面積(平方公尺)', display: (obj, field, value) => { return ((value != null) ? value.toLocaleString() : value);}},
-                    {field: "DeadWaterHeight", caption: '給水塔底標高(公尺)', display: (obj, field, value) => { return ((value != null) ? value.toLocaleString() : value);}},
-                    {field: "FullWaterHeight", caption: '滿水位標高(公尺)', display: (obj, field, value) => { return ((value != null) ? value.toLocaleString() : value);}},
-                    {field: "FullWaterHeightLoc", caption: '滿水位位置', display: (obj, field, value) => { return ((value != null) ? value.toLocaleString() : value);}},
-                    {field: "FieldArea", caption: '小組面積', display: (obj, field, value) => { return ((value != null) ? value.toLocaleString() : value);}},
-                    {field: "CanalName", caption: '支渠名稱'},
+                    { field: "WaterStorageMaximum", caption: '最大貯水量(立方公尺)', display: (obj, field, value) => { return ((value != null) ? value.toLocaleString() : value); } },
+                    { field: "WaterDepthMaximum", caption: '最高水深(公尺)', display: (obj, field, value) => { return ((value != null) ? value.toLocaleString() : value); } },
+                    { field: "SurfaceAreaMaximum", caption: '滿水面積(平方公尺)', display: (obj, field, value) => { return ((value != null) ? value.toLocaleString() : value); } },
+                    { field: "DeadWaterHeight", caption: '給水塔底標高(公尺)', display: (obj, field, value) => { return ((value != null) ? value.toLocaleString() : value); } },
+                    { field: "FullWaterHeight", caption: '滿水位標高(公尺)', display: (obj, field, value) => { return ((value != null) ? value.toLocaleString() : value); } },
+                    { field: "FullWaterHeightLoc", caption: '滿水位位置', display: (obj, field, value) => { return ((value != null) ? value.toLocaleString() : value); } },
+                    { field: "FieldArea", caption: '小組面積', display: (obj, field, value) => { return ((value != null) ? value.toLocaleString() : value); } },
+                    { field: "CanalName", caption: '支渠名稱' },
 
-                    {field: "水源別", },
-                ], 
+                    { field: "水源別", },
+                ],
                 dep1DataDisplayFieldOtherInfoList: [
-                    
-                    {field: "灌溉功能"},
-                    {field: "灌溉面積(公頃)"}, 
-                    
-                    {field: "行政區"}, 
 
-                    {field: "生態敏感區域"}, 
-                    {field: "工業用水用途"}, 
-                    {field: "農業供灌用途"}, 
-                    {field: "魚介用途"}, 
-                    {field: "備註1"}, 
-                    {field: "備註2"}, 
-                ], 
-                hvCurveData: null, 
+                    { field: "灌溉功能" },
+                    { field: "灌溉面積(公頃)" },
+
+                    { field: "行政區" },
+
+                    { field: "生態敏感區域" },
+                    { field: "工業用水用途" },
+                    { field: "農業供灌用途" },
+                    { field: "魚介用途" },
+                    { field: "備註1" },
+                    { field: "備註2" },
+                ],
+                hvCurveData: null,
                 hvCurveDataDisplayFieldList: [
-                    {field: "WaterDepth", caption: "水深(m)"},
-                    {field: "SurfaceArea", caption: "水面面積(平方公尺)"}, 
-                    {field: "WaterStorage", caption: "貯水量(立方公尺)"}, 
-                    {field: "PercentageOfStorage", caption: "貯水率(%)"},
-                ], 
-            }, 
+                    { field: "WaterDepth", caption: "水深(m)" },
+                    { field: "SurfaceArea", caption: "水面面積(平方公尺)" },
+                    { field: "WaterStorage", caption: "貯水量(立方公尺)" },
+                    { field: "PercentageOfStorage", caption: "貯水率(%)" },
+                ],
+            },
             rightOffCanvas: null,
-            rightOffCanvasChart: null, 
-            topOffCanvasPondFilter: null, 
-            pondChart: null, 
+            rightOffCanvasChart: null,
+            topOffCanvasPondFilter: null,
+            pondChart: null,
             dataAccess: null
         }
     },
@@ -268,18 +287,18 @@ export default {
             if (n != null) {
                 this.mapProfile.search.association = n[0];
             }
-        }, 
-        'mapProfile.search.workstation': function(n, o){
+        },
+        'mapProfile.search.workstation': function (n, o) {
             //console.log('mapProfile.search.workstation', n, o)
             this.searchMap();
             this.removeHighlightLayer(14);
             this.removeHighlightLayer(10);
             this.highlightPonds(`工作站名稱 = '${n}'`, 13);
-            if(n != ''){
+            if (n != '') {
                 this.drawChart();
             }
-        }, 
-        'mapProfile.search.group': function(n, o){
+        },
+        'mapProfile.search.group': function (n, o) {
             //console.log('mapProfile.search.workstation', n, o)
             this.searchMap();
             //this.highlightPonds(`工作站名稱 = '${n}'`, 13);
@@ -295,20 +314,20 @@ export default {
                 w.pondCount = Enumerable.from(this.pondProfile.pondInfoList).where(p => p['工作站'] == w.工作站).count()
                 w.totalQty = Enumerable.from(this.pondProfile.pondInfoList).where(p => p['工作站'] == w.工作站).sum(item => item['有效庫容(m3)'])
                 w.totalCurrentQty = Enumerable.from(this.pondProfile.pondInfoList).where(p => p['工作站'] == w.工作站).sum(item => item['Dummy目前容量'])
-                w.totalCurrentPercentage = 
+                w.totalCurrentPercentage =
                     (w.totalQty == 0) ? 0 : Math.round10(w.totalCurrentQty / w.totalQty * 100, -2);
             });
             return filteredList;
         },
-        pickedWorkstationGroupListData(){
-            if(this.mapProfile.search.workstation == null || this.mapProfile.search.workstation == ''){
+        pickedWorkstationGroupListData() {
+            if (this.mapProfile.search.workstation == null || this.mapProfile.search.workstation == '') {
                 return this.workstationGroupListData;
-            }else{
+            } else {
                 let r = Enumerable.from(this.workstationGroupListData).where(f => f['工作站'] == this.mapProfile.search.workstation).toArray();
                 return r;
             }
-            
-        }, 
+
+        },
         associationList() {
             if (this.pondProfile.hierarchyList == null) {
                 return [];
@@ -323,7 +342,7 @@ export default {
                 .select(g => g.key())
                 .toArray();
 
-            
+
             return r;
         },
         groupList() {
@@ -339,19 +358,19 @@ export default {
         pondListData() {
             let arr = Enumerable.from(this.pondProfile.pondInfoList)
                 .where(f => {
-                    return (f['工作站'] == 
-                            //f['工作站']
+                    return (f['工作站'] ==
+                        //f['工作站']
                         ((this.mapProfile.search.workstation != null && this.mapProfile.search.workstation.length > 0) ? this.mapProfile.search.workstation : f['工作站'])
                     );
                 });
             let sorted;
-            if(this.pondProfile.pondListDataSort.desc){
+            if (this.pondProfile.pondListDataSort.desc) {
                 sorted = arr.orderByDescending(
-                    item =>  item[this.pondProfile.pondListDataSort.field]
+                    item => item[this.pondProfile.pondListDataSort.field]
                 );
-            }else{
+            } else {
                 sorted = arr.orderBy(
-                    item =>  item[this.pondProfile.pondListDataSort.field]
+                    item => item[this.pondProfile.pondListDataSort.field]
                 );
             }
 
@@ -359,25 +378,57 @@ export default {
             //     sorted.orderBy(
             //         item =>  item["埤塘名稱"]
             //     );
-            
+
             //return arr.toArray();
             return sorted.toArray();
-        }, 
-        pondListDataColumnSortOptionListData(){
+        },
+        pondListDataColumnSortOptionListData() {
             let r = Enumerable.from(this.pondProfile.pondListDataColumn).where(
-                f => (f.canSort != false) 
+                f => (f.canSort != false)
             ).toArray();
             return r;
-        }, 
+        },
     },
     methods: {
         init: function () {
+            require([
+                "esri/config",
+                "esri/Map",
+                "esri/WebMap",
+                "esri/layers/TileLayer",
+                "esri/layers/MapImageLayer",
+                "esri/views/MapView",
+
+                "esri/symbols/SimpleFillSymbol",
+                "esri/symbols/TextSymbol", 
+                "esri/symbols/SimpleLineSymbol"
+
+            ], (esriConfig, Map, WebMap, TileLayer, MapImageLayer, MapView
+                , SimpleFillSymbol
+                , TextSymbol
+                , SimpleLineSymbol
+            ) => {
+                this.esri.esriConfig = esriConfig;
+                this.esri.Map = Map;
+                this.esri.WebMap = WebMap;
+                this.esri.MapImageLayer = MapImageLayer;
+                this.esri.MapView = MapView;
+                this.esri.SimpleFillSymbol = SimpleFillSymbol;
+                this.esri.TextSymbol = TextSymbol;
+                this.esri.SimpleLineSymbol = SimpleLineSymbol;
+
+
+                this.$nextTick(() => {
+                    this.initMap();
+                });
+            });
+
             this.loadData();
-            
+
             let offcanvasEl = document.getElementById('right-offcanvas')
             let offcanvasChartEl = document.getElementById('right-offcanvas-chart')
             let offcanvasPondFilterEl = document.getElementById('top-offcanvas-pond-filter')
-            
+
             this.rightOffCanvas = new bootstrap.Offcanvas(offcanvasEl);
             this.rightOffCanvasChart = new bootstrap.Offcanvas(offcanvasChartEl);
             this.topOffCanvasPondFilter = new bootstrap.Offcanvas(offcanvasPondFilterEl);
@@ -386,9 +437,6 @@ export default {
 
             //
 
-            this.$nextTick(() => {
-                this.initMap();
-            });
         },
         loadData: function () {
             this.dataAccess = firebaseDataAccess();
@@ -414,15 +462,15 @@ export default {
                     this.pondProfile.pondInfoList.forEach(obj => {
                         let dummyCurrent = 0;
                         let dummyCurrentPercentage = 0;
-                        
+
                         let recognizedAreaPeriod1 = 0;
                         let recognizedAreaPeriod2 = 0;
                         let availabelQty = 0;
                         try {
                             dummyCurrent = getRandomNumber(0, Number(obj["有效庫容(m3)"]));
-                            dummyCurrentPercentage = 
+                            dummyCurrentPercentage =
                                 (Number(obj["有效庫容(m3)"]) == 0) ? 0 : Math.round10((dummyCurrent / Number(obj["有效庫容(m3)"])) * 100, -2);
-                        
+
                             // let planArea = Number(obj["灌溉面積(公頃)"]);
                             // recognizedAreaPeriod1 = getRandomNumber(0, Number(obj["灌溉面積(公頃)"]));
                             // recognizedAreaPeriod2 = getRandomNumber(0, Number(obj["灌溉面積(公頃)"]));
@@ -460,131 +508,280 @@ export default {
             );
         },
         initMap: function () {
-            this.mapProfile.map = L.map("map").setView(
-                [23.80745279701942, 120.29574021937988],
-                //[23.973993,120.9772426],
-                16
-            );
-            this.addLayer();
-        },
-        addLayer: function () {
-            let url = //'https://gisportal.triwra.org.tw/server/rest/services/BigBossTaoyuanPonds2/MapServer';
-                'https://gisportal.triwra.org.tw/server/rest/services/BigBossTaoyuanPonds/MapServer';
-            if (this.mapProfile.layer != null) {
+            // this.mapProfile.map = L.map("map").setView(
+            //     [23.80745279701942, 120.29574021937988],
+            //     //[23.973993,120.9772426],
+            //     16
+            // );
+            // this.addLayer();
+            let self = this;
+            let mapImagelayer = new this.esri.MapImageLayer({
+                //gis Map Image Layer
+                url:
+                    "https://gisportal.triwra.org.tw/server/rest/services/BigBossTaoyuanPonds2/MapServer",
 
-                this.mapProfile.map.removeLayer(this.mapProfile.layer);
+                //cannot feed gis WMS
+                //"https://gisportal.triwra.org.tw/server/services/BigBossTaoyuanPonds2/MapServer/WMSServer", 
+                sublayers: [
 
-            }
+                    {
+                        id: 15,   //BB_1管理處範圍_桃管_石管
+                        definitionExpression: this.mapBaseQuery,
+                    },
+                    {
+                        id: 13,   //BB_3工作站範圍_桃管_石管
+                        definitionExpression: this.mapBaseQuery,
+                    },
+                    {
+                        id: 10,   //BB_4水利小組範圍_桃管_石管
+                        definitionExpression: this.mapBaseQuery,
+                    },
+                    {
+                        id: 14,  //BB_6埤塘_1120512_桃管_石管
+                        definitionExpression: this.mapBaseQuery,
+                    },
+                    {
+                        id: 11,   //BB_5圳路渠道_桃管_石管_幹支線
+                        renderer: {
+                            type: "unique-value",
+                            field: "系統類別名稱",
+                            uniqueValueInfos: [
+                                {
+                                    "value": '支線',
+                                    "symbol": new this.esri.SimpleLineSymbol({
+                                        cap: "round",
+                                        color: 'blue', //[126,194,0,1],
+                                        join: "round",
+                                        miterLimit: 1,
+                                        style: "solid",
+                                        width: 1
+                                      }),
+                                    "label": '支線'
+                                },
+                                {
+                                    "value": '幹線',
+                                    "symbol": new this.esri.SimpleLineSymbol({
+                                        cap: "round",
+                                        color: 'red', //[126,194,0,1],
+                                        join: "round",
+                                        miterLimit: 1,
+                                        style: "solid",
+                                        width: 2
+                                      }), 
+                                    "label": '幹線'
+                                },
+                            ]
+                        }, 
+                        labelingInfo: [
+                            {
+                              labelExpression: "[系統名稱]",
+                              labelPlacement: "always-horizontal",
+                              symbol: {
+                                type: "text", // autocasts as new TextSymbol()
+                                color: [0, 0, 0, 0.85],
+                                font: {
+                                  size: 10,
+                                  weight: "bolder"
+                                }
+                              },
+                              //minScale: 80000,  //city range
+                              minScale: 800000,  
+                              maxScale: 0, 
+                            },
+                            // {
+                            //   labelExpression: "[state_name]",
+                            //   labelPlacement: "always-horizontal",
+                            //   symbol: {
+                            //     type: "text", // autocasts as new TextSymbol()
+                            //     color: [255, 255, 255, 0.85],
+                            //     haloColor: "gray",
+                            //     haloSize: 1,
+                            //     font: {
+                            //       size: 14,
+                            //       weight: "bold"
+                            //     }
+                            //   },
+                            //   minScale: 9250000,
+                            //   maxScale: 2400000
+                            // }, 
+                          ]
+                    },
+                ]
+            });
+            let map = new this.esri.Map({
+                //basemap: "topo-vector", // You can choose other basemaps as well
+                layers: [
+                    //tileLayer,  //最下層
+                    mapImagelayer,  //次下層
+                ]
+            });
+            let view = new this.esri.MapView({
+                map: map,
+                // map: webmap,
+                //center: [121.2230158, 24.9536558], // Longitude, latitude
+                zoom: 10, // Zoom level
+                container: "map",  // Div element
 
-            let where = this.mapBaseQuery;//`管理處名稱 = '${this.mapProfile.search.association}'`;
-            console.log(where);
-            this.mapProfile.layer = L.esri
-                .dynamicMapLayer({
-                    url: url,
-                    //opacity: 0.7,
-                    // layerDefs: {
-                    //     10: where,
-                    //         //"管理處名稱 = '桃園管理處' and 工作站名稱 = '湖口工作站'", 
-                    //         //'0=0',
-                    //     //11: where,
-                    //     13: where,
-                    //     14: where,//`管理處名稱 = '桃園管理處' and 工作站名稱 = '湖口工作站' and 水利小組名稱 = '光復圳1-1號池小組'`, //where,
-                    //     15: where,
-                    // }
-                })
-                .addTo(this.mapProfile.map);
-
-
-
-            this.mapProfile.layer
-                .query()
-                .layer(14)
-                .where(
-                    where
-                    //`管理處名稱 = '桃園管理處' and 工作站名稱 = '湖口工作站' and 水利小組名稱 = '光復圳1-1號池小組'`
-                )
-                .bounds((error, latlngbounds) => {
-                    if (error) {
-                        console.error("Error querying feature layer bounds:", error);
-                        alert('查無資料');
-                        return;
-                    }
-
-                    if (latlngbounds._northEast == null) {
-                        alert('查無資料');
-                        return;
-                    }
-                    //this.ifFeatureLayerQuery = true;
-                    // Fit the map to the bounds of the features
-                    this.mapProfile.map.fitBounds(latlngbounds);
-                });
-
-
-            // this.mapProfile.layer.bindPopup((err, featureCollection, response) => {
-            //     console.log('dynamicMapLayer.bindPopup');
-
-            //     let cont = '';
-
-            //     let workstation = null;
-            //     let pondName = null;
-            //     featureCollection.features.forEach(f => {
-            //         console.log(f);
-            //         cont += this.getPondContent(f.properties);
-            //         if (f.layerId == 14) {
-            //             // let obj = f.properties;
-            //             //workstation = f.properties['工作站名稱'];
-            //             pondName = f.properties['埤塘名稱'];
-            //         }
-            //     });
-            //     cont = pondName;
-            //     //console.log(cont);
-            //     return `<div class="row waiting-content">${cont}</div>`;
-            //     //return `${cont}`;
-            // });
-
-            //let identifiedFeature;
-            //let pane = document.getElementById("pane-content");
-            this.mapProfile.map.on("click", (e) => {
-                console.log(e);
-                this.mapProfile.layer
-                    .identify()
-                    .layers('visible:14') // just the counties sublayer
-                    .on(this.mapProfile.map)
-                    .at(e.latlng)
-                    .run(this.showPondContent);
+                // //basemap: "oceans",
+                // layers: [
+                //   housingLayer, 
+                //   layer, 
+                // ] // layers can be added as an array to the map's constructor
             });
 
-            this.mapProfile.layer.setLayers([
-                10, //BB_4水利小組範圍_桃管_石管
-                11, //BB_5圳路渠道_桃管_石管_幹支線
-                13, //BB_3工作站範圍_桃管_石管
-                14, //BB_6埤塘_1120512_桃管_石管
-                15//, //BB_1管理處範圍_桃管_石管
-                //12, //BB_5圳路渠道_桃管_石管_所有渠道    
-            ]);
-            // let layers = this.mapProfile.layer.getLayers();
-            // console.log(layers);
+            let pLayer = mapImagelayer.findSublayerById(14);
+            view.on('pointer-move', (event) => {
+                console.log('map view clicked', event);
+                // let opts = {
+                //     include: mapImagelayer.findSublayerById(14)
+                // };
+                const opts = {
+                    include: pLayer
+                  }
+                view.hitTest(event, opts).then((response) => {
+                    console.log(response);
+                    // // check if a feature is returned from the hurricanesLayer
+                    // if (response.results.length) {
+                    //   const graphic = response.results[0].graphic;
+                    //   // do something with the graphic
+                    // }
+                  });
+            });
 
-            //this.highlightPonds(`OBJECTID = 20 OR OBJECTID = 11`);
+            let pondLayer = mapImagelayer.findSublayerById(14);
+            console.log(pondLayer);
+            this.mapProfile.subLayers.associationLayer = mapImagelayer.findSublayerById(15);
+            this.mapProfile.subLayers.workstationLayer = mapImagelayer.findSublayerById(13);
+            this.mapProfile.subLayers.groupLayer = mapImagelayer.findSublayerById(10);
+            this.mapProfile.subLayers.pondLayer = mapImagelayer.findSublayerById(14);
+            this.mapProfile.subLayers.riverLayer = mapImagelayer.findSublayerById(10);
+            console.log(this.mapProfile.subLayers.pondLayer);
+            // setTimeout(() => {
+            //     let f = toRaw(this.mapProfile.subLayers.pondLayer);
+            //     console.log(f);
+            //     f.definitionExpression = `埤塘名稱 = '2-10號池'`;
+            //     //pondLayer.definitionExpression = `埤塘名稱 = '2-10號池'`;
+            // }, 1500);
+
         },
-        removeHighlightLayer: function(layerId){
-            if(this.mapProfile.highlightLayer[`${layerId}`].cache.length > 0){
+        // addLayer: function () {
+        //     let url = //'https://gisportal.triwra.org.tw/server/rest/services/BigBossTaoyuanPonds2/MapServer';
+        //         'https://gisportal.triwra.org.tw/server/rest/services/BigBossTaoyuanPonds/MapServer';
+        //     if (this.mapProfile.layer != null) {
+
+        //         this.mapProfile.map.removeLayer(this.mapProfile.layer);
+
+        //     }
+
+        //     let where = this.mapBaseQuery;//`管理處名稱 = '${this.mapProfile.search.association}'`;
+        //     console.log(where);
+        //     this.mapProfile.layer = L.esri
+        //         .dynamicMapLayer({
+        //             url: url,
+        //             //opacity: 0.7,
+        //             // layerDefs: {
+        //             //     10: where,
+        //             //         //"管理處名稱 = '桃園管理處' and 工作站名稱 = '湖口工作站'", 
+        //             //         //'0=0',
+        //             //     //11: where,
+        //             //     13: where,
+        //             //     14: where,//`管理處名稱 = '桃園管理處' and 工作站名稱 = '湖口工作站' and 水利小組名稱 = '光復圳1-1號池小組'`, //where,
+        //             //     15: where,
+        //             // }
+        //         })
+        //         .addTo(this.mapProfile.map);
+
+
+
+        //     this.mapProfile.layer
+        //         .query()
+        //         .layer(14)
+        //         .where(
+        //             where
+        //             //`管理處名稱 = '桃園管理處' and 工作站名稱 = '湖口工作站' and 水利小組名稱 = '光復圳1-1號池小組'`
+        //         )
+        //         .bounds((error, latlngbounds) => {
+        //             if (error) {
+        //                 console.error("Error querying feature layer bounds:", error);
+        //                 alert('查無資料');
+        //                 return;
+        //             }
+
+        //             if (latlngbounds._northEast == null) {
+        //                 alert('查無資料');
+        //                 return;
+        //             }
+        //             //this.ifFeatureLayerQuery = true;
+        //             // Fit the map to the bounds of the features
+        //             this.mapProfile.map.fitBounds(latlngbounds);
+        //         });
+
+
+        //     // this.mapProfile.layer.bindPopup((err, featureCollection, response) => {
+        //     //     console.log('dynamicMapLayer.bindPopup');
+
+        //     //     let cont = '';
+
+        //     //     let workstation = null;
+        //     //     let pondName = null;
+        //     //     featureCollection.features.forEach(f => {
+        //     //         console.log(f);
+        //     //         cont += this.getPondContent(f.properties);
+        //     //         if (f.layerId == 14) {
+        //     //             // let obj = f.properties;
+        //     //             //workstation = f.properties['工作站名稱'];
+        //     //             pondName = f.properties['埤塘名稱'];
+        //     //         }
+        //     //     });
+        //     //     cont = pondName;
+        //     //     //console.log(cont);
+        //     //     return `<div class="row waiting-content">${cont}</div>`;
+        //     //     //return `${cont}`;
+        //     // });
+
+        //     //let identifiedFeature;
+        //     //let pane = document.getElementById("pane-content");
+        //     this.mapProfile.map.on("click", (e) => {
+        //         console.log(e);
+        //         this.mapProfile.layer
+        //             .identify()
+        //             .layers('visible:14') // just the counties sublayer
+        //             .on(this.mapProfile.map)
+        //             .at(e.latlng)
+        //             .run(this.showPondContent);
+        //     });
+
+        //     this.mapProfile.layer.setLayers([
+        //         10, //BB_4水利小組範圍_桃管_石管
+        //         11, //BB_5圳路渠道_桃管_石管_幹支線
+        //         13, //BB_3工作站範圍_桃管_石管
+        //         14, //BB_6埤塘_1120512_桃管_石管
+        //         15//, //BB_1管理處範圍_桃管_石管
+        //         //12, //BB_5圳路渠道_桃管_石管_所有渠道    
+        //     ]);
+        //     // let layers = this.mapProfile.layer.getLayers();
+        //     // console.log(layers);
+
+        //     //this.highlightPonds(`OBJECTID = 20 OR OBJECTID = 11`);
+        // },
+        removeHighlightLayer: function (layerId) {
+            if (this.mapProfile.highlightLayer[`${layerId}`].cache.length > 0) {
                 console.log(`remove layer: ${this.mapProfile.highlightLayer[`${layerId}`].length}`);
                 this.mapProfile.highlightLayer[`${layerId}`].cache.forEach(_layer => {
                     this.mapProfile.map.removeLayer(_layer)
                 });
                 this.mapProfile.highlightLayer[`${layerId}`].cache.length = 0;
             }
-        }, 
-        highlightPonds: function(where, layerId){
+        },
+        highlightPonds: function (where, layerId) {
             let _layerId = 14;
-            if(layerId != null) _layerId = layerId
+            if (layerId != null) _layerId = layerId
             let query = this.mapProfile.layer
-            .query()
-            .layer(
-                //14
-                _layerId
-            ).where(
+                .query()
+                .layer(
+                    //14
+                    _layerId
+                ).where(
                     //`OBJECTID = 20 OR OBJECTID = 11`
                     where
                 );
@@ -594,9 +791,9 @@ export default {
                     console.error("Feature query error:", error);
                     return;
                 }
-                
+
                 this.removeHighlightLayer(_layerId);
-                
+
                 console.log(featureCollection);
                 console.log(_layerId, this.mapProfile.highlightLayer[`${_layerId}`].style);
                 if (featureCollection.features.length > 0) {
@@ -617,7 +814,7 @@ export default {
                 }
             });
         },
-        showPondContent: function(error, featureCollection){
+        showPondContent: function (error, featureCollection) {
             let layerId = 14;
             //let pane = document.getElementById("pane-content");
             if (error) {
@@ -630,13 +827,13 @@ export default {
             // make sure at least one feature was identified.
             if (featureCollection.features.length > 0) {
                 console.log(featureCollection);
-                
+
                 let feature = featureCollection.features[0];
-                
+
                 let identifiedFeatureLayer = L.geoJSON(feature).addTo(this.mapProfile.map);
 
                 this.mapProfile.highlightLayer[`${layerId}`].cache.push(identifiedFeatureLayer);
-                
+
                 this.pickedPondInfo.gisData = feature.properties;
                 this.pickedPondInfo.dep1Data = this.getDep1DataPondData(this.pickedPondInfo.gisData["埤塘名稱"], this.pickedPondInfo.gisData["工作站名稱"]);
                 this.pickedPondInfo.hvCurveData = this.getHvCurveData(this.pickedPondInfo.gisData["埤塘名稱"], this.pickedPondInfo.gisData["工作站名稱"]);
@@ -645,12 +842,12 @@ export default {
                 // cont = `<div class="row">${cont}</div>`;
                 // pane.innerHTML = cont;//soilDescription;
                 this.rightOffCanvas.show();
-            } 
+            }
             // else {
             //     pane.innerHTML = "No features identified.";
             // }
-            
-        }, 
+
+        },
         getPondContent: function (gisProperties) {
             let cont = '';
             Object.keys(gisProperties).forEach(key => {
@@ -662,30 +859,30 @@ export default {
                 </div>`
             });
 
-            
+
             cont += '<hr class="col-md-12">'
             return cont;
         },
-        getDep1DataPondData: function(pondName, workstation){
+        getDep1DataPondData: function (pondName, workstation) {
             let found = Enumerable.from(this.pondProfile.pondInfoList)
-            .where(item => { return item['埤塘名稱'] == pondName && item['工作站'] == workstation; })
-            .toArray();
+                .where(item => { return item['埤塘名稱'] == pondName && item['工作站'] == workstation; })
+                .toArray();
             if (found.length > 0) {
                 return found[0];
-            }else{
+            } else {
                 return null;
             }
-        }, 
-        getHvCurveData: function(pondName, workstation){
+        },
+        getHvCurveData: function (pondName, workstation) {
             console.log(pondName, workstation)
-            if(workstation == '湖口工作站'){
+            if (workstation == '湖口工作站') {
                 console.log('in filter')
                 let arr = Enumerable.from(this.pondProfile.pondHvCurveList).where(p => p.PondName == pondName);
                 return arr.toArray();
-            }else{
+            } else {
                 return null;
             }
-        }, 
+        },
         getDep1DataContent: function (pondName, workstation) {
             let cont = '';
             if (pondName != null) {
@@ -765,17 +962,17 @@ export default {
 
 
         },
-        getLevelFlag: function(currentQtyPercentage){
-            if(currentQtyPercentage <= 40){
+        getLevelFlag: function (currentQtyPercentage) {
+            if (currentQtyPercentage <= 40) {
                 return 'dangerous';
-            }else if (currentQtyPercentage <= 45){
+            } else if (currentQtyPercentage <= 45) {
                 return 'normal';
             }
-            else{
+            else {
                 return 'good';
             }
-        }, 
-        pinPond: function(OBJECTID, group){
+        },
+        pinPond: function (OBJECTID, group) {
             console.log(OBJECTID);
 
             //水利小組
@@ -792,60 +989,60 @@ export default {
                 .run(this.showPondContent);
 
         },
-        drawChart: function(){
+        drawChart: function () {
             let collections = {
-                pondNameList: [], 
-                recognizedAreaPeriod1List: [], 
-                recognizedAreaPeriod2List: [], 
-                planedArea: [], 
-                currentQty: [], 
-                maxQty: [], 
-                availabelQty: [], 
+                pondNameList: [],
+                recognizedAreaPeriod1List: [],
+                recognizedAreaPeriod2List: [],
+                planedArea: [],
+                currentQty: [],
+                maxQty: [],
+                availabelQty: [],
             }
             let fieldMappings = [
                 {
-                    dataField: '埤塘名稱', 
+                    dataField: '埤塘名稱',
                     collectionField: 'pondNameList'
-                }, 
+                },
                 {
-                    dataField: '判釋面積-1期作(公頃)', 
+                    dataField: '判釋面積-1期作(公頃)',
                     collectionField: 'recognizedAreaPeriod1List'
-                }, 
+                },
                 {
-                    dataField: '判釋面積-2期作(公頃)', 
+                    dataField: '判釋面積-2期作(公頃)',
                     collectionField: 'recognizedAreaPeriod2List'
-                }, 
+                },
                 {
-                    dataField: '灌溉面積(公頃)', 
+                    dataField: '灌溉面積(公頃)',
                     collectionField: 'planedArea'
-                }, 
+                },
                 {
-                    dataField: 'Dummy目前容量', 
+                    dataField: 'Dummy目前容量',
                     collectionField: 'currentQty'
-                }, 
+                },
                 {
                     // dataField: 'Dummy目前容量', 
                     // collectionField: 'availabelQty', 
                     // callback: (v) => {
                     //     return getRandomNumber(0, v);
                     // }
-                    dataField: '可供灌容量', 
-                    collectionField: 'availabelQty', 
-                }, 
+                    dataField: '可供灌容量',
+                    collectionField: 'availabelQty',
+                },
                 {
-                    dataField: '有效庫容(m3)', 
+                    dataField: '有效庫容(m3)',
                     collectionField: 'maxQty'
-                }, 
+                },
             ]
             console.log('drawChart', this.pondListData);
             this.pondListData.forEach(data => {
                 fieldMappings.forEach(f => {
-                    if(f.callback == null){
+                    if (f.callback == null) {
 
                         collections[f.collectionField].push(
                             data[f.dataField]
                         );
-                    }else{
+                    } else {
 
                         collections[f.collectionField].push(
                             f.callback(data[f.dataField])
@@ -855,21 +1052,21 @@ export default {
             });
             console.log('drawChart', collections);
 
-            let xAxisData = null; 
+            let xAxisData = null;
             let yAxisData = null;
             let option = {
                 title: {
-                  text: ` ${this.mapProfile.search.workstation} ${this.pondListData.length}口埤塘 供水及灌溉面積關係圖`,
+                    text: ` ${this.mapProfile.search.workstation} ${this.pondListData.length}口埤塘 供水及灌溉面積關係圖`,
                 },
                 tooltip: {},
                 legend: {
-                  data: ["目前貯水量", "有效貯水量", "可供灌容量", "判釋面積-1期作", "判釋面積-2期作"],
+                    data: ["目前貯水量", "有效貯水量", "可供灌容量", "判釋面積-1期作", "判釋面積-2期作"],
                 },
                 xAxis: {
-                  //注意，切換座標軸的籤時，要也要切換type值
-                  //type: ((this.xAxisData == null) ? 'value' : 'category'),  
-                  data: collections.pondNameList
-                  //this.xAxisData
+                    //注意，切換座標軸的籤時，要也要切換type值
+                    //type: ((this.xAxisData == null) ? 'value' : 'category'),  
+                    data: collections.pondNameList
+                    //this.xAxisData
                 },
                 yAxis: [
                     {
@@ -878,31 +1075,31 @@ export default {
                         position: 'left',
                         alignTicks: true,
                         axisLine: {
-                          show: true,
-                          lineStyle: {
-                            color: 'blue'
-                          }
+                            show: true,
+                            lineStyle: {
+                                color: 'blue'
+                            }
                         },
                         axisLabel: {
-                          formatter: '{value} 立方公尺'
+                            formatter: '{value} 立方公尺'
                         }
-                    }, 
+                    },
                     {
                         type: 'value',
                         name: '面積',
                         position: 'right',
                         alignTicks: true,
                         axisLine: {
-                          show: true,
-                          lineStyle: {
-                            color: 'red'
-                          }
+                            show: true,
+                            lineStyle: {
+                                color: 'red'
+                            }
                         },
                         axisLabel: {
-                          formatter: '{value} 公頃'
+                            formatter: '{value} 公頃'
                         }
                     }
-                ], 
+                ],
                 series: [
                     {
                         name: '目前貯水量',
@@ -932,14 +1129,14 @@ export default {
                         data: collections.recognizedAreaPeriod2List
                     },
                 ],
-              };
-        
-        
-              // Display the chart using the configuration items and data just specified.
-              this.pondChart.setOption(option);
+            };
+
+
+            // Display the chart using the configuration items and data just specified.
+            this.pondChart.setOption(option);
 
             this.rightOffCanvasChart.show();
-        }, 
+        },
     },
     mounted() {
         this.init();
