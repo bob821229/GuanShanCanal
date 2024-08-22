@@ -15,12 +15,13 @@ export default {
                 MapImageLayer: null,
                 MapView: null,
                 SimpleFillSymbol: null,
-                TextSymbol: null, 
-                SimpleLineSymbol: null, 
+                TextSymbol: null,
+                SimpleLineSymbol: null,
             },
             ifShowLegend: true,
             mapProfile: {
                 map: null,
+                mapView: null,
                 layer: null,
                 subLayers: {
                     associationLayer: null,
@@ -291,12 +292,12 @@ export default {
         'mapProfile.search.workstation': function (n, o) {
             //console.log('mapProfile.search.workstation', n, o)
             this.searchMap();
-            this.removeHighlightLayer(14);
-            this.removeHighlightLayer(10);
-            this.highlightPonds(`工作站名稱 = '${n}'`, 13);
-            if (n != '') {
-                this.drawChart();
-            }
+            // this.removeHighlightLayer(14);
+            // this.removeHighlightLayer(10);
+            // this.highlightPonds(`工作站名稱 = '${n}'`, 13);
+            // if (n != '') {
+            //     this.drawChart();
+            // }
         },
         'mapProfile.search.group': function (n, o) {
             //console.log('mapProfile.search.workstation', n, o)
@@ -400,13 +401,16 @@ export default {
                 "esri/views/MapView",
 
                 "esri/symbols/SimpleFillSymbol",
-                "esri/symbols/TextSymbol", 
-                "esri/symbols/SimpleLineSymbol"
+                "esri/symbols/TextSymbol",
+                "esri/symbols/SimpleLineSymbol",
+
+                "esri/rest/support/Query",
 
             ], (esriConfig, Map, WebMap, TileLayer, MapImageLayer, MapView
                 , SimpleFillSymbol
                 , TextSymbol
                 , SimpleLineSymbol
+                , Query
             ) => {
                 this.esri.esriConfig = esriConfig;
                 this.esri.Map = Map;
@@ -416,6 +420,7 @@ export default {
                 this.esri.SimpleFillSymbol = SimpleFillSymbol;
                 this.esri.TextSymbol = TextSymbol;
                 this.esri.SimpleLineSymbol = SimpleLineSymbol;
+                this.esri.Query = Query;
 
 
                 this.$nextTick(() => {
@@ -555,7 +560,7 @@ export default {
                                         miterLimit: 1,
                                         style: "solid",
                                         width: 1
-                                      }),
+                                    }),
                                     "label": '支線'
                                 },
                                 {
@@ -567,44 +572,28 @@ export default {
                                         miterLimit: 1,
                                         style: "solid",
                                         width: 2
-                                      }), 
+                                    }),
                                     "label": '幹線'
                                 },
                             ]
-                        }, 
-                        labelingInfo: [
-                            {
-                              labelExpression: "[系統名稱]",
-                              labelPlacement: "always-horizontal",
-                              symbol: {
-                                type: "text", // autocasts as new TextSymbol()
-                                color: [0, 0, 0, 0.85],
-                                font: {
-                                  size: 10,
-                                  weight: "bolder"
-                                }
-                              },
-                              //minScale: 80000,  //city range
-                              minScale: 800000,  
-                              maxScale: 0, 
-                            },
-                            // {
-                            //   labelExpression: "[state_name]",
-                            //   labelPlacement: "always-horizontal",
-                            //   symbol: {
-                            //     type: "text", // autocasts as new TextSymbol()
-                            //     color: [255, 255, 255, 0.85],
-                            //     haloColor: "gray",
-                            //     haloSize: 1,
-                            //     font: {
-                            //       size: 14,
-                            //       weight: "bold"
-                            //     }
-                            //   },
-                            //   minScale: 9250000,
-                            //   maxScale: 2400000
-                            // }, 
-                          ]
+                        },
+                        // labelingInfo: [
+                        //     {
+                        //         labelExpression: "[系統名稱]",
+                        //         labelPlacement: "always-horizontal",
+                        //         symbol: {
+                        //             type: "text", // autocasts as new TextSymbol()
+                        //             color: [0, 0, 0, 0.85],
+                        //             font: {
+                        //                 size: 10,
+                        //                 weight: "bolder"
+                        //             }
+                        //         },
+                        //         //minScale: 80000,  //city range
+                        //         minScale: 800000,
+                        //         maxScale: 0,
+                        //     },
+                        // ]
                     },
                 ]
             });
@@ -629,27 +618,29 @@ export default {
                 // ] // layers can be added as an array to the map's constructor
             });
 
-            let pLayer = mapImagelayer.findSublayerById(14);
-            view.on('pointer-move', (event) => {
-                console.log('map view clicked', event);
-                // let opts = {
-                //     include: mapImagelayer.findSublayerById(14)
-                // };
-                const opts = {
-                    include: pLayer
-                  }
-                view.hitTest(event, opts).then((response) => {
-                    console.log(response);
-                    // // check if a feature is returned from the hurricanesLayer
-                    // if (response.results.length) {
-                    //   const graphic = response.results[0].graphic;
-                    //   // do something with the graphic
-                    // }
-                  });
-            });
+            // let pLayer = mapImagelayer.findSublayerById(14);
+            // view.on('pointer-move', (event) => {
+            //     console.log('map view clicked', event);
+            //     // let opts = {
+            //     //     include: mapImagelayer.findSublayerById(14)
+            //     // };
+            //     const opts = {
+            //         include: pLayer
+            //       }
+            //     view.hitTest(event, opts).then((response) => {
+            //         console.log(response);
+            //         // // check if a feature is returned from the hurricanesLayer
+            //         // if (response.results.length) {
+            //         //   const graphic = response.results[0].graphic;
+            //         //   // do something with the graphic
+            //         // }
+            //       });
+            // });
 
             let pondLayer = mapImagelayer.findSublayerById(14);
             console.log(pondLayer);
+            
+            this.mapProfile.mapView = view;
             this.mapProfile.subLayers.associationLayer = mapImagelayer.findSublayerById(15);
             this.mapProfile.subLayers.workstationLayer = mapImagelayer.findSublayerById(13);
             this.mapProfile.subLayers.groupLayer = mapImagelayer.findSublayerById(10);
@@ -663,6 +654,62 @@ export default {
             //     //pondLayer.definitionExpression = `埤塘名稱 = '2-10號池'`;
             // }, 1500);
 
+            // view.whenLayerView(mapImagelayer).then((layerView) => {
+            //     // Wait until the layer is loaded
+            //     const query = new this.esri.Query();
+            //     let gLayer = mapImagelayer.findSublayerById(10);
+            //     //query.where = gLayer.definitionExpression;
+            //     query.where = mapImagelayer.sublayers.getItemAt(0).definitionExpression;
+
+            //     mapImagelayer.sublayers.getItemAt(0).queryExtent(query).then(function(response) {
+            //       // Set the view extent to the returned extent
+            //       if (response.extent) {
+            //         view.goTo(response.extent);
+            //       }
+            //     });
+            //   });
+            view.on('refresh', () => {
+                console.log('view refreshed');
+            });
+            view.when(() => {
+                this.queryLayerFeature(
+                    mapImagelayer.findSublayerById(14), this.mapBaseQuery, (result) => {
+                        console.log(result);
+                        console.log(result.queryGeometry);
+                    }
+                );
+            });
+            // pondLayer.watch('definitionExpression', (newValue, oldValue, propertyName, target) => {
+            //     console.log('watch pond definitionExpression', newValue, oldValue, propertyName, target);
+            //     console.log(target.id);
+
+            //     //console.log('a watch', mapImagelayer.findSublayerById(14).features)
+            //     this.queryLayerFeature(
+            //         mapImagelayer.findSublayerById(14)
+            //     );
+            // });
+
+        },
+        queryLayerFeature: function (sublayer, where, okCallback) {
+            // const sublayer = mapImageLayer.findSublayerById(0); // Replace 0 with your sublayer ID
+            where = (where == null || where == undefined) ? "1=1" : where;
+            // Create a Query object
+            const query = new this.esri.Query();
+            query.where = where; // Modify to filter your query
+            query.outFields = ["*"];
+            query.returnGeometry = true;
+
+            // Execute the query on the sublayer
+            sublayer.queryFeatures(query).then(
+                okCallback
+                // (result) => {
+                //     // Process the result
+
+                //     console.log(result.features); // Array of features
+                // }
+            ).catch((error) => {
+                console.error("Error querying sublayer: ", error);
+            });
         },
         // addLayer: function () {
         //     let url = //'https://gisportal.triwra.org.tw/server/rest/services/BigBossTaoyuanPonds2/MapServer';
@@ -928,36 +975,60 @@ export default {
             //`管理處名稱 = '桃園管理處' and 工作站名稱 = '桃園工作站'`;
             console.log(where);
 
-            this.mapProfile.layer.setLayerDefs(
-                {
-                    10: where,
-                    //11: where, 
-                    13: where,
-                    14: where,
-                    15: where,
-                }
-            );
-            setTimeout(() => {
-                let q = this.mapProfile.layer
-                    .query()
-                    .layer(14)
-                    .where(where);
-                q.bounds((error, latlngbounds) => {
-                    if (error) {
-                        console.error("Error querying feature layer bounds:", error);
-                        alert('查無資料');
-                        return;
-                    }
+            let list = [
+                this.mapProfile.subLayers.associationLayer,
+                this.mapProfile.subLayers.workstationLayer,
+                this.mapProfile.subLayers.groupLayer,
+                this.mapProfile.subLayers.pondLayer,
+            ];
+            //this.mapProfile.subLayers.riverLayer = mapImagelayer.findSublayerById(10);
+            list.forEach((layerProxy) => {
+                let layer = toRaw(layerProxy);
+                layer.definitionExpression = where;
+            });
 
-                    if (latlngbounds._northEast == null) {
-                        alert('查無資料');
-                        return;
-                    }
-                    //this.ifFeatureLayerQuery = true;
-                    // Fit the map to the bounds of the features
-                    this.mapProfile.map.fitBounds(latlngbounds);
+            let groupLayer = toRaw(this.mapProfile.subLayers.groupLayer);
+            this.queryLayerFeature(groupLayer, where, (result) => {
+                //let g = result.features.geometry
+                let geometries = result.features.map(feature => feature.geometry);
+
+                let mapView = toRaw(this.mapProfile.mapView);
+                // Use the View.goTo() method to zoom to the extent of all found geometries
+                mapView.goTo(geometries).catch((error) => {
+                    console.error("Error using goTo: ", error);
                 });
-            }, 500);
+            });
+
+            // this.mapProfile.layer.setLayerDefs(
+            //     {
+            //         10: where,
+            //         //11: where, 
+            //         13: where,
+            //         14: where,
+            //         15: where,
+            //     }
+            // );
+            // setTimeout(() => {
+            //     let q = this.mapProfile.layer
+            //         .query()
+            //         .layer(14)
+            //         .where(where);
+            //     q.bounds((error, latlngbounds) => {
+            //         if (error) {
+            //             console.error("Error querying feature layer bounds:", error);
+            //             alert('查無資料');
+            //             return;
+            //         }
+
+            //         if (latlngbounds._northEast == null) {
+            //             alert('查無資料');
+            //             return;
+            //         }
+            //         //this.ifFeatureLayerQuery = true;
+            //         // Fit the map to the bounds of the features
+            //         this.mapProfile.map.fitBounds(latlngbounds);
+            //     });
+            // }, 500);
 
 
 
