@@ -485,7 +485,7 @@ export default {
                         }
                         obj["Dummy目前容量"] = dummyCurrent;
                         obj["Dummy目前容量比率"] = dummyCurrentPercentage;
-                        obj["可供灌容量"] = availabelQty;
+                        obj["可供灌水量"] = availabelQty;
 
                         // obj["判釋面積-1期作(公頃)"] = recognizedAreaPeriod1;
                         // obj["判釋面積-2期作(公頃)"] = recognizedAreaPeriod2;
@@ -545,6 +545,10 @@ export default {
                         id: 14,  //BB_6埤塘_1120512_桃管_石管
                         definitionExpression: this.mapBaseQuery,
                     },
+                    // {
+                    //     id: 12,  //BB_5圳路渠道_桃管_石管_所有渠道
+                    //     //definitionExpression: this.mapBaseQuery,
+                    // },
                     {
                         id: 11,   //BB_5圳路渠道_桃管_石管_幹支線
                         renderer: {
@@ -668,9 +672,12 @@ export default {
             //       }
             //     });
             //   });
-            view.on('refresh', () => {
-                console.log('view refreshed');
+            view.on('click', (a, b, c) => {
+                console.log('view click', a, b, c);
             });
+            // mapImagelayer.on('click', (a, b, c) => {
+            //     console.log('mapImagelayer clicked', a, b, c)
+            // });
             view.when(() => {
                 this.queryLayerFeature(
                     mapImagelayer.findSublayerById(14), this.mapBaseQuery, (result) => {
@@ -1097,7 +1104,7 @@ export default {
                     // callback: (v) => {
                     //     return getRandomNumber(0, v);
                     // }
-                    dataField: '可供灌容量',
+                    dataField: '可供灌水量',
                     collectionField: 'availabelQty',
                 },
                 {
@@ -1131,7 +1138,7 @@ export default {
                 // },
                 tooltip: {},
                 legend: {
-                    data: ["目前蓄水量", "有效庫容", "可供灌容量", "判釋面積-1期作", "判釋面積-2期作"],
+                    data: ["目前蓄水量", "有效庫容", "可供灌水量", "判釋面積-1期作", "判釋面積-2期作"],
                 },
                 xAxis: {
                     //注意，切換座標軸的籤時，要也要切換type值
@@ -1142,7 +1149,7 @@ export default {
                 yAxis: [
                     {
                         type: 'value',
-                        name: '容量',
+                        name: '體積(萬噸)',
                         position: 'left',
                         alignTicks: true,
                         axisLine: {
@@ -1152,12 +1159,15 @@ export default {
                             }
                         },
                         axisLabel: {
-                            formatter: '{value} 立方公尺'
+                            formatter: //'{(value/1000)} '
+                                function (value, index) {
+                                return (value/1000);
+                            }
                         }
                     },
                     {
                         type: 'value',
-                        name: '面積',
+                        name: '面積(公頃)',
                         position: 'right',
                         alignTicks: true,
                         axisLine: {
@@ -1167,7 +1177,7 @@ export default {
                             }
                         },
                         axisLabel: {
-                            formatter: '{value} 公頃'
+                            formatter: '{value}'
                         }
                     }
                 ],
@@ -1183,7 +1193,7 @@ export default {
                         data: collections.maxQty
                     },
                     {
-                        name: '可供灌容量',
+                        name: '可供灌水量',
                         type: 'line',
                         data: collections.availabelQty
                     },

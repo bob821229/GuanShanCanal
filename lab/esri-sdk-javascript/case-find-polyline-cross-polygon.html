@@ -33,7 +33,7 @@
       margin-left: 20px;
     }
 
-    label{
+    label {
       font-weight: bold;
     }
   </style>
@@ -50,7 +50,7 @@
       資源：<br>
       Layer樣式線上產生器：
       <a href="https://sagewall.github.io/symbol-builder/" target="_blank">Symbol Builder</a><br>
-      
+
     </div>
   </div>
   <div id="map"></div>
@@ -72,18 +72,38 @@
       "esri/symbols/SimpleFillSymbol",
       "esri/layers/GraphicsLayer",
       "esri/Graphic",
-    ], function (Map, MapView, FeatureLayer, Polygon, Query, SimpleLineSymbol, SimpleFillSymbol, GraphicsLayer, Graphic) {
+
+
+      "esri/layers/MapImageLayer",
+
+      "esri/rest/support/IdentifyParameters",
+      "esri/rest/identify",
+
+    ], function (Map, MapView, FeatureLayer, Polygon, Query, SimpleLineSymbol, SimpleFillSymbol, GraphicsLayer, Graphic
+      , MapImageLayer
+      , IdentifyParameters
+      , identify
+    ) {
       EsriObject.esriFunction.Graphic = Graphic;
       EsriObject.esriFunction.SimpleLineSymbol = SimpleLineSymbol;
+
+      let mapImageLayer = new MapImageLayer({
+        url: "https://gisportal.triwra.org.tw/server/rest/services/BigBossTaoyuanPonds2/MapServer"
+      })
+
+      let featureLayer = new FeatureLayer({
+        url: "https://gisportal.triwra.org.tw/server/rest/services/Hosted/Sample_Map_BB_5_River/FeatureServer/11" // URL of your polyline layer
+      });
+      let graphicsLayer = new GraphicsLayer()
 
       // Set up the map and view
       const map = new Map({
         basemap: "streets",
         layers: [
-          new FeatureLayer({
-            url: "https://gisportal.triwra.org.tw/server/rest/services/Hosted/Sample_Map_BB_5_River/FeatureServer/11" // URL of your polyline layer
-          }),
-          new GraphicsLayer() // Add a GraphicsLayer to display the highlighted polylines
+          mapImageLayer,
+          graphicsLayer,  // Add a GraphicsLayer to display the highlighted polylines
+          featureLayer,
+
         ]
       });
 
@@ -111,7 +131,7 @@
         });
 
         // Access the polyline layer
-        const polylineLayer = map.layers.getItemAt(0);
+        const polylineLayer = featureLayer;//map.layers.getItemAt(0);
         const graphicsLayer = map.layers.getItemAt(1); // Get the GraphicsLayer
 
         // Create a graphic for the polygon and add it to the GraphicsLayer
@@ -133,44 +153,54 @@
         EsriObject.graphicsLayer = graphicsLayer;
         EsriObject.polylineLayer = polylineLayer;
 
-        // // Set up the query
-        // const query = polylineLayer.createQuery();
-        // query.geometry = polygon; // Set the polygon as the query geometry
-        // query.spatialRelationship = "intersects"; // Find polylines that cross the polygon
-        // query.returnGeometry = true;
-        // query.outFields = ["*"]; // Return all fields
 
-        // // Execute the query
-        // polylineLayer.queryFeatures(query).then(function (result) {
-        //   if (result.features.length > 0) {
-        //     // Process the polylines that intersect the polygon
-        //     result.features.forEach(feature => {
-        //       console.log("Polyline found crossing the polygon: ", feature.attributes);
-        //       // You can highlight the polyline, display info, etc.
+        let params;
 
-        //       const graphic = new Graphic({
-        //         geometry: feature.geometry,
-        //         symbol: new SimpleLineSymbol({
-        //           cap: "round",
-        //           color: [3, 0, 194, 1],
-        //           join: "round",
-        //           miterLimit: 1,
-        //           style: "solid",
-        //           width: 3
-        //         }),
-        //         attributes: feature.attributes
-        //       });
+          // executeIdentify() is called each time the view is clicked
+          view.on("click", executeIdentify);
 
-        //       // Add the graphic to the GraphicsLayer
-        //       graphicsLayer.add(graphic);
+          // Set the parameters for the identify
+          params = new IdentifyParameters();
+          params.tolerance = 3;
+          params.layerIds = [10, 11, 12, 13, 14, 15];
+          params.layerOption = "all";
+          params.width = view.width;
+          params.height = view.height;
+        
+        function executeIdentify(event) {
+          // Set the geometry to the location of the view click
+          params.geometry = event.mapPoint;
+          params.mapExtent = view.extent;
 
-        //     });
-        //   } else {
-        //     console.log("No polyline found crossing the polygon.");
-        //   }
-        // }).catch(function (error) {
-        //   console.error("Query failed: ", error);
-        // });
+
+          
+          // This function returns a promise that resolves to an array of features
+          // A custom popupTemplate is set for each feature based on the layer it
+          // originates from
+          identify
+            .identify(mapImageLayer.url, params)
+            .then(function (response) {
+              const results = response.results;
+
+              console.log(results);
+
+              return results.map(function (result) {
+                let feature = result.feature;
+                let layerName = result.layerName;
+
+                console.log(result);
+
+                //return feature;
+                return feature;
+              });
+            })
+            .then(doIdentifiedResult); // Send the array of features to showPopup()
+
+        }
+
+        function doIdentifiedResult(r){
+          console.log(r);
+        }
       });
     });
 
@@ -221,7 +251,7 @@
           console.error("Query failed: ", error);
         });
       }
-      else{
+      else {
         highlightLayer.forEach((layer) => {
           EsriObject.graphicsLayer.remove(layer);
         });
