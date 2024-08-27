@@ -6,7 +6,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
     <meta name="generator" content="">
-    <title>桃園管理處 埤塘</title>
+    <title>關山大圳</title>
 
     <link rel="stylesheet" href="https://unpkg.com/primevue/resources/themes/saga-blue/theme.css">
     <link rel="stylesheet" href="https://unpkg.com/primevue/resources/primevue.min.css">
@@ -24,13 +24,43 @@
 
     <style>
         .container {
-            padding-top: 0px !important;
+            padding: 30px;
+            max-width: 1920px;
         }
 
         div#map {
-            background-color: aqua;
-            width: 100vw;
+            /* background-color: aqua; */
+            /* width: 100vw; */
+            /* height: 600px; */
+            width: 100%;
             height: 100vh;
+        }
+
+        .table {
+            /* margin-top: 50px; */
+        }
+
+        .timeline_icon {
+            border-radius: 50%;
+            padding: 4px;
+        }
+
+        .chart_wrap {
+            width: 100%;
+        }
+
+        .title_txt {
+            font-weight: bold;
+            margin: 20px 0;
+        }
+
+        .timeline_wrap {
+            width: 100%;
+            padding: 10px;
+        }
+
+        span.nowrap {
+            white-space: nowrap;
         }
     </style>
 </head>
@@ -39,6 +69,7 @@
     <app class="d-flex flex-column h-100"></app>
 
 </body>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
 <script src="./js/helper.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/dayjs@1.11.12/dayjs.min.js"></script>
 

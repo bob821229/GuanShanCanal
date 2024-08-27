@@ -31,7 +31,6 @@ var app = createApp({
         }
     },
     template: `
-<Header></Header>
     <main class="flex-shrink-0">
         <component :is="currentComponent"></component>
     </main>
@@ -64,6 +63,8 @@ app.use(
 // app.component('AccordionHeader', PrimeVue.AccordionHeader);
 // app.component('AccordionContent', PrimeVue.AccordionContent);
 app.component('Card', PrimeVue.Card);
+app.component('Timeline', PrimeVue.Timeline);
+app.component('Select', PrimeVue.Select);
 
 
 app.component('DataTable', PrimeVue.DataTable);
