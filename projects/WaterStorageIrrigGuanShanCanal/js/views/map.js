@@ -171,7 +171,8 @@ export default {
                 "esri/symbols/SimpleLineSymbol",
 
                 "esri/rest/support/Query",
-                "esri/layers/WebTileLayer"
+                "esri/layers/WebTileLayer",
+                "esri/widgets/Legend"
 
             ], (esriConfig, Map, WebMap, TileLayer, MapImageLayer, MapView
                 , SimpleFillSymbol
@@ -179,6 +180,7 @@ export default {
                 , SimpleLineSymbol
                 , Query
                 ,WebTileLayer
+                ,Legend
             ) => {
                 this.esri.esriConfig = esriConfig;
                 this.esri.Map = Map;
@@ -190,6 +192,7 @@ export default {
                 this.esri.SimpleLineSymbol = SimpleLineSymbol;
                 this.esri.Query = Query;
                 this.esri.WebTileLayer = WebTileLayer;
+                this.esri.Legend = Legend;
 
 
                 this.$nextTick(() => {
@@ -286,18 +289,38 @@ export default {
                     "https://gisportal.triwra.org.tw/server/rest/services/GuanShanCanal/MapServer",
 
                     sublayers: [ 
+                        
                         {   
                             // 關山圳水利小組
                             id: 6,
                             visible: true,
-                            definitionExpression:"分區='上區'",
                             renderer: {
-                                type: "simple", // autocasts as new SimpleRenderer()
-                                symbol: {
-                                  type: "simple-fill", // autocasts as new SimpleMarkerSymbol()
-                                  size: 300,
-                                  color: "blue"
-                                }
+                                type: "unique-value",
+                                legendOptions: {
+                                    title: "分區表"
+                                },
+                                field: "分區",
+                                uniqueValueInfos: [
+                                    {
+                                        value: "上區",
+                                        label: "State highway",
+                                        symbol: {
+                                            type: "simple-fill", // autocasts as new SimpleMarkerSymbol()
+                                            size: 300,
+                                            color: "#FFB5B5"
+                                          }
+                                    },
+                                    {
+                                        value: "下區",
+                                        label: "State highway",
+                                        symbol: {
+                                            type: "simple-fill", // autocasts as new SimpleMarkerSymbol()
+                                            size: 300,
+                                            color: "#D2E9FF"
+                                          }
+                                    },
+                                ],
+                                
                             },
                             labelingInfo: [
                                 {
@@ -314,41 +337,6 @@ export default {
                                   },
                                 }
                               ]
-                        },
-                        {   
-                            // 關山圳水利小組
-                            id: 6,
-                            visible: true,
-                            definitionExpression:"分區='下區'",
-                            renderer: {
-                                type: "simple", // autocasts as new SimpleRenderer()
-                                symbol: {
-                                  type: "simple-fill", // autocasts as new SimpleMarkerSymbol()
-                                  size: 300,
-                                  color: "red"
-                                }
-                            },
-                            labelingInfo: [
-                                {
-                                  labelExpression: "[水利小組名稱]",
-                                  labelPlacement: "always-horizontal",
-                                  symbol: {
-                                    type: "text", // autocasts as new TextSymbol()
-                                    color: [255, 255, 255, 0.7],
-                                    haloColor: [0, 0, 0, 0.7],
-                                    haloSize: 1,
-                                    font: {
-                                      size: 11
-                                    }
-                                  },
-                                }
-                              ]
-                        },
-                        {
-                            // 農工中心綱要計畫113年大尺度計畫建置
-                            id: 1,
-                            visible: true,
-                            
                         },
                         {   
                             // 關山圳渠道
@@ -358,11 +346,28 @@ export default {
                                 type: "simple", // autocasts as new SimpleRenderer()
                                 symbol: {
                                   type: "simple-line", // autocasts as new SimpleMarkerSymbol()
-                                  size: 300,
-                                  color: "yellow"
+                                  color: "black"
                                 }
                             }
-                        }
+                        },
+                        {
+                            // 農工中心綱要計畫113年大尺度計畫建置
+                            id: 1,
+                            visible: true,
+                            renderer: {
+                                type: "simple", // autocasts as new SimpleRenderer()
+                                symbol: {
+                                    type: "simple-marker", // 正確的符號類型應該是 "simple-marker" 而不是 "simple-line"
+                                    style: "circle", // 指定標記的樣式為圓圈
+                                    size: 6, // 標記的大小
+                                    color: "red", // 標記的顏色
+                                    outline: { // 為標記添加輪廓
+                                        color: [255, 255, 255], // 白色輪廓
+                                        width: 1 // 輪廓寬度
+                                    }
+                                }
+                            }
+                        },
                     ]
                  
             });
@@ -388,6 +393,8 @@ export default {
                     mapImagelayer,  //次下層
                 ]
             });
+            
+
             let view = new this.esri.MapView({
                 map: map,
                 // map: webmap,
@@ -405,6 +412,11 @@ export default {
                 // ] // layers can be added as an array to the map's constructor
             });
 
+            const legend = new this.esri.Legend({
+                view: view
+              });
+      
+            //   view.ui.add(legend, "bottom-right");
 
             view.on('click', (event) => {
 
