@@ -24,11 +24,10 @@ export default {
                 mapView: null,
                 layer: null,
                 subLayers: {
-                    associationLayer: null,
-                    workstationLayer: null,
-                    groupLayer: null,
-                    pondLayer: null,
-                    riverLayer: null,
+                    groupLayer: null,//水利小組
+                    riverLayer: null,//渠道
+                    gateLayer: null,//水閘門
+                    lackOfWaterGraphicsLayer: null,//缺水圖層
                 },
                 search: {
                     association: '桃園管理處',
@@ -164,35 +163,46 @@ export default {
                 "esri/WebMap",
                 "esri/layers/TileLayer",
                 "esri/layers/MapImageLayer",
+                "esri/layers/GraphicsLayer",
                 "esri/views/MapView",
 
                 "esri/symbols/SimpleFillSymbol",
                 "esri/symbols/TextSymbol",
                 "esri/symbols/SimpleLineSymbol",
+                "esri/symbols/PictureMarkerSymbol",
 
                 "esri/rest/support/Query",
                 "esri/layers/WebTileLayer",
-                "esri/widgets/Legend"
+                "esri/widgets/Legend",
 
-            ], (esriConfig, Map, WebMap, TileLayer, MapImageLayer, MapView
+                "esri/geometry/Point",
+                "esri/Graphic",
+            ], (esriConfig, Map, WebMap, TileLayer, MapImageLayer,GraphicsLayer,MapView
                 , SimpleFillSymbol
                 , TextSymbol
                 , SimpleLineSymbol
+                ,PictureMarkerSymbol
                 , Query
                 ,WebTileLayer
-                ,Legend
+                ,Legend,
+                Point,
+                Graphic,
             ) => {
                 this.esri.esriConfig = esriConfig;
                 this.esri.Map = Map;
                 this.esri.WebMap = WebMap;
                 this.esri.MapImageLayer = MapImageLayer;
+                this.esri.GraphicsLayer = GraphicsLayer;
                 this.esri.MapView = MapView;
                 this.esri.SimpleFillSymbol = SimpleFillSymbol;
                 this.esri.TextSymbol = TextSymbol;
                 this.esri.SimpleLineSymbol = SimpleLineSymbol;
+                this.esri.PictureMarkerSymbol = PictureMarkerSymbol;
                 this.esri.Query = Query;
                 this.esri.WebTileLayer = WebTileLayer;
                 this.esri.Legend = Legend;
+                this.esri.Point = Point;
+                this.esri.Graphic = Graphic;
 
 
                 this.$nextTick(() => {
@@ -281,7 +291,7 @@ export default {
             //     16
             // );
             // this.addLayer();
-            let self = this;
+            let vm = this;
             
             let mapImagelayer = new this.esri.MapImageLayer({
                 //gis Map Image Layer
@@ -303,25 +313,73 @@ export default {
                                 uniqueValueInfos: [
                                     {
                                         value: "上區",
-                                        label: "State highway",
-                                        symbol: {
-                                            type: "simple-fill", // autocasts as new SimpleMarkerSymbol()
-                                            size: 300,
+                                        label: "上區",
+                                        symbol:new this.esri.SimpleFillSymbol({
+                                            type: "simple-fill",
                                             color: "#FFB5B5"
                                           }
+                                        )
                                     },
                                     {
                                         value: "下區",
-                                        label: "State highway",
-                                        symbol: {
-                                            type: "simple-fill", // autocasts as new SimpleMarkerSymbol()
-                                            size: 300,
-                                            color: "#D2E9FF"
+                                        label: "下區",
+                                        symbol:new this.esri.SimpleFillSymbol({
+                                            type: "simple-fill", 
+                                            color: "#D2E9FF5"
                                           }
+                                        )
                                     },
                                 ],
-                                
                             },
+                            // renderer: {
+                            //     type: "unique-value",
+                            //     legendOptions: {
+                            //         title: "分區表"
+                            //     },
+                            //     field: "水利小組名稱",
+                            //     uniqueValueInfos: [
+                            //         {
+                            //             value: "關山圳第9小組",
+                            //             label: "上區",
+                            //             symbol: {
+                            //                 type: "picture-marker",
+                            //                 url: "https://img.icons8.com/?size=100&id=JnBpOWFipVvz&format=png&color=FCC419", 
+                            //                 width: "30px",
+                            //                 height: "30px"
+                            //             },
+                            //         },
+                            //         {
+                            //             value: "關山圳第10小組",
+                            //             label: "下區",
+                            //             symbol: {
+                            //                 type: "picture-marker",
+                            //                 url: "https://img.icons8.com/?size=100&id=JnBpOWFipVvz&format=png&color=FCC419", 
+                            //                 width: "30px",
+                            //                 height: "30px"
+                            //             },
+                            //         },
+                            //         {
+                            //             value: "關山圳第13小組",
+                            //             label: "下區",
+                            //             symbol: {
+                            //                 type: "picture-marker",
+                            //                 url: "https://img.icons8.com/?size=100&id=JnBpOWFipVvz&format=png&color=FA5252", 
+                            //                 width: "30px",
+                            //                 height: "30px"
+                            //             },
+                            //         },
+                            //         {
+                            //             value: "關山圳第14小組",
+                            //             label: "下區",
+                            //             symbol: {
+                            //                 type: "picture-marker",
+                            //                 url: "https://img.icons8.com/?size=100&id=JnBpOWFipVvz&format=png&color=FA5252", 
+                            //                 width: "30px",
+                            //                 height: "30px"
+                            //             },
+                            //         },
+                            //     ],
+                            // },
                             labelingInfo: [
                                 {
                                   labelExpression: "[水利小組名稱]",
@@ -332,11 +390,13 @@ export default {
                                     haloColor: [0, 0, 0, 0.7],
                                     haloSize: 1,
                                     font: {
-                                      size: 11
+                                      size: 10,
+                                      weight: "bold"
                                     }
                                   },
                                 }
-                              ]
+                            ],
+                            
                         },
                         {   
                             // 關山圳渠道
@@ -355,42 +415,87 @@ export default {
                             id: 1,
                             visible: true,
                             renderer: {
-                                type: "simple", // autocasts as new SimpleRenderer()
-                                symbol: {
-                                    type: "simple-marker", // 正確的符號類型應該是 "simple-marker" 而不是 "simple-line"
-                                    style: "circle", // 指定標記的樣式為圓圈
-                                    size: 6, // 標記的大小
-                                    color: "red", // 標記的顏色
-                                    outline: { // 為標記添加輪廓
-                                        color: [255, 255, 255], // 白色輪廓
-                                        width: 1 // 輪廓寬度
-                                    }
-                                }
-                            }
+                                type: "unique-value", 
+                                field: "監測項目",
+                                uniqueValueInfos: [
+                                    {
+                                        value: "水位",
+                                        label: "水位",
+                                        symbol: {
+                                            type: "picture-marker",
+                                            url: "https://img.icons8.com/?size=100&id=xo4SMxH9H70c&format=png&color=CC5DE8", 
+                                            width: "20px",
+                                            height: "20px"
+                                        },
+                                    },
+                                    {
+                                        value: "流量",
+                                        label: "流量",
+                                        symbol: {
+                                            type: "picture-marker",
+                                            url: "https://img.icons8.com/?size=100&id=xo4SMxH9H70c&format=png&color=20C997", 
+                                            width: "20px",
+                                            height: "20px"
+                                        },
+                                    },
+                                    {
+                                        value: "監視器",
+                                        label: "監視器",
+                                        symbol: {
+                                            type: "picture-marker",
+                                            url: "https://img.icons8.com/?size=100&id=86814&format=png&color=339AF0", 
+                                            width: "20px",
+                                            height: "20px"
+                                        },
+                                        // symbol: {
+                                        //     type: "simple-marker", 
+                                        //     size: 10,
+                                        //     color: "#D2E9FF",
+                                        //     style: "solid",
+                                        //     outline: {  
+                                        //         color: "blue",
+                                        //         width: 10
+                                        //       }
+                                        //   }
+                                    },
+                                ],
+                            },
                         },
                     ]
                  
             });
-            console.log("mapImagelayer:",mapImagelayer.sublayers)
+            this.mapProfile.subLayers.groupLayer=mapImagelayer.findSublayerById(6);//水利小組 存到mapProfile
+            this.mapProfile.subLayers.riverLayer=mapImagelayer.findSublayerById(3);//渠道 存到mapProfile
+            this.mapProfile.subLayers.gateLayer=mapImagelayer.findSublayerById(1);//水閘門 存到mapProfile
             
+            //監測設備名稱(監測站)
+            // (mapImagelayer.findSublayerById(1)).on('click', (event) => {
+            //   console.log(event)  
+            // })
+
             // let tiledLayer = new this.esri.WebTileLayer({
             //     urlTemplate: "https://wmts.nlsc.gov.tw/wmts/PHOTO_MIX/default/GoogleMapsCompatible/{z}/{y}/{x}",
             // });
             
-            const tiledLayer1 = new this.esri.WebTileLayer({
+            let tiledLayer1 = new this.esri.WebTileLayer({
                 urlTemplate: "https://wmts.nlsc.gov.tw/wmts/PHOTO_MIX/default/GoogleMapsCompatible/{z}/{y}/{x}",
                 opacity: 0.5
                 // subDomains: ["a", "b", "c"],
                 // copyright: 'Map data from &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> Map design by &copy; <a href="http://opentopomap.org/" target="_blank">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank">CC-BY-SA</a>) contributors'
             });
-
+            
+            let lackOfWaterGraphicsLayer = new this.esri.GraphicsLayer(); //缺少水資源
+            this.mapProfile.subLayers.lackOfWaterGraphicsLayer = lackOfWaterGraphicsLayer//存到mapProfile
+            
+            
+            this.lackOfWaterGraphicsLayerHandle()
             let map = new this.esri.Map({
                 //basemap: "topo-vector", // You can choose other basemaps as well
                 
                 layers: [
-                    //tileLayer,  //最下層
-                    tiledLayer1,
+                    tiledLayer1, //最下層
                     mapImagelayer,  //次下層
+                    lackOfWaterGraphicsLayer //最上層
                 ]
             });
             
@@ -412,22 +517,320 @@ export default {
                 // ] // layers can be added as an array to the map's constructor
             });
 
-            const legend = new this.esri.Legend({
-                view: view
-              });
+            // const legend = new this.esri.Legend({
+            //     view: view
+            //   });
       
             //   view.ui.add(legend, "bottom-right");
 
             view.on('click', (event) => {
+                // view.hitTest(event).then((response) => {
+                //     console.log("response:",response);
+                //     if(response.results.length) {
+                //         let graphic = response.results[0].graphic;
+                //         console.log('graphic', graphic);
+                //     }
+                // })
+                const screenPoint = {
+                    x: event.x,
+                    y: event.y
+                };
+                
+                console.log('screenPoint', screenPoint);
+                const sublayer = mapImagelayer.findSublayerById(1)
+                console.log('sublayer', sublayer);
+                
+                  // 創建查詢
+                const query = sublayer.createQuery();
+                query.geometry = view.toMap(screenPoint); // 使用點擊位置作為查詢幾何範圍
+                query.distance = 0.1;
+                query.units = "kilometers";
+                query.outFields = ["*"]; // 指定要查詢的屬性名稱
+                query.spatialRelationship = "intersects"; // 查詢幾何相交的要素
+                query.returnGeometry = true; // 如果需要回傳幾何資料
+                // 執行查詢
+
+                sublayer.queryFeatures(query).then(function(result) {
+                    console.log('result.features[0].attributes', result.features[0].attributes["監測項目"]);
+                    if (result.features.length > 0) {
+                        //只有監視器才會觸發
+                        if(result.features[0].attributes["監測項目"]==="監視器"){
+                            let cctvTitle = result.features[0].attributes["監測設備名稱_監測站_"]
+                            vm.$emit('show-cctv', cctvTitle);
+                        }
+                    } else {
+                    console.log("沒有查詢到相關資料。");
+                    }
+                }).catch(function(error) {
+                    console.error("查詢失敗:", error);
+                });
 
                 console.log('view click', event);
-                this.$emit('show-cctv', 'Hello from child');
             });
             
             
 
         },
+        lackOfWaterGraphicsLayerHandle: function () {
+            let mockData=[
+                {
+                    groupName:'關山圳第1小組',
+                    report:0
+                },
+                {
+                    groupName:'關山圳第2小組',
+                    report:0
+                },
+                {
+                    groupName:'關山圳第3小組',
+                    report:0
+                },
+                {
+                    groupName:'關山圳第4小組',
+                    report:0
+                },
+                {
+                    groupName:'關山圳第5小組',
+                    report:0
+                },
+                {
+                    groupName:'關山圳第6小組',
+                    report:0
+                },
+                {
+                    groupName:'關山圳第7小組',
+                    report:0
+                },
+                {
+                    groupName:'關山圳第8小組',
+                    report:0
+                },
+                {
+                    groupName:'關山圳第9小組',
+                    report:1
+                },
+                {
+                    groupName:'關山圳第10小組',
+                    report:1
+                },
+                {
+                    groupName:'關山圳第11小組',
+                    report:0
+                },
+                {
+                    groupName:'關山圳第12小組',
+                    report:0
+                },
+                {
+                    groupName:'關山圳第13小組',
+                    report:2
+                },
+                {
+                    groupName:'關山圳第14小組',
+                    report:2
+                },
+                {
+                    groupName:'關山圳東明小組',
+                    report:1
+                },
+                {
+                    groupName:'關山圳新溪小組',
+                    report:0
+                },
+            ]
+            let subLayer = toRaw(this.mapProfile.subLayers.groupLayer);
+            let _lackOfWaterGraphicsLayer = toRaw(this.mapProfile.subLayers.lackOfWaterGraphicsLayer);
+            let _render = subLayer.renderer;
+            console.log(_render);
+            console.log(_render.type);
+
+            let query = subLayer.createQuery();
+            // let _where = `水利小組名稱 IN (`;"水利小組名稱 IN ('光復圳8-4號池小組', '光復圳8-17號池小組', '光復圳2-4號池小組')"
+            // this.lackingWaterGroupListData.forEach((groupName, idx) => {
+            //     _where += `${(idx > 0) ? ' ,' : ''}'${groupName}'`
+            // });
+            // _where += ')';
+            // console.log(_where);
+            // query.where = _where;//"水利小組名稱 IN ('光復圳8-4號池小組', '光復圳8-17號池小組', '光復圳2-4號池小組')"; // Replace with your own criteria
+            query.returnGeometry = true;
+            query.outFields = ["*"];
+            
+            subLayer.queryFeatures(query).then((result) => {
+                if (result.features.length > 0) {
+                    result.features.forEach((feature) => {
+                        let groupName=feature.attributes['水利小組名稱'];
+                        let result = mockData.find((item) => item.groupName === groupName);
+                        
+                        let symbolObj=null
+                        if(result){
+
+                            if(result.report===1){
+                                // 回報次數1樣式
+                                symbolObj = {
+                                    type: "picture-marker",
+                                    url: "https://img.icons8.com/?size=100&id=JnBpOWFipVvz&format=png&color=FCC419", 
+                                    width: "30px",
+                                    height: "30px"
+                                }
+                                
+
+                            
+                            }else if(result.report===2){
+
+                                // 回報次數2樣式
+                                symbolObj = {
+                                    type: "picture-marker",
+                                    url: "https://img.icons8.com/?size=100&id=JnBpOWFipVvz&format=png&color=FA5252", 
+                                    width: "30px",
+                                    height: "30px"
+                                }
+                            }
+                        }
+
+                        if(symbolObj){
+                            let outlineGraphic = new this.esri.Graphic({
+                                geometry: feature.geometry,
+                                symbol: symbolObj
+                            });
         
+                            _lackOfWaterGraphicsLayer.add(outlineGraphic);
+                        }
+                    });
+                } else {
+                    console.log("No polygons found matching the query criteria.");
+                }
+            }).catch(function (error) {
+                console.error("Error querying features:", error);
+            });
+        },
+        labelHandle: function () {
+            let mockData=[
+                {
+                    groupName:'關山圳第1小組',
+                    report:0
+                },
+                {
+                    groupName:'關山圳第2小組',
+                    report:0
+                },
+                {
+                    groupName:'關山圳第3小組',
+                    report:0
+                },
+                {
+                    groupName:'關山圳第4小組',
+                    report:0
+                },
+                {
+                    groupName:'關山圳第5小組',
+                    report:0
+                },
+                {
+                    groupName:'關山圳第6小組',
+                    report:0
+                },
+                {
+                    groupName:'關山圳第7小組',
+                    report:0
+                },
+                {
+                    groupName:'關山圳第8小組',
+                    report:0
+                },
+                {
+                    groupName:'關山圳第9小組',
+                    report:1
+                },
+                {
+                    groupName:'關山圳第10小組',
+                    report:1
+                },
+                {
+                    groupName:'關山圳第11小組',
+                    report:0
+                },
+                {
+                    groupName:'關山圳第12小組',
+                    report:0
+                },
+                {
+                    groupName:'關山圳第13小組',
+                    report:2
+                },
+                {
+                    groupName:'關山圳第14小組',
+                    report:2
+                },
+                {
+                    groupName:'關山圳東明小組',
+                    report:1
+                },
+                {
+                    groupName:'關山圳新溪小組',
+                    report:0
+                },
+            ]
+            let subLayer = toRaw(this.mapProfile.subLayers.gateLayer);
+
+            let query = subLayer.createQuery();
+            // let _where = `水利小組名稱 IN (`;"水利小組名稱 IN ('光復圳8-4號池小組', '光復圳8-17號池小組', '光復圳2-4號池小組')"
+            // this.lackingWaterGroupListData.forEach((groupName, idx) => {
+            //     _where += `${(idx > 0) ? ' ,' : ''}'${groupName}'`
+            // });
+            // _where += ')';
+            // console.log(_where);
+            // query.where = _where;//"水利小組名稱 IN ('光復圳8-4號池小組', '光復圳8-17號池小組', '光復圳2-4號池小組')"; // Replace with your own criteria
+            query.returnGeometry = true;
+            query.outFields = ["*"];
+            
+            subLayer.queryFeatures(query).then((result) => {
+                if (result.features.length > 0) {
+                    result.features.forEach((feature) => {
+                        let groupName=feature.attributes['水利小組名稱'];
+                        let result = mockData.find((item) => item.groupName === groupName);
+                        
+                        let symbolObj=null
+                        if(result){
+
+                            if(result.report===1){
+                                // 回報次數1樣式
+                                symbolObj = {
+                                    type: "picture-marker",
+                                    url: "https://img.icons8.com/?size=100&id=JnBpOWFipVvz&format=png&color=FCC419", 
+                                    width: "30px",
+                                    height: "30px"
+                                }
+                                
+
+                            
+                            }else if(result.report===2){
+
+                                // 回報次數2樣式
+                                symbolObj = {
+                                    type: "picture-marker",
+                                    url: "https://img.icons8.com/?size=100&id=JnBpOWFipVvz&format=png&color=FA5252", 
+                                    width: "30px",
+                                    height: "30px"
+                                }
+                            }
+                        }
+
+                        if(symbolObj){
+                            let outlineGraphic = new this.esri.Graphic({
+                                geometry: feature.geometry,
+                                symbol: symbolObj
+                            });
+        
+                            _lackOfWaterGraphicsLayer.add(outlineGraphic);
+                        }
+                    });
+                } else {
+                    console.log("No polygons found matching the query criteria.");
+                }
+            }).catch(function (error) {
+                console.error("Error querying features:", error);
+            });
+        }
     },
     mounted() {
         this.init();

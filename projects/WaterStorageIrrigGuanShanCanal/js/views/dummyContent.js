@@ -12,7 +12,7 @@ export default {
             xAxisData:['100','101','102','103','104','105','106','107','108','109','110','111','112','113'], 
             option1 :{
                 title: {
-                  text: '近OO週網格雨量比較圖'
+                  text: '近2週同期網格雨量比較圖'
                 },
                 tooltip: {
                     valueFormatter: (value) => value + ' mm'
@@ -83,7 +83,7 @@ export default {
             },
             option2 :{
                 title: {
-                 text: '流量比較圖'
+                 text: '同期日流量比較圖'
                 },
                 tooltip: {
                   trigger: 'axis',
@@ -192,7 +192,7 @@ export default {
             option3:{
                 title: {
                 //   text: '同期SPI'
-                 text: 'SPI比較圖'
+                 text: '同期SPI比較圖'
                 },
                 tooltip: {},
                 legend: {
@@ -262,7 +262,7 @@ export default {
             },
             option4:{
                 title: {
-                 text: '水稻種植面積比較圖'
+                 text: '同期水稻種植面積比較圖'
                 },
                 tooltip: {},
                 legend: {
@@ -331,7 +331,7 @@ export default {
             },
             option5:{
                 title: {
-                    text: '灌溉率比較圖'
+                    text: '同期灌溉率比較圖'
                 },
                 tooltip: {
                     valueFormatter: (value) => value + ' (公頃/cms)'
@@ -415,15 +415,17 @@ export default {
                 {value:'2',label:'二期作'},
             ],
             selectedPeriod:'1',
-            myModal:null
+            myModal:null,
+            gateName:'無無無'
         }
     },
     mounted() {
         this.myModal= new bootstrap.Modal(document.getElementById('exampleModal'))
     },
     methods: { 
-        
-        openModel: function(){
+        handleShowCCTV(cctvTitle){
+            console.log("cct",cctvTitle)
+            this.gateName = cctvTitle
             this.myModal.show();
         }
     }, 
@@ -470,14 +472,37 @@ export default {
                                         </span>
                                     </template>
                                 </Timeline>
-                            </div>
+                            </div>s
                         </div>
             </div>
 
             <!--以上手機版-->
 
             <div class="col-12 col-md-3 order-1 order-md-1">
-                <Map @show-cctv="openModel"></Map>
+                <Map @show-cctv="handleShowCCTV"></Map>
+                <div class="info-box row">
+                    <div class="col-12 col-xl-6 order-1 order-xl-1 d-flex align-items-center gap-1">
+                        <img  class="info-icon" src="/projects/WaterStorageIrrigGuanShanCanal/assets/icons8-video-call-48.png" alt="CCTV-icon" /><span>:水位CCTV</span>
+                    </div>
+                    <div class="col-12 col-xl-6 order-2 order-xl-2 d-flex align-items-center gap-1">
+                        <img  class="info-icon" src="/projects/WaterStorageIrrigGuanShanCanal/assets/icons8-house-2.png" alt="CCTV-icon" /><span>:流量站</span>
+                    </div>
+                    <div class="col-12 col-xl-6 order-4 order-xl-3 d-flex align-items-center gap-1">
+                        <img  class="info-icon" src="/projects/WaterStorageIrrigGuanShanCanal/assets/icons8-red-light.png" alt="red-light-icon" /><span>:回報2次缺水</span>
+                    </div>
+                    <div class="col-12 col-xl-6 order-3 order-xl-4 d-flex align-items-center gap-1">
+                        <img  class="info-icon" src="/projects/WaterStorageIrrigGuanShanCanal/assets/icons8-house-1.png" alt="red-light-icon" /><span>:水位站</span>
+                    </div>
+                    <div class="col-12 col-xl-6 order-5 order-xl-5 d-flex align-items-center gap-1">
+                        <img  class="info-icon" src="/projects/WaterStorageIrrigGuanShanCanal/assets/icons8-yellow-light.png" alt="yellow-light-icon" /><span>:回報1次缺水</span>
+                    </div>
+                    <div class="col-12 col-xl-6 order-5 order-xl-5 d-flex align-items-center gap-1">
+                        <div class="info-icon" style="background-color:#FFB5B5;border-radius: 5px;"/><span>:上區</span>
+                    </div>
+                    <div class="col-12 col-xl-6 order-5 order-xl-5 d-flex align-items-center gap-1">
+                        <div class="info-icon" style="background-color:#D2E9FF;border-radius: 5px;"/><span>:下區</span>
+                    </div>
+                </div>
             </div>
             <div class="col-12 col-md-9 order-2 order-md-2">
                 <div class="row">
@@ -492,15 +517,7 @@ export default {
                         <h4 class="title_txt d-none d-md-block">供灌期程</h4>
 
                         <div class="col-md-12 mb-3 d-none d-md-block">
-                            <div>
-                                <i class="pi pi-check"
-                                    style="background-color:00F700;border-radius: 50%;padding:4px;color:#fff;margin-bottom:3px"></i>
-                                已供灌
-                            </div>
-                            <div>
-                                <i class="pi pi-check"
-                                    style="background-color:607D8B;border-radius: 50%;padding:4px;color:#fff"></i> 未供灌
-                            </div>
+                       
 
                             <div class="timeline_wrap">
                                 <Timeline :value="events2" layout="horizontal" align="top">
@@ -522,6 +539,19 @@ export default {
                                     </template>
                                 </Timeline>
                             </div>
+
+                            <div class="icon_wrap d-flex gap-5">
+                                <div class="d-inline-block">
+                                    <i class="pi pi-check"
+                                        style="background-color:00F700;border-radius: 50%;padding:4px;color:#fff;margin-bottom:3px"></i>
+                                    已供灌
+                                </div>
+                                <div class="d-inline-block">
+                                    <i class="pi pi-check"
+                                        style="background-color:607D8B;border-radius: 50%;padding:4px;color:#fff"></i> 未供灌
+                                </div>
+                            </div>
+
                         </div>
 
                         <div class="col-md-12">
@@ -559,7 +589,7 @@ export default {
                 <div class="modal-dialog">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="exampleModalLabel">關山圳幹線_1支線取水後水位</h5>
+                            <h5 class="modal-title" id="exampleModalLabel">監測站 : {{gateName}}</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
