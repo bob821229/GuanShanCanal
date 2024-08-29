@@ -485,6 +485,7 @@ export default {
             
             
             this.lackOfWaterGraphicsLayerHandle()
+            this.labelHandle()
             let map = new this.esri.Map({
                 //basemap: "topo-vector", // You can choose other basemaps as well
                 
@@ -699,214 +700,215 @@ export default {
                 console.error("Error querying features:", error);
             });
         },
-        // labelHandle: function () {
-        //     let mockData=[
-        //         {
-        //             "groupName": "關山圳幹線_1支線取水後水位",
-        //             "value": 10
-        //         },
-        //         {
-        //             "groupName": "關山圳幹9給_起點水位",
-        //             "value": 20
-        //         },
-        //         {
-        //             "groupName": "關山圳幹線_3支線取水後水位",
-        //             "value": 15
-        //         },
-        //         {
-        //             "groupName": "關山圳幹9給_小尺度取水後水位",
-        //             "value": 10
-        //         },
-        //         {
-        //             "groupName": "關山圳1支線取水水位",
-        //             "value": 20
-        //         },
-        //         {
-        //             "groupName": "關山圳2支線取水水位",
-        //             "value": 15
-        //         },
-        //         {
-        //             "groupName": "關山圳3支線取水水位",
-        //             "value": 30
-        //         },
-        //         {
-        //             "groupName": "關山圳幹線_2支線取水後水位",
-        //             "value": 20
-        //         },
-        //         {
-        //             "groupName": "關山圳幹9給_小尺度取水前水位",
-        //             "value": 15
-        //         },
-        //         {
-        //             "groupName": "關山圳幹線_起點水位",
-        //             "value": 25
-        //         },
-        //         {
-        //             "groupName": "關山圳導水路進排水門",
-        //             "value": ''
-        //         },
-        //         {
-        //             "groupName": "關山圳沉砂池進排水門",
-        //             "value": ''
-        //         },
-        //         {
-        //             "groupName": "池上圳水位計1水位",
-        //             "value": 10
-        //         },
-        //         {
-        //             "groupName": "池上圳水位計1流量(計算)",
-        //             "value": 12
-        //         }
-        //     ]
-        //     let subLayer = toRaw(this.mapProfile.subLayers.gateLayer);
-
-        //     let query = subLayer.createQuery();
-        //     // let _where = `水利小組名稱 IN (`;"水利小組名稱 IN ('光復圳8-4號池小組', '光復圳8-17號池小組', '光復圳2-4號池小組')"
-        //     // this.lackingWaterGroupListData.forEach((groupName, idx) => {
-        //     //     _where += `${(idx > 0) ? ' ,' : ''}'${groupName}'`
-        //     // });
-        //     // _where += ')';
-        //     // console.log(_where);
-        //     // query.where = _where;//"水利小組名稱 IN ('光復圳8-4號池小組', '光復圳8-17號池小組', '光復圳2-4號池小組')"; // Replace with your own criteria
-        //     query.returnGeometry = true;
-        //     query.outFields = ["*"];
-            
-        //     subLayer.queryFeatures(query).then((result) => {
-        //         if (result.features.length > 0) {   
-        //         let labelingInfo = result.features.map((feature) => {
-        //         let type = feature.attributes["監測項目"];
-        //         let itemName= feature.attributes["監測設備名稱_監測站_"];
-        //         let value=''
-
-        //         mockData.forEach((item) =>{
-        //             if(item.groupName===itemName){
-        //                 value=item.value
-        //             }
-        //         })
-        //         let labelText = "";
-        //         if (type==="水位") {
-        //             labelText = `水位: ${value} m`;
-        //         } else if (type==="流量") {
-        //             labelText = `流量: ${value} cms`;
-        //         } else {
-        //             labelText = '';
-        //         }
-        //         console.log("txt:",labelText)
-        //         return {
-        //             labelExpressionInfo: {
-        //                 expression: `'${labelText}'`
-        //             },
-        //             symbol: {
-        //                 type: "text",
-        //                 color: [0, 0, 0, 0.85],
-        //                 haloColor: [255, 255, 255, 0.85],
-        //                 haloSize: 1,
-        //                 font: {
-        //                     size: 10,
-        //                     weight: "bold"
-        //                 }
-        //             },
-        //             labelPlacement: "above-center",
-        //             minScale: 0,
-        //             maxScale: 0
-        //         };
-        //     });
-
-        //     console.log('labelingInfo:',labelingInfo)
-        //     subLayer.labelingInfo = labelingInfo;
-        //     } else {
-        //         console.log("No polygons found matching the query criteria.");
-        //     }
-        //     }).catch(function (error) {
-        //         console.error("Error querying features:", error);
-        //     });
-        // }
         labelHandle: function () {
-            console.log("123")
-            let mockData = [
-                { "groupName": "關山圳幹線_1支線取水後水位", "value": 10 },
-                { "groupName": "關山圳幹9給_起點水位", "value": 20 },
-                { "groupName": "關山圳幹線_3支線取水後水位", "value": 15 },
-                { "groupName": "關山圳幹9給_小尺度取水後水位", "value": 10 },
-                { "groupName": "關山圳1支線取水水位", "value": 20 },
-                { "groupName": "關山圳2支線取水水位", "value": 15 },
-                { "groupName": "關山圳3支線取水水位", "value": 30 },
-                { "groupName": "關山圳幹線_2支線取水後水位", "value": 20 },
-                { "groupName": "關山圳幹9給_小尺度取水前水位", "value": 15 },
-                { "groupName": "關山圳幹線_起點水位", "value": 25 },
-                { "groupName": "關山圳導水路進排水門", "value": '' },
-                { "groupName": "關山圳沉砂池進排水門", "value": '' },
-                { "groupName": "池上圳水位計1水位", "value": 10 },
-                { "groupName": "池上圳水位計1流量(計算)", "value": 12 }
-            ];
-        
+            let mockData=[
+                {
+                    "groupName": "關山圳幹線_1支線取水後水位",
+                    "value": 10
+                },
+                {
+                    "groupName": "關山圳幹9給_起點水位",
+                    "value": 20
+                },
+                {
+                    "groupName": "關山圳幹線_3支線取水後水位",
+                    "value": 15
+                },
+                {
+                    "groupName": "關山圳幹9給_小尺度取水後水位",
+                    "value": 10
+                },
+                {
+                    "groupName": "關山圳1支線取水水位",
+                    "value": 20
+                },
+                {
+                    "groupName": "關山圳2支線取水水位",
+                    "value": 15
+                },
+                {
+                    "groupName": "關山圳3支線取水水位",
+                    "value": 30
+                },
+                {
+                    "groupName": "關山圳幹線_2支線取水後水位",
+                    "value": 20
+                },
+                {
+                    "groupName": "關山圳幹9給_小尺度取水前水位",
+                    "value": 15
+                },
+                {
+                    "groupName": "關山圳幹線_起點水位",
+                    "value": 25
+                },
+                {
+                    "groupName": "關山圳導水路進排水門",
+                    "value": ''
+                },
+                {
+                    "groupName": "關山圳沉砂池進排水門",
+                    "value": ''
+                },
+                {
+                    "groupName": "池上圳水位計1水位",
+                    "value": 10
+                },
+                {
+                    "groupName": "池上圳水位計1流量(計算)",
+                    "value": 12
+                }
+            ]
             let subLayer = toRaw(this.mapProfile.subLayers.gateLayer);
-        
+
             let query = subLayer.createQuery();
+            // let _where = `水利小組名稱 IN (`;"水利小組名稱 IN ('光復圳8-4號池小組', '光復圳8-17號池小組', '光復圳2-4號池小組')"
+            // this.lackingWaterGroupListData.forEach((groupName, idx) => {
+            //     _where += `${(idx > 0) ? ' ,' : ''}'${groupName}'`
+            // });
+            // _where += ')';
+            // console.log(_where);
+            // query.where = _where;//"水利小組名稱 IN ('光復圳8-4號池小組', '光復圳8-17號池小組', '光復圳2-4號池小組')"; // Replace with your own criteria
             query.returnGeometry = true;
             query.outFields = ["*"];
-        
+            
             subLayer.queryFeatures(query).then((result) => {
-                if (result.features.length > 0) {
-                    // 使用 Arcade 表达式创建 labelExpressionInfo
-                    let labelingInfo = {
-                        labelExpressionInfo: {
-                            expression: `
-                                var itemName = $feature["監測設備名稱_監測站_"];
-                                var type = $feature["監測項目"];
-                                var value = '';
-        
-                                var data = [
-                                    ${mockData.map(item => `{groupName: "${item.groupName}", value: ${item.value}}`).join(',')}
-                                ];
-        
-                                for (var i = 0; i < data.length; i++) {
-                                    if (data[i].groupName == itemName) {
-                                        value = data[i].value;
-                                        break;
-                                    }
-                                }
-        
-                                if (type == "水位") {
-                                    return "水位: " + value + " m";
-                                } else if (type == "流量") {
-                                    return "流量: " + value + " cms";
-                                } else {
-                                    return '';
-                                }
-                            `
-                        },
-                        symbol: {
-                            type: "text",
-                            color: [0, 0, 0, 0.85],
-                            haloColor: [255, 255, 255, 0.85],
-                            haloSize: 1,
-                            font: {
-                                size: 10,
-                                weight: "bold"
-                            }
-                        },
-                        labelPlacement: "above-center",
-                        minScale: 0,
-                        maxScale: 0
-                    };
-        
-                    // 应用 labelingInfo 到图层
-                    subLayer.labelingInfo = [labelingInfo];
+                if (result.features.length > 0) {   
+                let labelingInfo = result.features.map((feature) => {
+                let type = feature.attributes["監測項目"];
+                let itemName= feature.attributes["監測設備名稱_監測站_"];
+                let value=''
+
+                mockData.forEach((item) =>{
+                    if(item.groupName===itemName){
+                        value=item.value
+                    }
+                })
+                let labelText = "";
+                if (type==="水位") {
+                    labelText = `水位: ${value} m`;
+                } else if (type==="流量") {
+                    labelText = `流量: ${value} cms`;
                 } else {
-                    console.log("No polygons found matching the query criteria.");
+                    labelText = '';
                 }
+                console.log("txt:",labelText)
+                return {
+                    labelExpressionInfo: {
+                        expression: `'${labelText}'`
+                    },
+                    symbol: {
+                        type: "text",
+                        color: [0, 0, 0, 0.85],
+                        haloColor: [255, 255, 255, 0.85],
+                        haloSize: 1,
+                        font: {
+                            size: 10,
+                            weight: "bold"
+                        }
+                    },
+                    labelPlacement: "above-center",
+                    minScale: 0,
+                    maxScale: 0
+                };
+            });
+
+            console.log('labelingInfo:',labelingInfo)
+            subLayer.labelingInfo = labelingInfo;
+            } else {
+                console.log("No polygons found matching the query criteria.");
+            }
             }).catch(function (error) {
                 console.error("Error querying features:", error);
             });
         }
+        // labelHandle: function () {
+        //     console.log("123")
+        //     let mockData = [
+        //         { "groupName": "關山圳幹線_1支線取水後水位", "value": 10 },
+        //         { "groupName": "關山圳幹9給_起點水位", "value": 20 },
+        //         { "groupName": "關山圳幹線_3支線取水後水位", "value": 15 },
+        //         { "groupName": "關山圳幹9給_小尺度取水後水位", "value": 10 },
+        //         { "groupName": "關山圳1支線取水水位", "value": 20 },
+        //         { "groupName": "關山圳2支線取水水位", "value": 15 },
+        //         { "groupName": "關山圳3支線取水水位", "value": 30 },
+        //         { "groupName": "關山圳幹線_2支線取水後水位", "value": 20 },
+        //         { "groupName": "關山圳幹9給_小尺度取水前水位", "value": 15 },
+        //         { "groupName": "關山圳幹線_起點水位", "value": 25 },
+        //         { "groupName": "關山圳導水路進排水門", "value": '' },
+        //         { "groupName": "關山圳沉砂池進排水門", "value": '' },
+        //         { "groupName": "池上圳水位計1水位", "value": 10 },
+        //         { "groupName": "池上圳水位計1流量(計算)", "value": 12 }
+        //     ];
+        
+        //     let subLayer = toRaw(this.mapProfile.subLayers.gateLayer);
+        
+        //     let query = subLayer.createQuery();
+        //     query.returnGeometry = true;
+        //     query.outFields = ["*"];
+        
+        //     subLayer.queryFeatures(query).then((result) => {
+        //         if (result.features.length > 0) {
+        //             // 使用 Arcade 表达式创建 labelExpressionInfo
+        //             let labelingInfo = {
+        //                 labelExpressionInfo: {
+        //                     expression: `
+        //                         var itemName = $feature["監測設備名稱_監測站_"];
+        //                         var type = $feature["監測項目"];
+        //                         var value = '';
+        
+        //                         var data = [
+        //                             ${mockData.map(item => `{groupName: "${item.groupName}", value: ${item.value}}`).join(',')}
+        //                         ];
+        
+        //                         for (var i = 0; i < data.length; i++) {
+        //                             if (data[i].groupName == itemName) {
+        //                                 value = data[i].value;
+        //                                 break;
+        //                             }
+        //                         }
+        
+        //                         if (type == "水位") {
+        //                             return "水位: " + value + " m";
+        //                         } else if (type == "流量") {
+        //                             return "流量: " + value + " cms";
+        //                         } else {
+        //                             return '';
+        //                         }
+        //                     `
+        //                 },
+        //                 symbol: {
+        //                     type: "text",
+        //                     color: [0, 0, 0, 0.85],
+        //                     haloColor: [255, 255, 255, 0.85],
+        //                     haloSize: 1,
+        //                     font: {
+        //                         size: 10,
+        //                         weight: "bold"
+        //                     }
+        //                 },
+        //                 labelPlacement: "above-center",
+        //                 minScale: 0,
+        //                 maxScale: 0
+        //             };
+        
+        //             // 应用 labelingInfo 到图层
+        //             subLayer.labelingInfo = [labelingInfo];
+        //         } else {
+        //             console.log("No polygons found matching the query criteria.");
+        //         }
+        //     }).catch(function (error) {
+        //         console.error("Error querying features:", error);
+        //     });
+        // }
         
     },
     mounted() {
         this.init();
+        
     },
     template: `
-        <button @click="labelHandle">labelHandle</button>
+        <button v-show="false" @click="labelHandle">labelHandle</button>
 
         <div id="map">
         </div>
