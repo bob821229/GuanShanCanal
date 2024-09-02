@@ -456,7 +456,45 @@ export default {
                                         //   }
                                     },
                                 ],
+                                
                             },
+                            labelingInfo: [
+                                {
+                                    labelExpressionInfo: {
+                                        // 使用 Arcade 表达式根据监测项目信息生成不同的标签内容
+                                        expression: `
+                                            var type = $feature["監測項目"];
+                                            var value = $feature["OBJECTID"];
+                                            var labelText = '';
+                                            
+                                            if (type == "水位") {
+                                                if(value==17){
+                                                    labelText = "流量: " + value + " cms"
+                                                }else{
+                                                    labelText = "水位: " + value + " m";
+                                                }
+                                            } else if (type == "監視器") {
+                                                labelText = "";
+                                            }
+                        
+                                            return labelText;
+                                        `
+                                    },
+                                    symbol: {
+                                        type: "text",
+                                        color: [0, 0, 0, 0.85],  // 黑色文本
+                                        haloColor: [255, 255, 255, 0.85],  // 白色光晕
+                                        haloSize: 1,
+                                        font: {
+                                            size: 10,
+                                            weight: "bold"
+                                        }
+                                    },
+                                    labelPlacement: "above-center",  // 标签位置
+                                    minScale: 0,
+                                    maxScale: 0
+                                }
+                            ]
                         },
                 ]
             });
@@ -485,7 +523,7 @@ export default {
             
             
             this.lackOfWaterGraphicsLayerHandle()
-            this.labelHandle()
+            // this.labelHandle()
             let map = new this.esri.Map({
                 //basemap: "topo-vector", // You can choose other basemaps as well
                 
@@ -795,7 +833,7 @@ export default {
                 console.log("txt:",labelText)
                 return {
                     labelExpressionInfo: {
-                        expression: `'${labelText}'`
+                        expression: `"${labelText}"`
                     },
                     symbol: {
                         type: "text",
