@@ -177,6 +177,7 @@ export default {
 
                 "esri/geometry/Point",
                 "esri/Graphic",
+                "esri/PopupTemplate"
             ], (esriConfig, Map, WebMap, TileLayer, MapImageLayer,GraphicsLayer,MapView
                 , SimpleFillSymbol
                 , TextSymbol
@@ -187,6 +188,7 @@ export default {
                 ,Legend,
                 Point,
                 Graphic,
+                PopupTemplate
             ) => {
                 this.esri.esriConfig = esriConfig;
                 this.esri.Map = Map;
@@ -203,6 +205,7 @@ export default {
                 this.esri.Legend = Legend;
                 this.esri.Point = Point;
                 this.esri.Graphic = Graphic;
+                this.esri.PopupTemplate = PopupTemplate;
 
 
                 this.$nextTick(() => {
@@ -559,6 +562,7 @@ export default {
             //   view.ui.add(legend, "bottom-right");
 
             view.on('click', (event) => {
+
                 // view.hitTest(event).then((response) => {
                 //     console.log("response:",response);
                 //     if(response.results.length) {
@@ -673,8 +677,77 @@ export default {
                     report:0
                 },
             ]
-            let subLayer = toRaw(this.mapProfile.subLayers.groupLayer);
+            let mockData2=[
+                { longitude: 121.1615, latitude: 23.032453, name: "幹17給取水門",isLackOfWater:false },
+                { longitude: 121.148736, latitude: 23.008914, name: "13支線取水門",isLackOfWater:true },
+                { longitude: 121.135444, latitude: 22.981669, name: "15支線取水門",isLackOfWater:false },
+                { longitude: 121.137139, latitude: 22.975672, name: "16、17支線取水門",isLackOfWater:false },
+                { longitude: 121.151208, latitude: 22.950414, name: "17支線末端",isLackOfWater:true }
+            ]
             let _lackOfWaterGraphicsLayer = toRaw(this.mapProfile.subLayers.lackOfWaterGraphicsLayer);
+            mockData2.forEach(item => {
+                let point={
+                    type: "point",
+                    longitude: item.longitude,
+                    latitude: item.latitude
+                }
+                let markerSymbol={
+                    type: "simple-marker", 
+                    style: "circle",
+                    color: "white",
+                    size: "8px", 
+                    outline: {  
+                    color:"red",
+                    width: 2
+                    }
+                }
+                let attributes= {
+                    name: item.name,
+                    description: `${item.isLackOfWater?'缺水':'有水'}`
+                }
+                let popupTemplate = new this.esri.PopupTemplate({
+                    title: "{name}", // 使用屬性名稱作為標題
+                    content: [                          
+                        {
+                            type: "fields",
+                            fieldInfos: [
+                                {
+                                    fieldName: "name",
+                                    label: "地點名稱"
+                                },
+                                {
+                                    fieldName: "description",
+                                    label: "水情狀況"
+                                }
+                            ]
+                        }
+                    ],
+                    dockOptions: {
+                        position: "top-right",
+                        buttonEnabled: true,
+                        breakpoint: false
+                    }
+                  });
+                if(item.isLackOfWater){
+                    
+                    markerSymbol = {
+                        type: "picture-marker",
+                        url: "https://img.icons8.com/?size=100&id=JnBpOWFipVvz&format=png&color=FA5252", 
+                        width: "30px",
+                        height: "30px"
+                    }
+                }
+
+                let graphic = new this.esri.Graphic({
+                    geometry: point,
+                    symbol: markerSymbol,
+                    attributes: attributes,
+                    popupTemplate: popupTemplate
+                });
+                _lackOfWaterGraphicsLayer.add(graphic);
+            });
+            
+            let subLayer = toRaw(this.mapProfile.subLayers.groupLayer);
             let _render = subLayer.renderer;
             console.log(_render);
             console.log(_render.type);
@@ -728,7 +801,7 @@ export default {
                                 symbol: symbolObj
                             });
         
-                            _lackOfWaterGraphicsLayer.add(outlineGraphic);
+                            // _lackOfWaterGraphicsLayer.add(outlineGraphic);
                         }
                     });
                 } else {
@@ -860,85 +933,6 @@ export default {
                 console.error("Error querying features:", error);
             });
         }
-        // labelHandle: function () {
-        //     console.log("123")
-        //     let mockData = [
-        //         { "groupName": "關山圳幹線_1支線取水後水位", "value": 10 },
-        //         { "groupName": "關山圳幹9給_起點水位", "value": 20 },
-        //         { "groupName": "關山圳幹線_3支線取水後水位", "value": 15 },
-        //         { "groupName": "關山圳幹9給_小尺度取水後水位", "value": 10 },
-        //         { "groupName": "關山圳1支線取水水位", "value": 20 },
-        //         { "groupName": "關山圳2支線取水水位", "value": 15 },
-        //         { "groupName": "關山圳3支線取水水位", "value": 30 },
-        //         { "groupName": "關山圳幹線_2支線取水後水位", "value": 20 },
-        //         { "groupName": "關山圳幹9給_小尺度取水前水位", "value": 15 },
-        //         { "groupName": "關山圳幹線_起點水位", "value": 25 },
-        //         { "groupName": "關山圳導水路進排水門", "value": '' },
-        //         { "groupName": "關山圳沉砂池進排水門", "value": '' },
-        //         { "groupName": "池上圳水位計1水位", "value": 10 },
-        //         { "groupName": "池上圳水位計1流量(計算)", "value": 12 }
-        //     ];
-        
-        //     let subLayer = toRaw(this.mapProfile.subLayers.gateLayer);
-        
-        //     let query = subLayer.createQuery();
-        //     query.returnGeometry = true;
-        //     query.outFields = ["*"];
-        
-        //     subLayer.queryFeatures(query).then((result) => {
-        //         if (result.features.length > 0) {
-        //             // 使用 Arcade 表达式创建 labelExpressionInfo
-        //             let labelingInfo = {
-        //                 labelExpressionInfo: {
-        //                     expression: `
-        //                         var itemName = $feature["監測設備名稱_監測站_"];
-        //                         var type = $feature["監測項目"];
-        //                         var value = '';
-        
-        //                         var data = [
-        //                             ${mockData.map(item => `{groupName: "${item.groupName}", value: ${item.value}}`).join(',')}
-        //                         ];
-        
-        //                         for (var i = 0; i < data.length; i++) {
-        //                             if (data[i].groupName == itemName) {
-        //                                 value = data[i].value;
-        //                                 break;
-        //                             }
-        //                         }
-        
-        //                         if (type == "水位") {
-        //                             return "水位: " + value + " m";
-        //                         } else if (type == "流量") {
-        //                             return "流量: " + value + " cms";
-        //                         } else {
-        //                             return '';
-        //                         }
-        //                     `
-        //                 },
-        //                 symbol: {
-        //                     type: "text",
-        //                     color: [0, 0, 0, 0.85],
-        //                     haloColor: [255, 255, 255, 0.85],
-        //                     haloSize: 1,
-        //                     font: {
-        //                         size: 10,
-        //                         weight: "bold"
-        //                     }
-        //                 },
-        //                 labelPlacement: "above-center",
-        //                 minScale: 0,
-        //                 maxScale: 0
-        //             };
-        
-        //             // 应用 labelingInfo 到图层
-        //             subLayer.labelingInfo = [labelingInfo];
-        //         } else {
-        //             console.log("No polygons found matching the query criteria.");
-        //         }
-        //     }).catch(function (error) {
-        //         console.error("Error querying features:", error);
-        //     });
-        // }
         
     },
     mounted() {
@@ -951,9 +945,6 @@ export default {
         <div id="map">
         </div>
 
-        
-
-    
     `
 };
 
