@@ -488,13 +488,10 @@ export default {
                         <img  class="info-icon" src="https://img.icons8.com/?size=100&id=xo4SMxH9H70c&format=png&color=20C997" /><span>:流量站</span>
                     </div>
                     <div class="col-12 col-xl-6 order-4 order-xl-3 d-flex align-items-center gap-1">
-                        <img  class="info-icon" src="https://img.icons8.com/?size=100&id=JnBpOWFipVvz&format=png&color=FA5252" alt="red-light-icon" /><span>:回報2次缺水</span>
+                        <img  class="info-icon" src="https://img.icons8.com/?size=100&id=JnBpOWFipVvz&format=png&color=FA5252" alt="red-light-icon" /><span>:缺水</span>
                     </div>
                     <div class="col-12 col-xl-6 order-3 order-xl-4 d-flex align-items-center gap-1">
                         <img  class="info-icon" src="https://img.icons8.com/?size=100&id=xo4SMxH9H70c&format=png&color=CC5DE8" /><span>:水位站</span>
-                    </div>
-                    <div class="col-12 col-xl-6 order-5 order-xl-5 d-flex align-items-center gap-1">
-                        <img  class="info-icon" src="https://img.icons8.com/?size=100&id=JnBpOWFipVvz&format=png&color=FCC419" alt="yellow-light-icon" /><span>:回報1次缺水</span>
                     </div>
                     <div class="col-12 col-xl-6 order-5 order-xl-5 d-flex align-items-center gap-1">
                         <div class="info-icon" style="background-color:#FFB5B5;border-radius: 5px;"/><span>:上區</span>
