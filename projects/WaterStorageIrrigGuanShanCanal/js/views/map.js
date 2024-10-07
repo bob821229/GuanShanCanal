@@ -1,6 +1,7 @@
 import { firebaseDataAccess } from '../firebaseDataAccess.js'
 const { toRaw } = Vue;
 import Enumerable from '../../plugins/linq.js'
+
 export default {
     components: {
 
@@ -93,7 +94,13 @@ export default {
                 }
             },
             dataAccess: null,
-            
+            lineReportList:[
+                { id:1,longitude: 121.1615, latitude: 23.032453, name: "幹17給取水門",hasWater:true },
+                { id:2,longitude: 121.148736, latitude: 23.008914, name: "13支線取水門",hasWater:true},
+                { id:3,longitude: 121.135444, latitude: 22.981669, name: "15支線取水門",hasWater:true},
+                { id:4,longitude: 121.137139, latitude: 22.975672, name: "16、17支線取水門",hasWater:true },
+                { id:5,longitude: 121.151208, latitude: 22.950414, name: "17支線末端",hasWater:true }
+            ],
         }
     },
     watch: {
@@ -156,7 +163,7 @@ export default {
         // },
     },
     methods: {
-        init: function () {
+        init:  function () {
             require([
                 "esri/config",
                 "esri/Map",
@@ -208,84 +215,42 @@ export default {
                 this.esri.PopupTemplate = PopupTemplate;
 
 
+                
                 this.$nextTick(() => {
                     this.initMap();
                 });
+                this.loadData();
             });
 
-            this.loadData();
 
             
         },
-        loadData: function () {
+        loadData: async function () {
             //載入config資料
-            // this.dataAccess = firebaseDataAccess();
-            // this.dataAccess.getData(
-            //     {
-            //         path: '/bigboss-pond-hierarchy',
-            //         key: '管理處名稱',
-            //         value: this.mapProfile.search.association//'桃園管理處',
-            //     },
-            //     (returnList) => {
-            //         this.pondProfile.hierarchyList = returnList;
-            //     }
-            // );
-            // this.dataAccess.getData(
-            //     {
-            //         //path: '/bigboss-water-irrigation-providing'
-            //         path: '/bigboss-pond-dep1-with-gis-objectid'
-            //     },
-            //     (returnList) => {
-            //         this.pondProfile.pondInfoList = returnList;
-
-            //         //add dummy data
-            //         this.pondProfile.pondInfoList.forEach(obj => {
-            //             let dummyCurrent = 0;
-            //             let dummyCurrentPercentage = 0;
-
-            //             let recognizedAreaPeriod1 = 0;
-            //             let recognizedAreaPeriod2 = 0;
-            //             let availabelQty = 0;
-            //             try {
-            //                 dummyCurrent = getRandomNumber(0, Number(obj["有效庫容(m3)"]));
-            //                 dummyCurrentPercentage =
-            //                     (Number(obj["有效庫容(m3)"]) == 0) ? 0 : Math.round10((dummyCurrent / Number(obj["有效庫容(m3)"])) * 100, -2);
-
-            //                 // let planArea = Number(obj["灌溉面積(公頃)"]);
-            //                 // recognizedAreaPeriod1 = getRandomNumber(0, Number(obj["灌溉面積(公頃)"]));
-            //                 // recognizedAreaPeriod2 = getRandomNumber(0, Number(obj["灌溉面積(公頃)"]));
-            //                 availabelQty = getRandomNumber(dummyCurrent * 0.5, dummyCurrent * 0.8);
-            //             } catch (ex) {
-            //                 console.log('random error: ', ex);
-            //             }
-            //             obj["Dummy目前容量"] = dummyCurrent;
-            //             obj["Dummy目前容量比率"] = dummyCurrentPercentage;
-            //             obj["可供灌水量"] = availabelQty;
-
-            //             // obj["判釋面積-1期作(公頃)"] = recognizedAreaPeriod1;
-            //             // obj["判釋面積-2期作(公頃)"] = recognizedAreaPeriod2;
-            //         });
-            //     }
-            // );
-            // this.dataAccess.getData(
-            //     {
-            //         path: '/bigboss-workstation-group'
-            //     },
-            //     (returnList) => {
-
-            //         this.pondProfile.workstationGroupList = returnList;
-            //         console.log('this.pondProfile.workstationGroupList', this.pondProfile.workstationGroupList.length, this.pondProfile.workstationGroupList)
-            //     }
-            // );
-            // this.dataAccess.getData(
-            //     {
-            //         path: '/bigboss-pond-hukou-pond-hv-curve'
-            //     },
-            //     (returnList) => {
-            //         this.pondProfile.pondHvCurveList = returnList;
-            //         console.log(this.pondProfile.pondHvCurveList);
-            //     }
-            // );
+            this.dataAccess = firebaseDataAccess();
+            await this.dataAccess.getData(
+                {
+                    path: '/WaterStorageIrrigGuanShanCanal',
+                    // key: 'hasWater',
+                    // value: true
+                },
+                (returnList) => {
+                    // this.lineReportList = returnList;
+                    // this.lineReportList=[]
+                    let currentDate=dayjs().format('YYYY-MM-DD')
+                    let result=Enumerable.from(returnList).where(p=>p.countDate==currentDate&& p.hasWater === false).distinct(p => p.ID).toArray()
+                    result.forEach((item)=>{
+                        let gateItem=this.lineReportList.find(g => g.id === item.ID)
+                        if(gateItem){
+                                gateItem.hasWater=item.hasWater
+                        }else{
+                            console.log(`No matching gate found for ID: ${item.ID}`);
+                        }
+                    })
+                    this.lackOfWaterGraphicsLayerHandle();
+                }
+                
+            );
         },
         initMap: function () {
             // this.mapProfile.map = L.map("map").setView(
@@ -521,11 +486,29 @@ export default {
                 // copyright: 'Map data from &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> Map design by &copy; <a href="http://opentopomap.org/" target="_blank">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank">CC-BY-SA</a>) contributors'
             });
             
-            let lackOfWaterGraphicsLayer = new this.esri.GraphicsLayer(); //缺少水資源
+            let lackOfWaterGraphicsLayer = new this.esri.GraphicsLayer({
+                labelingInfo: [{
+                  labelExpressionInfo: {
+                    labelExpression: "[name]",
+                    labelPlacement: "always-horizontal",
+                  },
+                  symbol: {
+                    type: "text",
+                    color: "black",
+                    font: {
+                      size: 12,
+                      weight: "bold"
+                    }
+                  },
+                  labelPlacement: "above-center",
+                  minScale: 0,
+                  maxScale: 0
+                }]
+              }); //缺少水資源
             this.mapProfile.subLayers.lackOfWaterGraphicsLayer = lackOfWaterGraphicsLayer//存到mapProfile
             
             
-            this.lackOfWaterGraphicsLayerHandle()
+            // this.lackOfWaterGraphicsLayerHandle()
             // this.labelHandle()
             let map = new this.esri.Map({
                 //basemap: "topo-vector", // You can choose other basemaps as well
@@ -611,81 +594,9 @@ export default {
 
         },
         lackOfWaterGraphicsLayerHandle: function () {
-            let mockData=[
-                {
-                    groupName:'關山圳第1小組',
-                    report:0
-                },
-                {
-                    groupName:'關山圳第2小組',
-                    report:0
-                },
-                {
-                    groupName:'關山圳第3小組',
-                    report:0
-                },
-                {
-                    groupName:'關山圳第4小組',
-                    report:0
-                },
-                {
-                    groupName:'關山圳第5小組',
-                    report:0
-                },
-                {
-                    groupName:'關山圳第6小組',
-                    report:0
-                },
-                {
-                    groupName:'關山圳第7小組',
-                    report:0
-                },
-                {
-                    groupName:'關山圳第8小組',
-                    report:0
-                },
-                {
-                    groupName:'關山圳第9小組',
-                    report:1
-                },
-                {
-                    groupName:'關山圳第10小組',
-                    report:1
-                },
-                {
-                    groupName:'關山圳第11小組',
-                    report:0
-                },
-                {
-                    groupName:'關山圳第12小組',
-                    report:0
-                },
-                {
-                    groupName:'關山圳第13小組',
-                    report:2
-                },
-                {
-                    groupName:'關山圳第14小組',
-                    report:2
-                },
-                {
-                    groupName:'關山圳東明小組',
-                    report:1
-                },
-                {
-                    groupName:'關山圳新溪小組',
-                    report:0
-                },
-            ]
-            let mockData2=[
-                { longitude: 121.1615, latitude: 23.032453, name: "幹17給取水門",isLackOfWater:false },
-                { longitude: 121.148736, latitude: 23.008914, name: "13支線取水門",isLackOfWater:true },
-                { longitude: 121.135444, latitude: 22.981669, name: "15支線取水門",isLackOfWater:false },
-                { longitude: 121.137139, latitude: 22.975672, name: "16、17支線取水門",isLackOfWater:false },
-                { longitude: 121.151208, latitude: 22.950414, name: "17支線末端",isLackOfWater:true }
-            ]
             let _lackOfWaterGraphicsLayer = toRaw(this.mapProfile.subLayers.lackOfWaterGraphicsLayer);
-            mockData2.forEach(item => {
+            console.log('_lackOfWaterGraphicsLayer:', _lackOfWaterGraphicsLayer);
+            this.lineReportList.forEach(item => {
                 let point={
                     type: "point",
                     longitude: item.longitude,
@@ -703,7 +614,8 @@ export default {
                 }
                 let attributes= {
                     name: item.name,
-                    description: `${item.isLackOfWater?'缺水':'有水'}`
+                    description: `${!item.hasWater?'缺水':'有水'}`,
+                    id: item.id // 添加 id 屬性
                 }
                 let popupTemplate = new this.esri.PopupTemplate({
                     title: "{name}", // 使用屬性名稱作為標題
@@ -728,8 +640,7 @@ export default {
                         breakpoint: false
                     }
                   });
-                if(item.isLackOfWater){
-                    
+                if(!item.hasWater){
                     markerSymbol = {
                         type: "picture-marker",
                         url: "https://img.icons8.com/?size=100&id=JnBpOWFipVvz&format=png&color=FA5252", 
@@ -744,72 +655,16 @@ export default {
                     attributes: attributes,
                     popupTemplate: popupTemplate
                 });
+
+                
                 _lackOfWaterGraphicsLayer.add(graphic);
+
+                item.markerGraphic  = graphic;
             });
             
-            let subLayer = toRaw(this.mapProfile.subLayers.groupLayer);
-            let _render = subLayer.renderer;
-            console.log(_render);
-            console.log(_render.type);
-
-            let query = subLayer.createQuery();
-            // let _where = `水利小組名稱 IN (`;"水利小組名稱 IN ('光復圳8-4號池小組', '光復圳8-17號池小組', '光復圳2-4號池小組')"
-            // this.lackingWaterGroupListData.forEach((groupName, idx) => {
-            //     _where += `${(idx > 0) ? ' ,' : ''}'${groupName}'`
-            // });
-            // _where += ')';
-            // console.log(_where);
-            // query.where = _where;//"水利小組名稱 IN ('光復圳8-4號池小組', '光復圳8-17號池小組', '光復圳2-4號池小組')"; // Replace with your own criteria
-            query.returnGeometry = true;
-            query.outFields = ["*"];
             
-            subLayer.queryFeatures(query).then((result) => {
-                if (result.features.length > 0) {
-                    result.features.forEach((feature) => {
-                        let groupName=feature.attributes['水利小組名稱'];
-                        let result = mockData.find((item) => item.groupName === groupName);
-                        
-                        let symbolObj=null
-                        if(result){
-
-                            if(result.report===1){
-                                // 回報次數1樣式
-                                symbolObj = {
-                                    type: "picture-marker",
-                                    url: "https://img.icons8.com/?size=100&id=JnBpOWFipVvz&format=png&color=FCC419", 
-                                    width: "30px",
-                                    height: "30px"
-                                }
-                                
-
-                            
-                            }else if(result.report===2){
-
-                                // 回報次數2樣式
-                                symbolObj = {
-                                    type: "picture-marker",
-                                    url: "https://img.icons8.com/?size=100&id=JnBpOWFipVvz&format=png&color=FA5252", 
-                                    width: "30px",
-                                    height: "30px"
-                                }
-                            }
-                        }
-
-                        if(symbolObj){
-                            let outlineGraphic = new this.esri.Graphic({
-                                geometry: feature.geometry,
-                                symbol: symbolObj
-                            });
-        
-                            // _lackOfWaterGraphicsLayer.add(outlineGraphic);
-                        }
-                    });
-                } else {
-                    console.log("No polygons found matching the query criteria.");
-                }
-            }).catch(function (error) {
-                console.error("Error querying features:", error);
-            });
+            
+            
         },
         labelHandle: function () {
             let mockData=[
@@ -940,7 +795,7 @@ export default {
         
     },
     template: `
-        <button v-show="false" @click="labelHandle">labelHandle</button>
+    
 
         <div id="map">
         </div>

@@ -1,5 +1,7 @@
 import Map from './map.js'
 import MyChart from '../components/echarts.js'
+import { firebaseDataAccess } from '../firebaseDataAccess.js'
+import Enumerable from '../../plugins/linq.js'
 
 export default {
     components: {
@@ -416,7 +418,7 @@ export default {
             ],
             selectedPeriod:'1',
             myModal:null,
-            gateName:'無無無'
+            gateName:'無無無',
         }
     },
     mounted() {
@@ -427,12 +429,88 @@ export default {
             console.log("cct",cctvTitle)
             this.gateName = cctvTitle
             this.myModal.show();
-        }
+        },
+        loadData: function () {
+            //載入config資料
+            this.dataAccess = firebaseDataAccess();
+            this.dataAccess.getData(
+                {
+                    path: '/WaterStorageIrrigGuanShanCanal',
+                    key: 'hasWater',
+                    value: true
+                },
+                (returnList) => {
+                    // this.lineReportList = returnList;
+                    this.lineReportList=[]
+                    let currentDate=dayjs().format('YYYY-MM-DD')
+                    returnList.forEach((item) => {
+                        if(item.countDate === currentDate){
+                            this.lineReportList.push(item)
+                        }
+                    })
+                }
+            );
+            // this.dataAccess.getData(
+            //     {
+            //         //path: '/bigboss-water-irrigation-providing'
+            //         path: '/bigboss-pond-dep1-with-gis-objectid'
+            //     },
+            //     (returnList) => {
+            //         this.pondProfile.pondInfoList = returnList;
+
+            //         //add dummy data
+            //         this.pondProfile.pondInfoList.forEach(obj => {
+            //             let dummyCurrent = 0;
+            //             let dummyCurrentPercentage = 0;
+
+            //             let recognizedAreaPeriod1 = 0;
+            //             let recognizedAreaPeriod2 = 0;
+            //             let availabelQty = 0;
+            //             try {
+            //                 dummyCurrent = getRandomNumber(0, Number(obj["有效庫容(m3)"]));
+            //                 dummyCurrentPercentage =
+            //                     (Number(obj["有效庫容(m3)"]) == 0) ? 0 : Math.round10((dummyCurrent / Number(obj["有效庫容(m3)"])) * 100, -2);
+
+            //                 // let planArea = Number(obj["灌溉面積(公頃)"]);
+            //                 // recognizedAreaPeriod1 = getRandomNumber(0, Number(obj["灌溉面積(公頃)"]));
+            //                 // recognizedAreaPeriod2 = getRandomNumber(0, Number(obj["灌溉面積(公頃)"]));
+            //                 availabelQty = getRandomNumber(dummyCurrent * 0.5, dummyCurrent * 0.8);
+            //             } catch (ex) {
+            //                 console.log('random error: ', ex);
+            //             }
+            //             obj["Dummy目前容量"] = dummyCurrent;
+            //             obj["Dummy目前容量比率"] = dummyCurrentPercentage;
+            //             obj["可供灌水量"] = availabelQty;
+
+            //             // obj["判釋面積-1期作(公頃)"] = recognizedAreaPeriod1;
+            //             // obj["判釋面積-2期作(公頃)"] = recognizedAreaPeriod2;
+            //         });
+            //     }
+            // );
+            // this.dataAccess.getData(
+            //     {
+            //         path: '/bigboss-workstation-group'
+            //     },
+            //     (returnList) => {
+
+            //         this.pondProfile.workstationGroupList = returnList;
+            //         console.log('this.pondProfile.workstationGroupList', this.pondProfile.workstationGroupList.length, this.pondProfile.workstationGroupList)
+            //     }
+            // );
+            // this.dataAccess.getData(
+            //     {
+            //         path: '/bigboss-pond-hukou-pond-hv-curve'
+            //     },
+            //     (returnList) => {
+            //         this.pondProfile.pondHvCurveList = returnList;
+            //         console.log(this.pondProfile.pondHvCurveList);
+            //     }
+            // );
+        },
     }, 
     template: `
 <div class="container-fluid">
         <div class="row" style="justify-content: center;">
-
              <!--手機版顯示-->
             <div class="col-12 d-md-none">
                 <div class="col-md-12 mb-3 d-flex align-items-center gap-3" >

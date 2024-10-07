@@ -10,16 +10,13 @@ import {
 class FirebaseDataAccess {
     constructor() {
         let firebaseConfig = {
-            // // ...
-            // // The value of `databaseURL` depends on the location of the database
-            // databaseURL: "https://vue-app-test-14344-default-rtdb.asia-southeast1.firebasedatabase.app/",
-            apiKey: "AIzaSyBtxn1Mu6lFTmXi61o5_91gBSvNT26RBho",
-            authDomain: "vue-app-test-14344.firebaseapp.com",
-            databaseURL: "https://vue-app-test-14344-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "vue-app-test-14344",
-            storageBucket: "vue-app-test-14344.appspot.com",
-            messagingSenderId: "686022331262",
-            appId: "1:686022331262:web:d6d6311a79702fb095c12f"
+            apiKey: "AIzaSyBRGYWEvWWUK85aIsl0AZnrPXVJz320QuU",
+            authDomain: "employeesystemproject.firebaseapp.com",
+            databaseURL: "https://employeesystemproject-default-rtdb.firebaseio.com",
+            projectId: "employeesystemproject",
+            storageBucket: "employeesystemproject.appspot.com",
+            messagingSenderId: "608429976922",
+            appId: "1:608429976922:web:3fd6b682331174bce35763"
         };
         this.firebaseApp = initializeApp(firebaseConfig);
     }
