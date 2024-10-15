@@ -95,12 +95,12 @@ export default {
             },
             dataAccess: null,
             lineReportList:[
-                { id:1,longitude: 121.1615, latitude: 23.032453, name: "幹17給取水門",hasWater:true },
-                { id:2,longitude: 121.148736, latitude: 23.008914, name: "13支線取水門",hasWater:true},
+                { id:1,longitude: 121.154474, latitude: 23.037795, name: "幹17給取水門",hasWater:true },
+                { id:2,longitude: 121.139454, latitude: 22.993776, name: "13支線取水門",hasWater:true},
                 { id:3,longitude: 121.135444, latitude: 22.981669, name: "15支線取水門",hasWater:true},
                 { id:4,longitude: 121.137139, latitude: 22.975672, name: "16、17支線取水門",hasWater:true },
                 { id:5,longitude: 121.151208, latitude: 22.950414, name: "17支線末端",hasWater:true }
-            ],
+            ]
         }
     },
     watch: {
@@ -184,7 +184,8 @@ export default {
 
                 "esri/geometry/Point",
                 "esri/Graphic",
-                "esri/PopupTemplate"
+                "esri/PopupTemplate",
+                "esri/geometry/geometryEngine"
             ], (esriConfig, Map, WebMap, TileLayer, MapImageLayer,GraphicsLayer,MapView
                 , SimpleFillSymbol
                 , TextSymbol
@@ -195,7 +196,8 @@ export default {
                 ,Legend,
                 Point,
                 Graphic,
-                PopupTemplate
+                PopupTemplate,
+                geometryEngine
             ) => {
                 this.esri.esriConfig = esriConfig;
                 this.esri.Map = Map;
@@ -213,6 +215,7 @@ export default {
                 this.esri.Point = Point;
                 this.esri.Graphic = Graphic;
                 this.esri.PopupTemplate = PopupTemplate;
+                this.esri.geometryEngine = geometryEngine;
 
 
                 
@@ -268,34 +271,34 @@ export default {
                         {   
                             // 關山圳水利小組
                             id: 6,
-                            visible: true,
-                            renderer: {
-                                type: "unique-value",
-                                legendOptions: {
-                                    title: "分區表"
-                                },
-                                field: "分區",
-                                uniqueValueInfos: [
-                                    {
-                                        value: "上區",
-                                        label: "上區",
-                                        symbol:new this.esri.SimpleFillSymbol({
-                                            type: "simple-fill",
-                                            color: "#FFB5B5"
-                                          }
-                                        )
-                                    },
-                                    {
-                                        value: "下區",
-                                        label: "下區",
-                                        symbol:new this.esri.SimpleFillSymbol({
-                                            type: "simple-fill", 
-                                            color: "#D2E9FF"
-                                          }
-                                        )
-                                    },
-                                ],
-                            },
+                            visible: false,
+                            // renderer: {
+                            //     type: "unique-value",
+                            //     legendOptions: {
+                            //         title: "分區表"
+                            //     },
+                            //     field: "分區",
+                            //     uniqueValueInfos: [
+                            //         {
+                            //             value: "上區",
+                            //             label: "上區",
+                            //             symbol:new this.esri.SimpleFillSymbol({
+                            //                 type: "simple-fill",
+                            //                 color: "#FFB5B5"
+                            //               }
+                            //             )
+                            //         },
+                            //         {
+                            //             value: "下區",
+                            //             label: "下區",
+                            //             symbol:new this.esri.SimpleFillSymbol({
+                            //                 type: "simple-fill", 
+                            //                 color: "#D2E9FF"
+                            //               }
+                            //             )
+                            //         },
+                            //     ],
+                            // },
                             // renderer: {
                             //     type: "unique-value",
                             //     legendOptions: {
@@ -345,124 +348,147 @@ export default {
                             //         },
                             //     ],
                             // },
-                            labelingInfo: [
-                                {
-                                  labelExpression: "[水利小組名稱]",
-                                  labelPlacement: "always-horizontal",
-                                  symbol: {
-                                    type: "text", // autocasts as new TextSymbol()
-                                    color: [255, 255, 255, 0.7],
-                                    haloColor: [0, 0, 0, 0.7],
-                                    haloSize: 1,
-                                    font: {
-                                      size: 10,
-                                      weight: "bold"
-                                    }
-                                  },
-                                }
-                            ],
+                            // labelingInfo: [
+                            //     {
+                            //       labelExpression: "[水利小組名稱]",
+                            //       labelPlacement: "always-horizontal",
+                            //       symbol: {
+                            //         type: "text", // autocasts as new TextSymbol()
+                            //         color: [255, 255, 255, 0.7],
+                            //         haloColor: [0, 0, 0, 0.7],
+                            //         haloSize: 1,
+                            //         font: {
+                            //           size: 10,
+                            //           weight: "bold"
+                            //         }
+                            //       },
+                            //     }
+                            // ],
                             
                         },
                         {   
                             // 關山圳渠道
                             id: 3,
                             visible: true,
-                            renderer: {
-                                type: "simple", // autocasts as new SimpleRenderer()
-                                symbol: {
-                                  type: "simple-line", // autocasts as new SimpleMarkerSymbol()
-                                  color: "black"
-                                }
-                            }
+                            // renderer: {
+                            //     type: "simple", // autocasts as new SimpleRenderer()
+                            //     symbol: {
+                            //       type: "simple-line", // autocasts as new SimpleMarkerSymbol()
+                            //       color: "black"
+                            //     }
+                            // }
+                             renderer: {
+                                type: "unique-value",
+                                field: "系統類別名稱",
+                                uniqueValueInfos: [
+                                    {
+                                        value: "幹線",
+                                        label: "幹線",
+                                        symbol:{
+                                            type: "simple-line",
+                                            color: "red",
+                                            width :2
+                                          }
+                                    },
+                                    {
+                                        value: "支線",
+                                        label: "支線",
+                                        symbol:{
+                                            type: "simple-line",
+                                            color: "red",
+                                            width :1
+                                          }
+                                    },
+                                ],
+                            },
                         },
                         {
                             // 農工中心綱要計畫113年大尺度計畫建置
                             id: 1,
                             visible: true,
-                            renderer: {
-                                type: "unique-value", 
-                                field: "監測項目",
-                                uniqueValueInfos: [
-                                    {
-                                        value: "水位",
-                                        label: "水位",
-                                        symbol: {
-                                            type: "picture-marker",
-                                            url: "https://img.icons8.com/?size=100&id=xo4SMxH9H70c&format=png&color=CC5DE8", 
-                                            width: "20px",
-                                            height: "20px"
-                                        },
-                                    },
-                                    {
-                                        value: "流量",
-                                        label: "流量",
-                                        symbol: {
-                                            type: "picture-marker",
-                                            url: "https://img.icons8.com/?size=100&id=xo4SMxH9H70c&format=png&color=20C997", 
-                                            width: "20px",
-                                            height: "20px"
-                                        },
-                                    },
-                                    {
-                                        value: "監視器",
-                                        label: "監視器",
-                                        symbol: {
-                                            type: "picture-marker",
-                                            url: "https://img.icons8.com/?size=100&id=86814&format=png&color=339AF0", 
-                                            width: "20px",
-                                            height: "20px"
-                                        },
-                                        // symbol: {
-                                        //     type: "simple-marker", 
-                                        //     size: 10,
-                                        //     color: "#D2E9FF",
-                                        //     style: "solid",
-                                        //     outline: {  
-                                        //         color: "blue",
-                                        //         width: 10
-                                        //       }
-                                        //   }
-                                    },
-                                ],
+                            // renderer: {
+                            //     type: "unique-value", 
+                            //     field: "監測項目",
+                            //     uniqueValueInfos: [
+                            //         {
+                            //             value: "水位",
+                            //             label: "水位",
+                            //             symbol: {
+                            //                 type: "picture-marker",
+                            //                 url: "https://static.arcgis.com/images/Symbols/Shapes/BlackStarLargeB.png", 
+                            //                 width: "20px",
+                            //                 height: "20px"
+                            //             },
+                            //         },
+                            //         {
+                            //             value: "流量",
+                            //             label: "流量",
+                            //             symbol: {
+                            //                 type: "picture-marker",
+                            //                 url: "https://static.arcgis.com/images/Symbols/Shapes/BlackStarLargeB.png", 
+                            //                 width: "20px",
+                            //                 height: "20px"
+                            //             },
+                            //         },
+                            //         {
+                            //             value: "監視器",
+                            //             label: "監視器",
+                            //             symbol: {
+                            //                 type: "picture-marker",
+                            //                 url: "https://img.icons8.com/?size=100&id=86814&format=png&color=339AF0", 
+                            //                 width: "20px",
+                            //                 height: "20px"
+                            //             },
+                            //         },
+                            //     ],
                                 
-                            },
-                            labelingInfo: [
-                                {
-                                    labelExpressionInfo: {
-                                        // 使用 Arcade 表达式根据监测项目信息生成不同的标签内容
-                                        expression: `
-                                            var type = $feature["監測項目"];
-                                            var value = $feature["OBJECTID"];
-                                            var labelText = '';
+                            // },
+                            // labelingInfo: [
+                            //     {
+                            //         labelExpressionInfo: {
+                            //             // 使用 Arcade 表达式根据监测项目信息生成不同的标签内容
+                            //             expression: `
+                            //                 var type = $feature["監測項目"];
+                            //                 var value = $feature["OBJECTID"];
+                            //                 var labelText = '';
                                             
-                                            if (type == "水位") {
-                                                if(value==17){
-                                                    labelText = "流量: " + value + " cms"
-                                                }else{
-                                                    labelText = "水位: " + value + " m";
-                                                }
-                                            } else if (type == "監視器") {
-                                                labelText = "";
-                                            }
+                            //                 if (type == "水位") {
+                            //                     if(value==17){
+                            //                         labelText = "流量: " + value + " cms"
+                            //                     }else{
+                            //                         labelText = "水位: " + value + " m";
+                            //                     }
+                            //                 } else if (type == "監視器") {
+                            //                     labelText = "";
+                            //                 }
                         
-                                            return labelText;
-                                        `
-                                    },
-                                    symbol: {
-                                        type: "text",
-                                        color: [0, 0, 0, 0.85],  // 黑色文本
-                                        haloColor: [255, 255, 255, 0.85],  // 白色光晕
-                                        haloSize: 1,
-                                        font: {
-                                            size: 10,
-                                            weight: "bold"
-                                        }
-                                    },
-                                    labelPlacement: "above-center",  // 标签位置
-                                    minScale: 0,
-                                    maxScale: 0
-                                }
-                            ]
+                            //                 return labelText;
+                            //             `
+                            //         },
+                            //         symbol: {
+                            //             type: "text",
+                            //             color: [0, 0, 0, 0.85],  // 黑色文本
+                            //             haloColor: [255, 255, 255, 0.85],  // 白色光晕
+                            //             haloSize: 1,
+                            //             font: {
+                            //                 size: 10,
+                            //                 weight: "bold"
+                            //             }
+                            //         },
+                            //         labelPlacement: "above-center",  // 标签位置
+                            //         minScale: 0,
+                            //         maxScale: 0
+                            //     }
+                            // ],
+                            // 新增 PopupTemplate
+                            // popupTemplate: {
+                            //     title: "{監測項目}",
+                            //     content: `
+                            //     <b>名稱:</b> {監測項目}<br>
+                            //     <b>編號:</b> {OBJECTID}<br>
+                            //     <b>詳細資訊:</b> {其他屬性}
+                            //     `
+                            // }
                         },
                 ]
             });
@@ -470,40 +496,31 @@ export default {
             this.mapProfile.subLayers.riverLayer=mapImagelayer.findSublayerById(3);//渠道 存到mapProfile
             this.mapProfile.subLayers.gateLayer=mapImagelayer.findSublayerById(1);//水閘門 存到mapProfile
             
-            //監測設備名稱(監測站)
-            // (mapImagelayer.findSublayerById(1)).on('click', (event) => {
-            //   console.log(event)  
-            // })
-
-            // let tiledLayer = new this.esri.WebTileLayer({
-            //     urlTemplate: "https://wmts.nlsc.gov.tw/wmts/PHOTO_MIX/default/GoogleMapsCompatible/{z}/{y}/{x}",
-            // });
+            
             
             let tiledLayer1 = new this.esri.WebTileLayer({
                 urlTemplate: "https://wmts.nlsc.gov.tw/wmts/PHOTO_MIX/default/GoogleMapsCompatible/{z}/{y}/{x}",
                 opacity: 0.5
-                // subDomains: ["a", "b", "c"],
-                // copyright: 'Map data from &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> Map design by &copy; <a href="http://opentopomap.org/" target="_blank">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank">CC-BY-SA</a>) contributors'
             });
             
             let lackOfWaterGraphicsLayer = new this.esri.GraphicsLayer({
-                labelingInfo: [{
-                  labelExpressionInfo: {
-                    labelExpression: "[name]",
-                    labelPlacement: "always-horizontal",
-                  },
-                  symbol: {
-                    type: "text",
-                    color: "black",
-                    font: {
-                      size: 12,
-                      weight: "bold"
-                    }
-                  },
-                  labelPlacement: "above-center",
-                  minScale: 0,
-                  maxScale: 0
-                }]
+                // labelingInfo: [{
+                //   labelExpressionInfo: {
+                //     labelExpression: "[name]",
+                //     labelPlacement: "always-horizontal",
+                //   },
+                //   symbol: {
+                //     type: "text",
+                //     color: "black",
+                //     font: {
+                //       size: 12,
+                //       weight: "bold"
+                //     }
+                //   },
+                //   labelPlacement: "above-center",
+                //   minScale: 0,
+                //   maxScale: 0
+                // }]
               }); //缺少水資源
             this.mapProfile.subLayers.lackOfWaterGraphicsLayer = lackOfWaterGraphicsLayer//存到mapProfile
             
@@ -519,8 +536,8 @@ export default {
                     lackOfWaterGraphicsLayer //最上層
                 ]
             });
-            
-
+            this.mapProfile.map = map
+            this.mergePolygons()
             let view = new this.esri.MapView({
                 map: map,
                 // map: webmap,
@@ -589,10 +606,155 @@ export default {
 
                 console.log('view click', event);
             });
-            
-            
+            // 獲取 tooltip 元素
+            const tooltip = document.getElementById("tooltip");
+
+            // 監聽滑鼠的 pointer-move 事件
+            view.on("pointer-move", function (event) {
+            view.hitTest(event).then(function (response) {
+                const results = response.results;
+                if (results.length > 0 && results[0].graphic) {
+                const graphic = results[0].graphic;
+                console.log(graphic.attributes);
+                    if(graphic.attributes && graphic.attributes.type=='gate'){
+                        // 根據滑鼠位置更新 tooltip 位置
+                        tooltip.style.left = event.x + 15 + "px"; // x 軸位置
+                        tooltip.style.top = event.y + 15 + "px";  // y 軸位置
+        
+                        // 更新 tooltip 的內容
+                        tooltip.innerHTML = `
+                            ${graphic.attributes.name}<br>
+                            <b>水情:</b> ${graphic.attributes.description}
+                        `;
+        
+                        // 顯示 tooltip
+                        tooltip.style.display = "block";
+                    }else if(graphic.attributes && graphic.attributes.type=='observatory'){
+                        // 根據滑鼠位置更新 tooltip 位置
+                        tooltip.style.left = event.x + 15 + "px"; // x 軸位置
+                        tooltip.style.top = event.y + 15 + "px";  // y 軸位置
+        
+                        // 更新 tooltip 的內容
+                        tooltip.innerHTML = `
+                            ${graphic.attributes.name}<br>
+                            <b>水位:</b> ${graphic.attributes.waterLevel} m <br>
+                            <b>流量:</b> ${graphic.attributes.flow} cms
+                        `;
+        
+                        // 顯示 tooltip
+                        tooltip.style.display = "block";
+
+                    }else if(graphic.attributes && graphic.attributes.type=='cctv'){
+                        // 根據滑鼠位置更新 tooltip 位置
+                        tooltip.style.left = event.x + 15 + "px"; // x 軸位置
+                        tooltip.style.top = event.y + 15 + "px";  // y 軸位置
+        
+                        // 更新 tooltip 的內容
+                        tooltip.innerHTML = `
+                            ${graphic.attributes.name}
+                        `;
+        
+                        // 顯示 tooltip
+                        tooltip.style.display = "block";
+
+                    }
+                } else {
+                // 沒有圖徵時隱藏 tooltip
+                tooltip.style.display = "none";
+                }
+            });
+            });
+
+            // view.on("pointer-move", function (event) {
+            //     // 使用 hitTest 檢查滑鼠指向的圖徵
+            //     view.hitTest(event).then(function (response) {
+            //       const results = response.results;
+            //       if (results.length > 0 && results[0].graphic) {
+            //         const graphic = results[0].graphic;
+              
+            //         // 檢查圖徵是否有 popupTemplate
+            //         if (graphic.popupTemplate) {
+            //           view.popup.open({
+            //             location: event.mapPoint,  // popup 出現的位置
+            //             features: [graphic],       // 顯示的圖徵
+            //             updateLocationEnabled: true  // 當滑鼠移動時自動更新 popup 位置
+            //           });
+            //         }
+            //       } else {
+            //         view.popup.close();  // 如果沒有圖徵則關閉 popup
+            //       }
+            //     });
+            //   });
 
         },
+        mergePolygons:async function () {
+            const _map= toRaw(this.mapProfile.map)
+            const subLayer = toRaw(this.mapProfile.subLayers.groupLayer)
+
+            // 查詢並合併「上區」的幾何
+            const upperZoneQuery = subLayer.createQuery();
+            upperZoneQuery.where = "分區 = '上區'"; 
+            upperZoneQuery.returnGeometry = true;
+
+            const upperZoneResult = await subLayer.queryFeatures(upperZoneQuery);
+            let upperZoneGeometry;
+            if (upperZoneResult.features.length > 0) {
+            const upperGeometries = upperZoneResult.features.map((feature) => feature.geometry);
+            upperZoneGeometry = this.esri.geometryEngine.union(upperGeometries);
+            }
+
+            // 查詢並合併「下區」的幾何
+            const lowerZoneQuery = subLayer.createQuery();
+            lowerZoneQuery.where = "分區 = '下區'";
+            lowerZoneQuery.returnGeometry = true;
+
+            const lowerZoneResult = await subLayer.queryFeatures(lowerZoneQuery);
+            let lowerZoneGeometry;
+            if (lowerZoneResult.features.length > 0) {
+                const lowerGeometries = lowerZoneResult.features.map((feature) => feature.geometry);
+                lowerZoneGeometry = this.esri.geometryEngine.union(lowerGeometries);
+            }
+             // 繪製合併後的「上區」
+            if (upperZoneGeometry) {
+                const upperFillSymbol = new this.esri.SimpleFillSymbol({
+                color: [255, 255, 255, 0.1], // 上區顏色
+                outline: {
+                    color: [0, 128, 0],
+                    width: 2
+                }
+                });
+
+                const upperGraphic = new this.esri.Graphic({
+                geometry: upperZoneGeometry,
+                symbol: upperFillSymbol
+                });
+                
+                const graphicsLayer = new this.esri.GraphicsLayer();
+                graphicsLayer.add(upperGraphic);
+                _map.add(graphicsLayer,1);
+            }
+
+            // 繪製合併後的「下區」
+            if (lowerZoneGeometry) {
+                const lowerFillSymbol = new this.esri.SimpleFillSymbol({
+                color: [255, 255, 255, 0.1], // 下區顏色
+                outline: {
+                    color: [0, 0, 255],
+                    width: 2
+                }
+                });
+
+                const lowerGraphic = new this.esri.Graphic({
+                geometry: lowerZoneGeometry,
+                symbol: lowerFillSymbol
+                });
+
+                const graphicsLayer = new this.esri.GraphicsLayer();
+                graphicsLayer.add(lowerGraphic);
+                _map.add(graphicsLayer,1);
+            }
+        },
+        //閘門
         lackOfWaterGraphicsLayerHandle: function () {
             let _lackOfWaterGraphicsLayer = toRaw(this.mapProfile.subLayers.lackOfWaterGraphicsLayer);
             console.log('_lackOfWaterGraphicsLayer:', _lackOfWaterGraphicsLayer);
@@ -606,16 +768,17 @@ export default {
                     type: "simple-marker", 
                     style: "circle",
                     color: "white",
-                    size: "8px", 
+                    size: "12px", 
                     outline: {  
-                    color:"red",
+                    color:"black",
                     width: 2
                     }
                 }
                 let attributes= {
                     name: item.name,
                     description: `${!item.hasWater?'缺水':'有水'}`,
-                    id: item.id // 添加 id 屬性
+                    id: item.id, // 添加 id 屬性
+                    type: 'gate' // 添加 閘門屬性
                 }
                 let popupTemplate = new this.esri.PopupTemplate({
                     title: "{name}", // 使用屬性名稱作為標題
@@ -653,7 +816,7 @@ export default {
                     geometry: point,
                     symbol: markerSymbol,
                     attributes: attributes,
-                    popupTemplate: popupTemplate
+                    // popupTemplate: popupTemplate
                 });
 
                 
@@ -661,68 +824,206 @@ export default {
 
                 item.markerGraphic  = graphic;
             });
+            //假裝api
+            let mockData=[
+                {
+                    "groupName": "關山圳幹線_1支線取水後水位",
+                    "flow": 10,
+                    "waterLevel":0
+                },
+                {
+                    "groupName": "關山圳幹9給_起點水位",
+                    "flow": 20,
+                    "waterLevel":0
+                },
+                {
+                    "groupName": "關山圳幹線_3支線取水後水位",
+                    "flow": 15,
+                    "waterLevel":0
+                },
+                {
+                    "groupName": "關山圳幹9給_小尺度取水後水位",
+                    "flow": 10,
+                    "waterLevel":0
+                },
+                {
+                    "groupName": "關山圳1支線取水水位",
+                    "flow": 20,
+                    "waterLevel":0
+                },
+                {
+                    "groupName": "關山圳2支線取水水位",
+                    "flow": 15,
+                    "waterLevel":0
+                },
+                {
+                    "groupName": "關山圳3支線取水水位",
+                    "flow": 30,
+                    "waterLevel":0
+                },
+                {
+                    "groupName": "關山圳幹線_2支線取水後水位",
+                    "flow": 20,
+                    "waterLevel":0
+                },
+                {
+                    "groupName": "關山圳幹9給_小尺度取水前水位",
+                    "flow": 15,
+                    "waterLevel":0
+                },
+                {
+                    "groupName": "關山圳幹線_起點水位",
+                    "flow": 25,
+                    "waterLevel":0
+                },
+                {
+                    "groupName": "關山圳導水路進排水門",
+                    "flow": '',
+                    "waterLevel":0
+                },
+                {
+                    "groupName": "關山圳沉砂池進排水門",
+                    "flow": '',
+                    "waterLevel":0
+                },
+                {
+                    "groupName": "池上圳水位計1水位",
+                    "flow": 10,
+                    "waterLevel":0
+                },
+                {
+                    "groupName": "池上圳水位計1流量(計算)",
+                    "flow": 12,
+                    "waterLevel":0
+                }
+            ]
+            let _gateLayer = toRaw(this.mapProfile.subLayers.gateLayer);
+            let query=_gateLayer.createQuery();
+            query.returnGeometry = true;
+            query.outFields = ["*"];
+            _gateLayer.queryFeatures(query).then((result)=>{
+                if (result.features.length > 0) { 
+                    result.features.forEach((i)=>{
+                        
+                            console.log(i.attributes["監測設備名稱_監測站_"])
+                            console.log(i.attributes["監測項目"])
+                            let geometry = i.geometry;
+                            let attributes= {
+                                type: 'observatory', // 添加 閘門屬性
+                                name: i.attributes["監測設備名稱_監測站_"],
+                                waterLevel:null,
+                                flow:null
+                            }
+                            let markerSymbol={
+                                type: "simple-marker", 
+                                style: "circle",
+                                color: "black",
+                                size: "12px", 
+                                outline: {  
+                                color:"yellow",
+                                width: 2
+                                }
+                            }
+                            let match = mockData.find(j => i.attributes["監測設備名稱_監測站_"] === j.groupName);
+                            if (match) {
+                                attributes.waterLevel = match.waterLevel;
+                                attributes.flow = match.flow;
+                            }
+                            if (i.attributes["監測項目"] == "監視器") {
+                                attributes.type="cctv"
+
+                                markerSymbol={
+                                    type: "picture-marker",
+                                    url: "https://img.icons8.com/?size=100&id=86814&format=png&color=339AF0", 
+                                    width: "20px",
+                                    height: "20px"
+                                }
+                            }
+                            let graphic = new this.esri.Graphic({
+                                geometry: geometry,
+                                symbol: markerSymbol,
+                                attributes: attributes,
+                            });
             
-            
-            
+                            
+                            _lackOfWaterGraphicsLayer.add(graphic);
+                            
+                })
+                }
+            })
             
         },
         labelHandle: function () {
             let mockData=[
                 {
                     "groupName": "關山圳幹線_1支線取水後水位",
-                    "value": 10
+                    "flow": 10,
+                    "waterLevel":0
                 },
                 {
                     "groupName": "關山圳幹9給_起點水位",
-                    "value": 20
+                    "flow": 20,
+                    "waterLevel":0
                 },
                 {
                     "groupName": "關山圳幹線_3支線取水後水位",
-                    "value": 15
+                    "flow": 15,
+                    "waterLevel":0
                 },
                 {
                     "groupName": "關山圳幹9給_小尺度取水後水位",
-                    "value": 10
+                    "flow": 10,
+                    "waterLevel":0
                 },
                 {
                     "groupName": "關山圳1支線取水水位",
-                    "value": 20
+                    "flow": 20,
+                    "waterLevel":0
                 },
                 {
                     "groupName": "關山圳2支線取水水位",
-                    "value": 15
+                    "flow": 15,
+                    "waterLevel":0
                 },
                 {
                     "groupName": "關山圳3支線取水水位",
-                    "value": 30
+                    "flow": 30,
+                    "waterLevel":0
                 },
                 {
                     "groupName": "關山圳幹線_2支線取水後水位",
-                    "value": 20
+                    "flow": 20,
+                    "waterLevel":0
                 },
                 {
                     "groupName": "關山圳幹9給_小尺度取水前水位",
-                    "value": 15
+                    "flow": 15,
+                    "waterLevel":0
                 },
                 {
                     "groupName": "關山圳幹線_起點水位",
-                    "value": 25
+                    "flow": 25,
+                    "waterLevel":0
                 },
                 {
                     "groupName": "關山圳導水路進排水門",
-                    "value": ''
+                    "flow": '',
+                    "waterLevel":0
                 },
                 {
                     "groupName": "關山圳沉砂池進排水門",
-                    "value": ''
+                    "flow": '',
+                    "waterLevel":0
                 },
                 {
                     "groupName": "池上圳水位計1水位",
-                    "value": 10
+                    "flow": 10,
+                    "waterLevel":0
                 },
                 {
                     "groupName": "池上圳水位計1流量(計算)",
-                    "value": 12
+                    "flow": 12,
+                    "waterLevel":0
                 }
             ]
             let subLayer = toRaw(this.mapProfile.subLayers.gateLayer);
@@ -798,6 +1099,7 @@ export default {
     
 
         <div id="map">
+            <div id="tooltip" style="display: none; position: absolute; background: rgba(0, 0, 0, 0.75); color: white; padding: 5px; border-radius: 5px; pointer-events: none;"></div>
         </div>
 
     `
