@@ -606,20 +606,43 @@ export default {
                 {value:'1',label:'一期作'},
                 {value:'2',label:'二期作'},
             ],
-            selectedPeriod:'1',
             myModal:null,
             gateName:'無無無',
             isShowTimeline:false,
+            cctvTimer:null,//cctv的timer
+            cctvUrl:'',
+            currentTime:0,//當前時間
         }
     },
     mounted() {
+        let vm=this
         this.myModal= new bootstrap.Modal(document.getElementById('exampleModal'))
+
+        let myModalEl = document.getElementById('exampleModal')
+        myModalEl.addEventListener('hidden.bs.modal', function (event) {
+          // 停止計時器
+          if (vm.cctvTimer) {
+            console.log("關閉計時器")
+            clearInterval(vm.cctvTimer);
+            vm.cctvTimer = null;
+          }
+        })
     },
     methods: { 
         handleShowCCTV(cctvTitle){
-            console.log("cct",cctvTitle)
             this.gateName = cctvTitle
+            if(cctvTitle=='關山圳沉砂池進排水門'){
+                this.cctvUrl = 'https://irriot.tw/VideoFile/snapshot/%E9%97%9C%E5%B1%B1%E5%9C%B3%E6%B2%89%E7%A0%82%E6%B1%A0%E6%8E%92%E6%B0%B4%E9%96%80.jpg?_t='
+            }else if(cctvTitle=='關山圳導水路進排水門'){
+                this.cctvUrl = 'https://irriot.tw/VideoFile/snapshot/%E9%97%9C%E5%B1%B1%E5%9C%B3%E5%B0%8E%E6%B0%B4%E8%B7%AF%E6%8E%92%E6%B0%B4%E9%96%80.jpg?_t='
+            }
+            // 設置計時器
+            this.cctvTimer = setInterval(() => {
+              this.currentTime = Date.now() / 1000;
+            }, 3000); // 每秒更新一次
             this.myModal.show();
+
+
         },
         loadData: function () {
             //載入config資料
@@ -702,7 +725,7 @@ export default {
     template: `
 <div class="container-fluid">
         <div class="row" style="justify-content: center;">
-             <!--手機版顯示-->
+            <!--手機版顯示-->
             <div class="col-12 d-md-none">
                 <div class="col-md-12 mb-3">
                     <button type="button" class="btn btn-outline-success " :class="{'active':isShowTimeline}" @click="isShowTimeline=!isShowTimeline" data-bs-toggle="tooltip" data-bs-placement="right" title="查看供灌期程">
@@ -782,7 +805,7 @@ export default {
                     <div class="col-12 col-xl-6 order-4 order-xl-3 d-flex align-items-center gap-1">
                         <img  class="info-icon" src="https://img.icons8.com/?size=100&id=JnBpOWFipVvz&format=png&color=FA5252" alt="red-light-icon" /><span>:缺水</span>
                     </div>
-                    <div class="col-12 col-xl-6 order-3 order-xl-4 d-flex align-items-center gap-1">
+                    <div class="col-12 col-xl-6 order-3 order-xl-4 d-flex align-items-center gap-1" v-if="false">
                         <img  class="info-icon" src="/projects/WaterStorageIrrigGuanShanCanal/assets/thermometer.png" /><span>:流量/水位站</span>
                     </div>
                     <div class="col-12 col-xl-6 order-5 order-xl-5 d-flex align-items-center gap-1">
@@ -795,11 +818,7 @@ export default {
             </div>
             <div class="col-12 col-md-9 order-2 order-md-2">
                 <div class="row">
-                    <!--TODO:選擇期作-->
-                    <div class="col-md-12 mb-3 d-none d-md-block" v-if="false">
-                        <span>期作別 : </span> <Select v-model="selectedPeriod" :options="periods" optionLabel="label"
-                            optionValue="value" placeholder="請選擇期作" />
-                    </div>
+
 
 
 
@@ -908,7 +927,7 @@ export default {
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
-                            <div
+                            <div 
                                 style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; width: 100%; max-width: 700px; margin: 20px auto;">
                                 <iframe style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
                                     src="https://www.youtube.com/embed/13C8jdbqQcI?si=ZM83EMPlSw5pAZlo&autoplay=1"
@@ -916,6 +935,9 @@ export default {
                                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                                     referrerpolicy="strict-origin-when-cross-origin" allowfullscreen>
                                 </iframe>
+                            </div>
+                            <div class="cctv_wrap" v-if="false">
+                              <img class="img-fluid" :src="cctvUrl+currentTime" :alt="gateName">
                             </div>
                         </div>
                     </div>

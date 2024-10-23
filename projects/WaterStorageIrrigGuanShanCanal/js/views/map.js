@@ -575,9 +575,9 @@ export default {
                     y: event.y
                 };
                 
-                console.log('screenPoint', screenPoint);
+                // console.log('screenPoint', screenPoint);
                 const sublayer = mapImagelayer.findSublayerById(1)
-                console.log('sublayer', sublayer);
+                // console.log('sublayer', sublayer);
                 
                   // 創建查詢
                 const query = sublayer.createQuery();
@@ -590,7 +590,7 @@ export default {
                 // 執行查詢
 
                 sublayer.queryFeatures(query).then(function(result) {
-                    console.log('result.features[0].attributes', result.features[0].attributes["監測項目"]);
+                    // console.log('result.features[0].attributes', result.features[0].attributes["監測項目"]);
                     if (result.features.length > 0) {
                         //只有監視器才會觸發
                         if(result.features[0].attributes["監測項目"]==="監視器"){
@@ -604,7 +604,7 @@ export default {
                     console.error("查詢失敗:", error);
                 });
 
-                console.log('view click', event);
+                // console.log('view click', event);
             });
             // 獲取 tooltip 元素
             const tooltip = document.getElementById("tooltip");
@@ -615,7 +615,7 @@ export default {
                 const results = response.results;
                 if (results.length > 0 && results[0].graphic) {
                 const graphic = results[0].graphic;
-                console.log(graphic.attributes);
+                // console.log(graphic.attributes);
                     if(graphic.attributes && graphic.attributes.type=='gate'){
                         // 根據滑鼠位置更新 tooltip 位置
                         tooltip.style.left = event.x + 15 + "px"; // x 軸位置
@@ -757,7 +757,7 @@ export default {
         //閘門
         lackOfWaterGraphicsLayerHandle: function () {
             let _lackOfWaterGraphicsLayer = toRaw(this.mapProfile.subLayers.lackOfWaterGraphicsLayer);
-            console.log('_lackOfWaterGraphicsLayer:', _lackOfWaterGraphicsLayer);
+            // console.log('_lackOfWaterGraphicsLayer:', _lackOfWaterGraphicsLayer);
             this.lineReportList.forEach(item => {
                 let point={
                     type: "point",
@@ -905,8 +905,8 @@ export default {
                 if (result.features.length > 0) { 
                     result.features.forEach((i)=>{
                         
-                            console.log(i.attributes["監測設備名稱_監測站_"])
-                            console.log(i.attributes["監測項目"])
+                            // console.log(i.attributes["監測設備名稱_監測站_"])
+                            // console.log(i.attributes["監測項目"])
                             let geometry = i.geometry;
                             let attributes= {
                                 type: 'observatory', // 添加 閘門屬性
@@ -1059,7 +1059,7 @@ export default {
                 } else {
                     labelText = '';
                 }
-                console.log("txt:",labelText)
+                // console.log("txt:",labelText)
                 return {
                     labelExpressionInfo: {
                         expression: `"${labelText}"`
@@ -1080,7 +1080,7 @@ export default {
                 };
             });
 
-            console.log('labelingInfo:',labelingInfo)
+            // console.log('labelingInfo:',labelingInfo)
             subLayer.labelingInfo = labelingInfo;
             } else {
                 console.log("No polygons found matching the query criteria.");

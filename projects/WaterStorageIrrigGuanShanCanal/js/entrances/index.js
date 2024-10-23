@@ -58,6 +58,8 @@ app.use(
     }
     //{ unstyled: true }
 );
+console.log("PrimeVue:", PrimeVue);
+console.log("Timeline:", PrimeVue.Timeline);
 // app.component('Accordion', PrimeVue.Accordion);
 // app.component('AccordionPanel', PrimeVue.AccordionPanel);
 // app.component('AccordionHeader', PrimeVue.AccordionHeader);
