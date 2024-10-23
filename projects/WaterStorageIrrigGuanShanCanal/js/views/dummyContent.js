@@ -11,7 +11,7 @@ export default {
     inject: ['currentComponent'],
     data() {
         return {
-            xAxisData:['10/3','10/4','10/5','10/6','10/7','10/8','10/9'], 
+            xAxisData:['10/17','10/18','10/19','10/20','10/21','10/22','10/23'], 
             option1 :{
                 title: {
                   text: '向陽站降雨組體圖'
@@ -23,7 +23,7 @@ export default {
                     show:false
                 },
                 xAxis: {
-                    data: ['10/3','10/4','10/5','10/6','10/7','10/8','10/9'],
+                    data: ['10/17','10/18','10/19','10/20','10/21','10/22','10/23'],
                     name:'日期',
                     nameLocation:'center',
                     nameTextStyle:{
@@ -93,7 +93,7 @@ export default {
                     ]
                 },
                 xAxis: {
-                    data: ['10/3','10/4','10/5','10/6','10/7','10/8','10/9'],
+                    data: ['10/17','10/18','10/19','10/20','10/21','10/22','10/23'],
                     name:'日期',
                     nameLocation:'center',
                     nameTextStyle:{
@@ -592,15 +592,25 @@ export default {
             //       }
             //     ]
             // },
-            events2:[ 
+            currentWeek:[ 
                 { plan: '輪灌區', date: '日期', icon: 'pi pi-info-circle', color: '#607D8B'},
-                { plan: '上區', date: '8/26', icon: 'pi pi-check', color: '#00F700'},
-                { plan: '上區', date: '8/27', icon: 'pi pi-check', color: '#00F700' },
-                { plan: '上區', date: '8/28', icon: 'pi pi-check', color: '#607D8B' },
-                { plan: '上區', date: '8/29', icon: 'pi pi-check', color: '#607D8B' },
-                { plan: '下區', date: '8/30', icon: 'pi pi-check', color: '#607D8B' },
-                { plan: '下區', date: '8/31', icon: 'pi pi-check', color: '#607D8B' },
-                { plan: '下區', date: '9/1', icon: 'pi pi-check', color: '#607D8B' }
+                { plan: '上區', date: '10/21', icon: 'pi pi-check', color: '#00F700'},
+                { plan: '上區', date: '10/22', icon: 'pi pi-check', color: '#00F700' },
+                { plan: '上區', date: '10/23', icon: 'pi pi-check', color: '#00F700' },
+                { plan: '上區', date: '10/24', icon: 'pi pi-check', color: '#607D8B' },
+                { plan: '下區', date: '10/25', icon: 'pi pi-check', color: '#607D8B' },
+                { plan: '下區', date: '10/26', icon: 'pi pi-check', color: '#607D8B' },
+                { plan: '下區', date: '10/27', icon: 'pi pi-check', color: '#607D8B' }
+            ],
+            nextWeek:[ 
+              { plan: '輪灌區', date: '日期', icon: 'pi pi-info-circle', color: '#607D8B'},
+              { plan: '上區', date: '10/28', icon: 'pi pi-check', color: '#607D8B'},
+              { plan: '上區', date: '10/29', icon: 'pi pi-check', color: '#607D8B' },
+              { plan: '上區', date: '10/30', icon: 'pi pi-check', color: '#607D8B' },
+              { plan: '上區', date: '10/31', icon: 'pi pi-check', color: '#607D8B' },
+              { plan: '下區', date: '11/1', icon: 'pi pi-check', color: '#607D8B' },
+              { plan: '下區', date: '11/2', icon: 'pi pi-check', color: '#607D8B' },
+              { plan: '下區', date: '11/3', icon: 'pi pi-check', color: '#607D8B' }
             ],
             periods:[
                 {value:'1',label:'一期作'},
@@ -619,12 +629,12 @@ export default {
         this.myModal= new bootstrap.Modal(document.getElementById('exampleModal'))
 
         let myModalEl = document.getElementById('exampleModal')
-        myModalEl.addEventListener('hidden.bs.modal', function (event) {
+        myModalEl.addEventListener('hidden.bs.modal',  (event)=>{
           // 停止計時器
-          if (vm.cctvTimer) {
+          if (this.cctvTimer) {
             console.log("關閉計時器")
-            clearInterval(vm.cctvTimer);
-            vm.cctvTimer = null;
+            clearInterval(this.cctvTimer);
+            this.cctvTimer = null;
           }
         })
     },
@@ -748,7 +758,7 @@ export default {
                     
                     <div class="col-md-12 mb-3">
                         <div class="timeline_wrap">
-                            <Timeline :value="events2" layout="horizontal" align="top">
+                            <Timeline :value="currentWeek" layout="horizontal" align="top">
                                 <template #marker="slotProps">
                                     <div class="timeline_icon"
                                         :style="{ backgroundColor: slotProps.item.color,color: '#ffffff' }">
@@ -770,7 +780,7 @@ export default {
                     </div>
                     <div class="col-md-12 mb-3">
                         <div class="timeline_wrap">
-                            <Timeline :value="events2" layout="horizontal" align="top">
+                            <Timeline :value="nextWeek" layout="horizontal" align="top">
                                 <template #marker="slotProps">
                                     <div class="timeline_icon"
                                         :style="{ backgroundColor: slotProps.item.color,color: '#ffffff' }">
@@ -855,7 +865,7 @@ export default {
                        
                             <div v-show="isShowTimeline">
                                 <div class="timeline_wrap">
-                                    <Timeline :value="events2" layout="horizontal" align="top">
+                                    <Timeline :value="currentWeek" layout="horizontal" align="top">
                                         <template #marker="slotProps">
                                             <div class="timeline_icon"
                                                 :style="{ backgroundColor: slotProps.item.color,color: '#ffffff' }">
@@ -875,7 +885,7 @@ export default {
                                     </Timeline>
                                 </div>
                                 <div class="timeline_wrap">
-                                    <Timeline :value="events2" layout="horizontal" align="top">
+                                    <Timeline :value="nextWeek" layout="horizontal" align="top">
                                         <template #marker="slotProps">
                                             <div class="timeline_icon"
                                                 :style="{ backgroundColor: slotProps.item.color,color: '#ffffff' }">

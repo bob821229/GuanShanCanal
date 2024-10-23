@@ -828,73 +828,73 @@ export default {
             let mockData=[
                 {
                     "groupName": "關山圳幹線_1支線取水後水位",
-                    "flow": 10,
-                    "waterLevel":0
+                    "flow":" - ",
+                    "waterLevel":" - "
                 },
                 {
                     "groupName": "關山圳幹9給_起點水位",
-                    "flow": 20,
-                    "waterLevel":0
+                    "flow":" - ",
+                    "waterLevel":" - "
                 },
                 {
                     "groupName": "關山圳幹線_3支線取水後水位",
-                    "flow": 15,
-                    "waterLevel":0
+                    "flow":" - ",
+                    "waterLevel":" - "
                 },
                 {
                     "groupName": "關山圳幹9給_小尺度取水後水位",
-                    "flow": 10,
-                    "waterLevel":0
+                    "flow":" - ",
+                    "waterLevel":" - "
                 },
                 {
                     "groupName": "關山圳1支線取水水位",
-                    "flow": 20,
-                    "waterLevel":0
+                    "flow":" - ",
+                    "waterLevel":" - "
                 },
                 {
                     "groupName": "關山圳2支線取水水位",
-                    "flow": 15,
-                    "waterLevel":0
+                    "flow":" - ",
+                    "waterLevel":" - "
                 },
                 {
                     "groupName": "關山圳3支線取水水位",
-                    "flow": 30,
-                    "waterLevel":0
+                    "flow":" - ",
+                    "waterLevel":" - "
                 },
                 {
                     "groupName": "關山圳幹線_2支線取水後水位",
-                    "flow": 20,
-                    "waterLevel":0
+                    "flow":" - ",
+                    "waterLevel":" - "
                 },
                 {
                     "groupName": "關山圳幹9給_小尺度取水前水位",
-                    "flow": 15,
-                    "waterLevel":0
+                    "flow":" - ",
+                    "waterLevel":" - "
                 },
                 {
                     "groupName": "關山圳幹線_起點水位",
-                    "flow": 25,
-                    "waterLevel":0
+                    "flow":" - ",
+                    "waterLevel":" - "
                 },
                 {
                     "groupName": "關山圳導水路進排水門",
-                    "flow": '',
-                    "waterLevel":0
+                    "flow":" - ",
+                    "waterLevel":" - "
                 },
                 {
                     "groupName": "關山圳沉砂池進排水門",
-                    "flow": '',
-                    "waterLevel":0
+                    "flow":" - ",
+                    "waterLevel":" - "
                 },
                 {
                     "groupName": "池上圳水位計1水位",
-                    "flow": 10,
-                    "waterLevel":0
+                    "flow":" - ",
+                    "waterLevel":" - "
                 },
                 {
                     "groupName": "池上圳水位計1流量(計算)",
-                    "flow": 12,
-                    "waterLevel":0
+                    "flow":" - ",
+                    "waterLevel":" - "
                 }
             ]
             let _gateLayer = toRaw(this.mapProfile.subLayers.gateLayer);
